@@ -25,7 +25,7 @@ We consider two architectural approaches:
 
 ## Reccomendation
 
-**Recommended approach is 2: an interactive agentic simulation as the central element, paired with time-series database (e. g. TimescaleDB) for storing snapshots and logs.**
+**Recommended approach is a hybrid approach: an interactive agentic simulation as the central element, paired with time-series database (e. g. TimescaleDB) for storing snapshots and logs.**
 
 - **Interactive Simulation:** Enables real-time control and dynamic event injection, which aligns with our long-term goals for an interactive digital twin of the microgrid.
 - **Historical data is still available:** Historical data is stored by a time-series database, allowing for revisiting historical data without interacting with the agent (simply by appropriate measures being provided within classical backend).
@@ -36,7 +36,7 @@ We consider two architectural approaches:
 ## Rationale
 
 - **Real-Time Interactivity:**  
-  Approach 2 allows for on-the-fly manipulation of simulation parameters. This real-time control is critical for design validation, rapid prototyping, and fine-tuning the microgrid under various conditions.
+  Hybrid approach allows for on-the-fly manipulation of simulation parameters. This real-time control is critical for design validation, rapid prototyping, and fine-tuning the microgrid under various conditions.
 
 - **Scalability & Flexibility in Data Storage:**  
   TimescaleDB’s robust time-series features—such as automatic partitioning (hypertables), efficient compression, and native SQL queries—provide a strong foundation for storing and querying the high-resolution snapshots and logs generated during simulation. Its relational backbone also facilitates integration with other business data if needed.
