@@ -1,7 +1,7 @@
 # Selection of Simulation Framework for Microgrid Agent-Based Modeling
 
 **Date**: *2025-17-01*  
-**Status**: Suggested
+**Status**: Approved
 
 ## Context
 We require an agent-based simulation environment to model and test a microgrid system at a university campus scale. The simulation will involve multiple autonomous agents (representing solar panels, wind turbines, storage units, and building loads) negotiating power flows and control signals in near real-time. Key considerations include:
