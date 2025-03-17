@@ -1,0 +1,23 @@
+{
+  "simulation": {
+    "tickIntervalMillis": 1000,
+    "speedUpFactor": 3600,
+    "agents": [
+      {
+        "type": "energySource",
+        "name": "SolarPanel1",
+        "productionRate": 60.0
+      },
+      {
+        "type": "energyStorage",
+        "name": "Battery1",
+        "capacity": 200.0
+      },
+      {
+        "type": "load",
+        "name": "Building1",
+        "consumptionRate": 30.0
+      }
+    ]
+  }
+}

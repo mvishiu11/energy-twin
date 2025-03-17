@@ -5,25 +5,39 @@ import org.springframework.context.ApplicationContext;
 import com.energytwin.microgrid.service.LogAggregatorService;
 import com.energytwin.microgrid.agentfusion.util.SpringContext;
 
+/**
+ * Base JADE agent class that integrates with Spring.
+ * It provides a method to initialize Spring dependencies.
+ */
 public abstract class SpringAgent extends Agent {
 
     protected LogAggregatorService logService;
 
+    protected void setup() {
+        initSpring();
+    }
+
     /**
-     * Call this method at the beginning of the agent's setup method.
+     * Retrieves Spring dependencies by obtaining the application context
+     * and autowiring this agent.
      */
     protected void initSpring() {
         ApplicationContext ctx = SpringContext.getApplicationContext();
         if (ctx != null) {
-            // Explicitly retrieve the bean from the context
             logService = ctx.getBean(LogAggregatorService.class);
         } else {
             System.err.println("Spring ApplicationContext is not initialized!");
         }
     }
 
-    protected void log(String message) {
-        // Now logService should not be null if initSpring() succeeded.
+    /**
+     * Logs a message using the Spring-managed LogAggregatorService.
+     * @param message the message to log
+     */
+    public void log(String message) {
         logService.log(getLocalName() + " - " + message);
+        System.out.println(getLocalName() + " - " + message);
     }
+
+    public abstract void onTick(long simulationTime);
 }
