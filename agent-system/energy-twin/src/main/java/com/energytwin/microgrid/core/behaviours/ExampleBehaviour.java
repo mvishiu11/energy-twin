@@ -1,10 +1,7 @@
-package com.energytwin.behaviours;
+package com.energytwin.microgrid.core.behaviours;
 
 import jade.core.Agent;
 import jade.core.behaviours.OneShotBehaviour;
-import jade.lang.acl.ACLMessage;
-
-import java.util.Map;
 
 public class ExampleBehaviour extends OneShotBehaviour {
     private final Agent agent;

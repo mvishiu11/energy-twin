@@ -1,10 +1,7 @@
-package com.energytwin.agents;
+package com.energytwin.microgrid.core.agents;
 
-import com.energytwin.behaviours.ExampleBehaviour;
+import com.energytwin.microgrid.core.behaviours.ExampleBehaviour;
 import jade.core.Agent;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ExampleAgent extends Agent {
     @Override
