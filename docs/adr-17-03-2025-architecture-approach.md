@@ -1,6 +1,6 @@
 # ADR: Central Architectural Approach for Green Energy Microgrid Simulation
 
-**Date:** 2025-03-17  
+**Date:** *2025-17-03*
 **Status:** Approved
 
 ---
