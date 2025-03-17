@@ -30,3 +30,7 @@ bin/
 
 ### Examples ###
 /examples/*
+
+### workspace ###
+*/.idea
+.idea/
