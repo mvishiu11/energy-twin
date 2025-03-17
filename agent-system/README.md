@@ -1,9 +1,1 @@
-# Twin Energy System
-
-Basic code for a simulation of a twin energy system. During development, Java 23 was used.
-
-To start:
-
-```bash
-java energyTwin.main.MainContainer
-```
+All agent code is defined in [energy-twin](/agent-system/energy-twin/).
