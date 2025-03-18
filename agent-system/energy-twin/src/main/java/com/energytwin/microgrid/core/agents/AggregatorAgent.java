@@ -16,8 +16,7 @@ public class AggregatorAgent extends SpringAgent {
     private double totalConsumption = 0.0;
 
     @Override
-    protected void setup() {
-        initSpring();
+    protected void onAgentSetup() {
         log("Aggregator Agent started.");
 
         // Register this agent in a topic "AggregationTopic" using TopicManagementHelper if desired.

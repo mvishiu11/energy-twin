@@ -15,7 +15,7 @@ import java.util.Map;
 public class EnergySourceAgent extends AbstractEnergySourceAgent {
 
     @Override
-    protected void setup() {
+    protected void onAgentSetup() {
         initSpring();
         // Retrieve SimulationConfigService from Spring context.
         SimulationConfigService configService = SpringContext.getApplicationContext().getBean(SimulationConfigService.class);

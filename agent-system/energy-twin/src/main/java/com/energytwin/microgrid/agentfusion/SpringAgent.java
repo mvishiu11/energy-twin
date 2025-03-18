@@ -13,8 +13,11 @@ public abstract class SpringAgent extends Agent {
 
     protected LogAggregatorService logService;
 
-    protected void setup() {
+    @Override
+    protected final void setup() {
         initSpring();
+        // Delegate to child-specific setup.
+        onAgentSetup();
     }
 
     /**
@@ -38,6 +41,11 @@ public abstract class SpringAgent extends Agent {
         logService.log(getLocalName() + " - " + message);
         System.out.println(getLocalName() + " - " + message);
     }
+
+    /**
+     * Hook method for child classes to perform custom setup actions.
+     */
+    protected abstract void onAgentSetup();
 
     public abstract void onTick(long simulationTime);
 }

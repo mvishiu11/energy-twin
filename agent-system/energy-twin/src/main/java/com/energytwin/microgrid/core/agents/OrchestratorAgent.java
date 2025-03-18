@@ -21,7 +21,7 @@ public class OrchestratorAgent extends SpringAgent {
     private long simulationTime = 0;
 
     @Override
-    protected void setup() {
+    protected void onAgentSetup() {
         initSpring();
         // Retrieve SimulationControlService from Spring context
         ApplicationContext ctx = SpringContext.getApplicationContext();

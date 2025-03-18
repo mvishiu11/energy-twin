@@ -14,7 +14,7 @@ public class LoadAgent extends AbstractSimAgent {
     private double consumptionRate;
 
     @Override
-    protected void setup() {
+    protected void onAgentSetup() {
         initSpring();
         // Load configuration for this agent
         SimulationConfigService configService = SpringContext.getApplicationContext().getBean(SimulationConfigService.class);

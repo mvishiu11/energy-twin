@@ -17,7 +17,7 @@ public class EnergyStorageAgent extends AbstractSimAgent {
     private double currentStored = 0.0;
 
     @Override
-    protected void setup() {
+    protected void onAgentSetup() {
         initSpring();
         // Load configuration for this agent
         SimulationConfigService configService = SpringContext.getApplicationContext().getBean(SimulationConfigService.class);
