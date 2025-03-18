@@ -19,13 +19,9 @@ public class EnergyStorageAgent extends AbstractSimAgent {
     @Override
     protected void onAgentSetup() {
         initSpring();
-        // Load configuration for this agent
-        SimulationConfigService configService = SpringContext.getApplicationContext().getBean(SimulationConfigService.class);
-        // For demonstration, use a default capacity. In practice, lookup by agent name.
         this.capacity = 200.0;
         log("Energy Storage Agent started with capacity: " + capacity);
 
-        // Add behaviour to subscribe to tick messages (if needed) and to listen for allocation messages.
         addBehaviour(new CyclicBehaviour(this) {
             @Override
             public void action() {
@@ -35,7 +31,6 @@ public class EnergyStorageAgent extends AbstractSimAgent {
                     try {
                         double allocated = Double.parseDouble(msg.getContent());
                         log("Received allocation: " + allocated);
-                        // Simple storage logic: add allocation but do not exceed capacity.
                         currentStored = Math.min(currentStored + allocated, capacity);
                         log("Current stored energy: " + currentStored);
                     } catch (NumberFormatException e) {
@@ -47,7 +42,6 @@ public class EnergyStorageAgent extends AbstractSimAgent {
             }
         });
 
-        // Optionally, subscribe to tick messages if you want to update storage state per tick.
         addBehaviour(new TickSubscriberBehaviour(this));
     }
 

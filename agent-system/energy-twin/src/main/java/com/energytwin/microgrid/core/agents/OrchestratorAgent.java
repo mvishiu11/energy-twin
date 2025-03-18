@@ -1,13 +1,10 @@
 package com.energytwin.microgrid.core.agents;
 
 import com.energytwin.microgrid.agentfusion.SpringAgent;
-import com.energytwin.microgrid.service.SimulationControlService;
 import jade.core.AID;
 import jade.core.behaviours.TickerBehaviour;
 import jade.core.messaging.TopicManagementHelper;
 import jade.lang.acl.ACLMessage;
-import org.springframework.context.ApplicationContext;
-import com.energytwin.microgrid.agentfusion.util.SpringContext;
 
 /**
  * Orchestrator Agent creates a tick topic and broadcasts tick messages
@@ -16,16 +13,12 @@ import com.energytwin.microgrid.agentfusion.util.SpringContext;
  */
 public class OrchestratorAgent extends SpringAgent {
 
-    private SimulationControlService simulationControlService;
-    private AID tickTopic; // AID for the tick topic
+    private AID tickTopic;
     private long simulationTime = 0;
 
     @Override
     protected void onAgentSetup() {
         initSpring();
-        // Retrieve SimulationControlService from Spring context
-        ApplicationContext ctx = SpringContext.getApplicationContext();
-        simulationControlService = ctx.getBean(SimulationControlService.class);
         log("Orchestrator Agent started.");
 
         // Create the tick topic using JADE's TopicManagementHelper

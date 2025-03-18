@@ -37,7 +37,6 @@ public class JadeContainerService {
         // Check if a main container is already running; if not, create one.
         Profile mainProfile = new ProfileImpl();
         mainProfile.setParameter(Profile.MAIN, "true");
-        // Optionally, you can set additional parameters for the main container.
         jadeExecutor.submit(() -> runtime.createMainContainer(mainProfile)).get();
 
         // Now create an agent container with TopicManagement enabled.

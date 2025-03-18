@@ -19,8 +19,7 @@ public class AggregatorAgent extends SpringAgent {
     protected void onAgentSetup() {
         log("Aggregator Agent started.");
 
-        // Register this agent in a topic "AggregationTopic" using TopicManagementHelper if desired.
-        // For simplicity, we assume other agents send their messages to "AggregationTopic".
+        // Register this agent in a topic "AggregationTopic" using TopicManagementHelper.
         // Add a cyclic behaviour to listen for production and consumption messages.
         addBehaviour(new CyclicBehaviour(this) {
             @Override
@@ -58,8 +57,7 @@ public class AggregatorAgent extends SpringAgent {
                     // On each tick, calculate allocation and broadcast to storage agents
                     double remaining = totalProduction - totalConsumption;
                     log("Tick received. Total Production: " + totalProduction + ", Total Consumption: " + totalConsumption + ", Remaining: " + remaining);
-                    // For demonstration, assume we have 1 storage agent; if more, split equally.
-                    double allocation = remaining; // if multiple, divide by number
+                    double allocation = remaining;
                     ACLMessage allocMsg = new ACLMessage(ACLMessage.INFORM);
                     allocMsg.setOntology("ENERGY_ALLOCATION");
                     allocMsg.setContent(String.valueOf(allocation));

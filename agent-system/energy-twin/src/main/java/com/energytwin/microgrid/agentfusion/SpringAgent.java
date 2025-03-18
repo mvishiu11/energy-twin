@@ -1,5 +1,7 @@
 package com.energytwin.microgrid.agentfusion;
 
+import com.energytwin.microgrid.service.SimulationConfigService;
+import com.energytwin.microgrid.service.SimulationControlService;
 import jade.core.Agent;
 import org.springframework.context.ApplicationContext;
 import com.energytwin.microgrid.service.LogAggregatorService;
@@ -7,16 +9,18 @@ import com.energytwin.microgrid.agentfusion.util.SpringContext;
 
 /**
  * Base JADE agent class that integrates with Spring.
- * It provides a method to initialize Spring dependencies.
+ * It initializes Spring dependencies via Template Method pattern
+ * and provides a method to add custom setup config.
  */
 public abstract class SpringAgent extends Agent {
 
     protected LogAggregatorService logService;
+    protected SimulationConfigService simulationConfigService;
+    protected SimulationControlService simulationControlService;
 
     @Override
     protected final void setup() {
         initSpring();
-        // Delegate to child-specific setup.
         onAgentSetup();
     }
 
@@ -28,6 +32,8 @@ public abstract class SpringAgent extends Agent {
         ApplicationContext ctx = SpringContext.getApplicationContext();
         if (ctx != null) {
             logService = ctx.getBean(LogAggregatorService.class);
+            simulationConfigService = ctx.getBean(SimulationConfigService.class);
+            simulationControlService = ctx.getBean(SimulationControlService.class);
         } else {
             System.err.println("Spring ApplicationContext is not initialized!");
         }

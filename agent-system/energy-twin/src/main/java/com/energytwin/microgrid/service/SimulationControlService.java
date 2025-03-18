@@ -12,9 +12,9 @@ import org.springframework.stereotype.Service;
 public class SimulationControlService {
 
     @Setter
-    private long tickIntervalMillis = 1000; // Default; can be overridden by YAML config
+    private long tickIntervalMillis = 1000;
     @Setter
-    private int speedUpFactor = 3600;       // Default speed-up factor
+    private int speedUpFactor = 1;
     private volatile boolean paused = false;
 
     /**

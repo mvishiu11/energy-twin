@@ -42,11 +42,9 @@ public class SimulationController {
         jadeContainerService.launchAgent("OrchestratorAgent", AGENT_BASE_PATH + "OrchestratorAgent");
         jadeContainerService.launchAgent("AggregatorAgent", AGENT_BASE_PATH + "AggregatorAgent");
 
-        // Load agent configuration from YAML
-        // For simplicity, we assume the configuration contains a list under "simulation.agents"
-        Object agentsObj = ((java.util.Map) simulationConfigService.getConfig().get("simulation")).get("agents");
-        if (agentsObj instanceof List) {
-            List<?> agentsList = (List<?>) agentsObj;
+        // Load agent configuration from JSON file
+        Object agentsObj = ((java.util.Map<?, ?>) simulationConfigService.getConfig().get("simulation")).get("agents");
+        if (agentsObj instanceof List<?> agentsList) {
             for (Object agentDef : agentsList) {
                 if (agentDef instanceof java.util.Map) {
                     java.util.Map<String, Object> agentConfig = (java.util.Map<String, Object>) agentDef;

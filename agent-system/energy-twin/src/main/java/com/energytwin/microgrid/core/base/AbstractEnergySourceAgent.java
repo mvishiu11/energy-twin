@@ -5,7 +5,7 @@ package com.energytwin.microgrid.core.base;
  * Includes common properties and methods for agents that produce energy.
  */
 public abstract class AbstractEnergySourceAgent extends AbstractSimAgent {
-    protected double productionRate; // Energy produced per tick
+    protected double productionRate;
 
     /**
      * Sets the production rate for this energy source.

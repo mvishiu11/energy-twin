@@ -16,13 +16,9 @@ public class LoadAgent extends AbstractSimAgent {
     @Override
     protected void onAgentSetup() {
         initSpring();
-        // Load configuration for this agent
-        SimulationConfigService configService = SpringContext.getApplicationContext().getBean(SimulationConfigService.class);
-        // For demonstration, set consumptionRate from config; here we use a default value.
         this.consumptionRate = 30.0;
         log("Load Agent started with consumption rate: " + consumptionRate);
 
-        // Add tick subscription behaviour
         addBehaviour(new TickSubscriberBehaviour(this));
     }
 
@@ -31,7 +27,6 @@ public class LoadAgent extends AbstractSimAgent {
         double consumed = consumptionRate;
         log("Consumed energy: " + consumed + " kW at simulation time: " + simulationTime);
 
-        // Create and send a consumption message
         ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
         msg.setOntology("ENERGY_CONSUMPTION");
         msg.setContent(String.valueOf(consumed));

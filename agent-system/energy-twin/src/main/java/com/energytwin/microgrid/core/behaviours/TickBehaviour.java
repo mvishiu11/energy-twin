@@ -26,9 +26,6 @@ public abstract class TickBehaviour extends TickerBehaviour {
 
     @Override
     protected void onTick() {
-        // For the orchestrator, real-time tick is passed in and simulation time computed externally.
-        // For simulation agents, you might want to call onTick with the received simulation time.
-        // Here we simply call onTick with the current system time (or override this in subclasses).
         onTick(System.currentTimeMillis());
     }
 }

@@ -23,7 +23,6 @@ public class TickSubscriberBehaviour extends CyclicBehaviour {
 
     @Override
     public void action() {
-        // Match messages with ontology "TICK"
         MessageTemplate mt = MessageTemplate.MatchOntology("TICK");
         ACLMessage msg = myAgent.receive(mt);
         if (msg != null) {
