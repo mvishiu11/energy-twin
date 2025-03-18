@@ -1,7 +1,8 @@
 # Maps API Choice
 
 ## Status
-Suggested (16-03-2025)
+**Date**: *2025-16-03*  
+**Status**: Approved
 
 ## Context
 To create a visualization of our digital twin, we need an external maps API. Currently, the two most popular providers are Mapbox and Google Maps API. Since our visualization will heavily rely on the map and may require extensive customization, we decided to go with Mapbox API instead of Google Maps. It's important to note that we could also choose OpenStreetMap, but it has similar limitations to Google Maps API (although it offers a bit more customization).
