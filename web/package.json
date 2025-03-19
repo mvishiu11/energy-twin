@@ -59,7 +59,12 @@
     "typescript": "5.7.3",
     "typescript-eslint": "8.26.1",
     "vite": "^6.0.0",
-    "vitest": "^3.0.0"
+    "vitest": "^3.0.0",
+    "postcss-styled-syntax": "0.7.1",
+    "stylelint": "16.16.0",
+    "stylelint-config-clean-order": "7.0.0",
+    "stylelint-config-standard": "37.0.0",
+    "stylelint-order": "6.0.4"
   },
   "workspaces": [
     "apps/*"
