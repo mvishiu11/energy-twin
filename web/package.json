@@ -14,7 +14,7 @@
     "react-is": "19.0.0"
   },
   "devDependencies": {
-    "@emotion/babel-plugin": "11.11.0",
+    "@emotion/babel-plugin": "11.13.5",
     "@eslint/js": "^9.8.0",
     "@nx/eslint": "20.6.1",
     "@nx/eslint-plugin": "20.6.1",
