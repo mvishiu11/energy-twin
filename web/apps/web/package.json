@@ -5,5 +5,10 @@
   "private": true,
   "nx": {
     "name": "web"
+  },
+  "dependencies": {
+    "@chakra-ui/react": "3.13.0",
+    "next-themes": "^0.4.6",
+    "react-icons": "^5.5.0"
   }
 }
