@@ -23,7 +23,8 @@ function RouteComponent() {
 const StyledDiv = styled.div`
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 1rem;
+    align-items: center;
+
     margin: 1rem;
 `
