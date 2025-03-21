@@ -3,6 +3,7 @@ import React from "react"
 import ReactDOM from "react-dom/client"
 import { Provider } from "./components/ui/provider"
 import { routeTree } from "./routeTree.gen"
+import "mapbox-gl/dist/mapbox-gl.css"
 
 const router = createRouter({ routeTree })
 
