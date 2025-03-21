@@ -4,7 +4,7 @@ import ReactDOM from "react-dom/client"
 import { Provider } from "./components/ui/provider"
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen"
-
+import "mapbox-gl/dist/mapbox-gl.css"
 // Create a new router instance
 const router = createRouter({ routeTree })
 
