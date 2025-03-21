@@ -1,0 +1,22 @@
+{
+  "endingPosition": "absolute-with-indent",
+  "singleQuote": false,
+  "semi": false,
+  "jsxSingleQuote": false,
+  "singleAttributePerLine": false,
+  "tabWidth": 4,
+  "trailingComma": "all",
+  "printWidth": 120,
+  "arrowParens": "avoid",
+  "bracketSameLine": true,
+  "proseWrap": "always",
+  "endOfLine": "lf",
+  "overrides": [
+    {
+      "files": ["*.json", ".prettierrc", ".eslintrc", ".stylelintrc"],
+      "options": {
+        "tabWidth": 2
+      }
+    }
+  ]
+}

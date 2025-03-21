@@ -1,0 +1,9 @@
+{
+  "name": "@web/web",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "nx": {
+    "name": "web"
+  }
+}
