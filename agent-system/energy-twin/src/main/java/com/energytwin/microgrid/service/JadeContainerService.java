@@ -3,11 +3,16 @@ package com.energytwin.microgrid.service;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.core.Runtime;
+import jade.core.Specifier;
+import jade.util.leap.ArrayList;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 import jade.wrapper.StaleProxyException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -22,30 +27,48 @@ public class JadeContainerService {
 
     private ContainerController agentContainer;
     private static final ExecutorService jadeExecutor = Executors.newCachedThreadPool();
+    private static final Logger logger = LoggerFactory.getLogger(JadeContainerService.class);
 
     /**
      * Starts the JADE platform:
      * - Creates a main container (if not already running).
      * - Creates an agent container (non‑main) with TopicManagement enabled.
-     *
-     * @throws ExecutionException if container creation fails
-     * @throws InterruptedException if container creation is interrupted
      */
-    public synchronized void startContainer() throws ExecutionException, InterruptedException {
+    public synchronized void startContainer() {
         Runtime runtime = Runtime.instance();
 
-        // Check if a main container is already running; if not, create one.
+        // Create a main container
         Profile mainProfile = new ProfileImpl();
         mainProfile.setParameter(Profile.MAIN, "true");
-        jadeExecutor.submit(() -> runtime.createMainContainer(mainProfile)).get();
+        submitTask(() -> runtime.createMainContainer(mainProfile));
 
-        // Now create an agent container with TopicManagement enabled.
+        // Create an agent container with TopicManagementService enabled
         Profile agentProfile = new ProfileImpl();
-        // Enable TopicManagement for this container.
-        agentProfile.setParameter("jade.core.messaging.TopicManagement", "true");
-        agentProfile.setParameter("jade.core.services", "jade.core.messaging.TopicManagement");
-        // Create the agent container.
-        agentContainer = jadeExecutor.submit(() -> runtime.createAgentContainer(agentProfile)).get();
+        ArrayList serviceList = new ArrayList();
+        serviceList.add(0, createTopicManagementSpecifier());
+        agentProfile.setSpecifiers(Profile.SERVICES, serviceList);
+        agentContainer = submitTask(() -> runtime.createAgentContainer(agentProfile));
+
+        // Check if agentContainer was created successfully
+        if (agentContainer == null) {
+            throw new RuntimeException("Agent container not created. Mandatory services may be missing.");
+        }
+    }
+
+    private Object createTopicManagementSpecifier() {
+        Specifier serviceSpec = new Specifier();
+        serviceSpec.setClassName("jade.core.messaging.TopicManagementService");
+        serviceSpec.setArgs(new Object[]{"true"});
+        return serviceSpec;
+    }
+
+    private <T> T submitTask(Callable<T> task) {
+        try {
+            return jadeExecutor.submit(task).get();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Error during JADE container initialization", e);
+            throw new RuntimeException("Error during JADE container initialization", e);
+        }
     }
 
     /**
@@ -60,7 +83,7 @@ public class JadeContainerService {
             AgentController agent = agentContainer.createNewAgent(agentName, agentClassName, args);
             agent.start();
         } catch (StaleProxyException e) {
-            e.printStackTrace();
+            logger.error("Error during JADE agent launch: ", e);
         }
     }
 }
