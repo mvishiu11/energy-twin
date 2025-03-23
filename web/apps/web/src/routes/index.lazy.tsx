@@ -1,9 +1,10 @@
-import { Badge, Icon } from "@chakra-ui/react"
+import { Icon } from "@chakra-ui/react"
 import { createLazyFileRoute } from "@tanstack/react-router"
 import { useRef } from "react"
 import { LuDatabaseZap } from "react-icons/lu"
 import Map, { MapRef } from "react-map-gl/mapbox"
 import { useMultipleMarkers } from "../components/map/_hooks/useMultipleMarkers"
+import { Toolkit } from "../components/simulationSetup/Toolkit"
 
 export const Route = createLazyFileRoute("/")({
     component: RouteComponent,
@@ -15,7 +16,7 @@ function RouteComponent() {
     const { markers } = useMultipleMarkers({
         component: (
             <Icon color="green.500" size="2xl">
-                <LuDatabaseZap strokeWidth={3} />
+                <LuDatabaseZap strokeWidth={2.5} />
             </Icon>
         ),
         initialCoordinates: [
@@ -39,7 +40,7 @@ function RouteComponent() {
                 style={{ width: "100vw", height: "100vh" }}>
                 {markers}
             </Map>
-            <Badge colorScheme="blue">Hello</Badge>
+            <Toolkit />
         </>
     )
 }
