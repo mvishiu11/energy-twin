@@ -43,7 +43,7 @@ function RouteComponent() {
     }, [])
 
     return (
-        <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
+        <div style={{ width: "100vw", height: "100vh" }}>
             <DndContext
                 modifiers={[snapCenterToCursor]}
                 onDragEnd={() => {

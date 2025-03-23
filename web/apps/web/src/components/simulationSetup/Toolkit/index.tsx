@@ -4,6 +4,7 @@ import { useLayoutEffect, useRef, useState } from "react"
 import { LuChevronUp } from "react-icons/lu"
 import { dndIds, idToIconMap } from "./dndIds"
 import { DraggableButton } from "./DraggableButton"
+import { ArrowContainer } from "./styles"
 
 export function Toolkit() {
     const [open, setOpen] = useState(false)
@@ -27,7 +28,9 @@ export function Toolkit() {
                     variant="subtle"
                     width="60px"
                     onClick={() => setOpen(prev => !prev)}>
-                    <LuChevronUp />
+                    <ArrowContainer $isOpened={open}>
+                        <LuChevronUp />
+                    </ArrowContainer>
                 </Button>
                 <Card.Root ref={cardRef} roundedBottom="none">
                     <Flex direction="row" gap="4" p="4">

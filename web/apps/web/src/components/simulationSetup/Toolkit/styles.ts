@@ -1,11 +1,6 @@
 import styled from "@emotion/styled"
 
-export const ToolkitOpen = styled.div`
-    position: fixed;
-    right: 0;
-    bottom: 0;
-    left: 0;
-
-    display: flex;
-    justify-content: center;
+export const ArrowContainer = styled.div<{ $isOpened: boolean }>`
+    rotate: ${({ $isOpened }) => ($isOpened ? "0deg" : "180deg")};
+    transition: rotate 0.3s;
 `
