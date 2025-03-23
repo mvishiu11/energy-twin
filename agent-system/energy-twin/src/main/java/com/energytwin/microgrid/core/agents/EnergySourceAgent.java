@@ -5,7 +5,6 @@ import com.energytwin.microgrid.core.behaviours.TickSubscriberBehaviour;
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -15,18 +14,18 @@ public class EnergySourceAgent extends AbstractEnergySourceAgent {
 
     @Override
     protected void onAgentSetup() {
-        Map<String, Object> simConfig = (Map<String, Object>) simulationConfigService.getConfig().get("simulation");
-        List<Map<String, Object>> agentsList = (List<Map<String, Object>>) simConfig.get("agents");
-        for (Map<String, Object> agentDef : agentsList) {
-            String type = (String) agentDef.get("type");
-            String name = (String) agentDef.get("name");
-            if ("energySource".equalsIgnoreCase(type) && getLocalName().equals(name)) {
-                Object rateObj = agentDef.get("productionRate");
-                if (rateObj != null) {
+        Map<String, Object> myConfig = simulationConfigService.findAgentDefinition("energySource", getLocalName());
+        if (myConfig != null) {
+            Object rateObj = myConfig.get("productionRate");
+            if (rateObj != null) {
+                try {
                     this.productionRate = Double.parseDouble(rateObj.toString());
+                } catch (NumberFormatException e) {
+                    log("Error parsing productionRate: " + rateObj, e);
                 }
-                break;
             }
+        } else {
+            log("No configuration found for agent of type 'energySource' with name: " + getLocalName());
         }
         log("Energy Source Agent started with production rate: " + productionRate);
 
