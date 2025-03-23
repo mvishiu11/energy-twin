@@ -2,8 +2,7 @@ package com.energytwin.microgrid.core.agents;
 
 import com.energytwin.microgrid.core.base.AbstractEnergySourceAgent;
 import com.energytwin.microgrid.core.behaviours.TickSubscriberBehaviour;
-import com.energytwin.microgrid.service.SimulationConfigService;
-import com.energytwin.microgrid.agentfusion.util.SpringContext;
+import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 
 import java.util.List;
@@ -16,7 +15,6 @@ public class EnergySourceAgent extends AbstractEnergySourceAgent {
 
     @Override
     protected void onAgentSetup() {
-        initSpring();
         Map<String, Object> simConfig = (Map<String, Object>) simulationConfigService.getConfig().get("simulation");
         List<Map<String, Object>> agentsList = (List<Map<String, Object>>) simConfig.get("agents");
         for (Map<String, Object> agentDef : agentsList) {
@@ -32,7 +30,8 @@ public class EnergySourceAgent extends AbstractEnergySourceAgent {
         }
         log("Energy Source Agent started with production rate: " + productionRate);
 
-        addBehaviour(new TickSubscriberBehaviour(this));
+        AID tickTopic = new AID("TickTopic", AID.ISLOCALNAME);
+        addBehaviour(new TickSubscriberBehaviour(this, tickTopic));
     }
 
     @Override

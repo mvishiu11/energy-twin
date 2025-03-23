@@ -2,11 +2,10 @@ package com.energytwin.microgrid.core.agents;
 
 import com.energytwin.microgrid.core.base.AbstractSimAgent;
 import com.energytwin.microgrid.core.behaviours.TickSubscriberBehaviour;
+import jade.core.AID;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import com.energytwin.microgrid.agentfusion.util.SpringContext;
-import com.energytwin.microgrid.service.SimulationConfigService;
 
 /**
  * Energy Storage Agent that receives energy allocation messages.
@@ -42,7 +41,8 @@ public class EnergyStorageAgent extends AbstractSimAgent {
             }
         });
 
-        addBehaviour(new TickSubscriberBehaviour(this));
+        AID tickTopic = new AID("TickTopic", AID.ISLOCALNAME);
+        addBehaviour(new TickSubscriberBehaviour(this, tickTopic));
     }
 
     @Override

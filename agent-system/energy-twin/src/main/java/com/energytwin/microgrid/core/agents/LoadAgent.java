@@ -2,8 +2,7 @@ package com.energytwin.microgrid.core.agents;
 
 import com.energytwin.microgrid.core.base.AbstractSimAgent;
 import com.energytwin.microgrid.core.behaviours.TickSubscriberBehaviour;
-import com.energytwin.microgrid.service.SimulationConfigService;
-import com.energytwin.microgrid.agentfusion.util.SpringContext;
+import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 
 /**
@@ -19,7 +18,8 @@ public class LoadAgent extends AbstractSimAgent {
         this.consumptionRate = 30.0;
         log("Load Agent started with consumption rate: " + consumptionRate);
 
-        addBehaviour(new TickSubscriberBehaviour(this));
+        AID tickTopic = new AID("TickTopic", AID.ISLOCALNAME);
+        addBehaviour(new TickSubscriberBehaviour(this, tickTopic));
     }
 
     @Override
