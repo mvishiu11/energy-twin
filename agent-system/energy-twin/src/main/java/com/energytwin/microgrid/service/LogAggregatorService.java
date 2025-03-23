@@ -21,7 +21,6 @@ public class LogAggregatorService {
     public void log(String message) {
         String timestampedMessage = LocalDateTime.now() + ": " + message;
         logs.add(timestampedMessage);
-        System.out.println(timestampedMessage);
     }
 
     /**

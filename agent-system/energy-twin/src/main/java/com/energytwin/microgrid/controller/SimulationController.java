@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * REST Controller for simulation operations.
@@ -36,9 +35,8 @@ public class SimulationController {
      * Starts the simulation by launching agents according to the configuration.
      */
     @PostMapping("/start")
-    public ResponseEntity<String> startSimulation() throws ExecutionException, InterruptedException {
+    public ResponseEntity<String> startSimulation() {
         jadeContainerService.startContainer();
-        // Launch orchestrator and aggregator agents
         jadeContainerService.launchAgent("OrchestratorAgent", AGENT_BASE_PATH + "OrchestratorAgent");
         jadeContainerService.launchAgent("AggregatorAgent", AGENT_BASE_PATH + "AggregatorAgent");
 
