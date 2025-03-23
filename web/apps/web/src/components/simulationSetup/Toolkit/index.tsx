@@ -1,6 +1,6 @@
 import { Button, Card, Flex } from "@chakra-ui/react"
 import { motion } from "motion/react"
-import { useLayoutEffect, useRef, useState } from "react"
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { LuChevronUp } from "react-icons/lu"
 import { dndIds, idToIconMap } from "./dndIds"
 import { DraggableButton } from "./DraggableButton"
@@ -16,6 +16,20 @@ export function Toolkit() {
             setCardHeight(cardRef.current.clientHeight)
         }
     }, [])
+
+    const handleCloseToolkit = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+            setOpen(prev => !prev)
+        }
+    }
+
+    useEffect(() => {
+        document.addEventListener("keydown", handleCloseToolkit)
+
+        return () => {
+            document.removeEventListener("keydown", handleCloseToolkit)
+        }
+    }, [open])
 
     return (
         <motion.div animate={{ translateY: open ? cardHeight : 0 }} transition={{ duration: 0.3 }}>
