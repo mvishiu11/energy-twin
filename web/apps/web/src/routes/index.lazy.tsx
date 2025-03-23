@@ -1,7 +1,7 @@
 import { createLazyFileRoute } from "@tanstack/react-router"
-import { useRef, useState } from "react"
-import Map, { Layer, MapRef, Source } from "react-map-gl/mapbox"
-import { useLayerPoint } from "../components/map/_hooks/useLayerPoint"
+import { useRef } from "react"
+import Map, { MapRef } from "react-map-gl/mapbox"
+import { useMultipleLayers } from "../components/map/_hooks/useMultipleLayers"
 
 export const Route = createLazyFileRoute("/")({
     component: RouteComponent,
@@ -9,26 +9,28 @@ export const Route = createLazyFileRoute("/")({
 
 function RouteComponent() {
     const mapRef = useRef<MapRef>(null)
-    const [isDragging, setIsDragging] = useState<boolean>(false)
-    const { updatePosition, layerFeatures, updatePaint, featureId, geojson, resetPaint } = useLayerPoint({
-        initialGeojson: {
+
+    const { sources, mapProps } = useMultipleLayers({
+        geojsonTemplate: {
             type: "FeatureCollection",
             features: [
                 {
                     type: "Feature",
+                    properties: {},
                     geometry: {
                         type: "Point",
-                        coordinates: [21.011672545859113, 52.22010375163748],
                     },
-                    properties: { title: "Plac Politechniki" },
                 },
             ],
         },
-        initialLayerPoint: {
-            id: "point",
-            type: "circle",
-            source: "points",
-            paint: { "circle-radius": 10, "circle-color": "#007cbf" },
+        initialCoordinates: [
+            [21.01167245859113, 52.22010375163748],
+            [21.01167254585911, 52.22010375163748],
+            [21.01167254585911, 52.22010375163748],
+        ],
+        paintTemplate: {
+            "circle-radius": 10,
+            "circle-color": "#007cbf",
         },
     })
 
@@ -40,38 +42,11 @@ function RouteComponent() {
                 latitude: 52.22010375163748,
                 zoom: 18,
             }}
-            interactiveLayerIds={["point"]}
             mapboxAccessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}
             mapStyle="mapbox://styles/mapbox/streets-v12"
             style={{ width: "100vw", height: "100vh" }}
-            onMouseDown={e => {
-                e.preventDefault()
-                const feature = e.features?.find(feature => feature.layer?.id === featureId)
-                if (feature) {
-                    setIsDragging(true)
-                }
-            }}
-            onMouseEnter={e => {
-                if (e.features?.find(feature => feature.layer?.id === featureId)) {
-                    updatePaint({ "circle-color": "#6abcff", "circle-radius": 11 })
-                }
-            }}
-            onMouseLeave={() => {
-                resetPaint()
-            }}
-            onMouseMove={e => {
-                if (!isDragging) return
-                e.preventDefault()
-                const coords = e.lngLat
-                updatePosition([coords.lng, coords.lat])
-            }}
-            onMouseUp={() => {
-                setIsDragging(false)
-                resetPaint()
-            }}>
-            <Source data={geojson} id="points" type="geojson">
-                <Layer {...layerFeatures} />
-            </Source>
+            {...mapProps}>
+            {sources}
         </Map>
     )
 }
