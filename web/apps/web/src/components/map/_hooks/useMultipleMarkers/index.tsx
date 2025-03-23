@@ -1,13 +1,17 @@
-import { ReactNode, useState } from "react"
+import { ReactNode, useCallback, useState } from "react"
 import { Marker } from "react-map-gl/mapbox"
 
 type UseMultipleLayersProps = {
-    initialCoordinates: [number, number][]
+    initialCoordinates?: [number, number][]
     component: ReactNode
 }
 
 export function useMultipleMarkers({ initialCoordinates, component }: UseMultipleLayersProps) {
-    const [markersPositions, setMarkersPositions] = useState<[number, number][]>(initialCoordinates)
+    const [markersPositions, setMarkersPositions] = useState<[number, number][]>(initialCoordinates ?? [])
+
+    const addMarker = useCallback((position: [number, number]) => {
+        setMarkersPositions(prevMarkers => [...prevMarkers, position])
+    }, [])
 
     return {
         markers: markersPositions.map((coordinates, index) => (
@@ -28,5 +32,10 @@ export function useMultipleMarkers({ initialCoordinates, component }: UseMultipl
             </Marker>
         )),
         markersPositions,
+        addMarker,
     }
+}
+
+export const mergeMarkers = (...markers: ReactNode[]) => {
+    return markers
 }

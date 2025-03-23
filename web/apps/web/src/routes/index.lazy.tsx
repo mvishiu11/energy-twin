@@ -1,10 +1,13 @@
 import { Icon } from "@chakra-ui/react"
 import { createLazyFileRoute } from "@tanstack/react-router"
-import { useRef } from "react"
-import { LuDatabaseZap } from "react-icons/lu"
+import { useCallback, useMemo, useRef, useState } from "react"
+import { LuDatabaseZap, LuSun } from "react-icons/lu"
 import Map, { MapRef } from "react-map-gl/mapbox"
-import { useMultipleMarkers } from "../components/map/_hooks/useMultipleMarkers"
+import { DndContext, DragOverlay, UniqueIdentifier } from "@dnd-kit/core"
+import { snapCenterToCursor } from "@dnd-kit/modifiers"
+import { mergeMarkers, useMultipleMarkers } from "../components/map/_hooks/useMultipleMarkers"
 import { Toolkit } from "../components/simulationSetup/Toolkit"
+import { idToIconMap } from "../components/simulationSetup/Toolkit/dndIds"
 
 export const Route = createLazyFileRoute("/")({
     component: RouteComponent,
@@ -12,35 +15,78 @@ export const Route = createLazyFileRoute("/")({
 
 function RouteComponent() {
     const mapRef = useRef<MapRef>(null)
+    const [globalCoordinates, setGlobalCoordinates] = useState<{ clientX: number; clientY: number }>()
+    const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
 
-    const { markers } = useMultipleMarkers({
+    const { markers: batteriesMarkers, addMarker: addBatteryMarker } = useMultipleMarkers({
         component: (
             <Icon color="green.500" size="2xl">
                 <LuDatabaseZap strokeWidth={2.5} />
             </Icon>
         ),
-        initialCoordinates: [
-            [21.01167245859113, 52.22010375163748],
-            [21.01167254585911, 52.22010375163748],
-            [21.01167254585911, 52.22010375163748],
-        ],
+        initialCoordinates: [[21.01167245859113, 52.22010375163748]],
     })
 
+    const { markers: solarMarker, addMarker: addSolarMarker } = useMultipleMarkers({
+        component: (
+            <Icon color="green.500" size="2xl">
+                <LuSun strokeWidth={2.5} />
+            </Icon>
+        ),
+    })
+
+    const combinedMarkers = useMemo(() => mergeMarkers(batteriesMarkers, solarMarker), [batteriesMarkers, solarMarker])
+
+    const mouseMoveHandler = useCallback((event: MouseEvent) => {
+        const { clientX, clientY } = event
+        setGlobalCoordinates({ clientX, clientY })
+    }, [])
+
     return (
-        <>
-            <Map
-                ref={mapRef}
-                initialViewState={{
-                    longitude: 21.011672545859113,
-                    latitude: 52.22010375163748,
-                    zoom: 18,
+        <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
+            <DndContext
+                modifiers={[snapCenterToCursor]}
+                onDragEnd={() => {
+                    setActiveId(null)
+                    document.removeEventListener("mousemove", mouseMoveHandler)
+                    if (mapRef.current && globalCoordinates) {
+                        const { lng, lat } = mapRef.current
+                            .getMap()
+                            .unproject([globalCoordinates.clientX, globalCoordinates.clientY])
+                        switch (activeId) {
+                            case "battery":
+                                addBatteryMarker([lng, lat])
+                                break
+                            case "solar":
+                                addSolarMarker([lng, lat])
+                                break
+                        }
+                    }
                 }}
-                mapboxAccessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}
-                mapStyle="mapbox://styles/mapbox/light-v11"
-                style={{ width: "100vw", height: "100vh" }}>
-                {markers}
-            </Map>
-            <Toolkit />
-        </>
+                onDragStart={({ active }) => {
+                    setActiveId(active.id)
+                    document.addEventListener("mousemove", mouseMoveHandler)
+                }}>
+                <Map
+                    ref={mapRef}
+                    initialViewState={{
+                        longitude: 21.011672545859113,
+                        latitude: 52.22010375163748,
+                        zoom: 18,
+                    }}
+                    mapboxAccessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}
+                    mapStyle="mapbox://styles/mapbox/light-v11">
+                    {combinedMarkers}
+                </Map>
+                <Toolkit />
+                <DragOverlay dropAnimation={null}>
+                    {activeId && (
+                        <Icon color="green.300" size="2xl">
+                            {idToIconMap[activeId as keyof typeof idToIconMap]}
+                        </Icon>
+                    )}
+                </DragOverlay>
+            </DndContext>
+        </div>
     )
 }

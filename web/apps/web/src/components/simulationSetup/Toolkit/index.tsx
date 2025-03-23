@@ -1,7 +1,9 @@
 import { Button, Card, Flex } from "@chakra-ui/react"
 import { motion } from "motion/react"
 import { useLayoutEffect, useRef, useState } from "react"
-import { LuChevronUp, LuDatabaseZap, LuSun } from "react-icons/lu"
+import { LuChevronUp } from "react-icons/lu"
+import { dndIds, idToIconMap } from "./dndIds"
+import { DraggableButton } from "./DraggableButton"
 
 export function Toolkit() {
     const [open, setOpen] = useState(false)
@@ -29,12 +31,8 @@ export function Toolkit() {
                 </Button>
                 <Card.Root ref={cardRef} roundedBottom="none">
                     <Flex direction="row" gap="4" p="4">
-                        <Button size="lg">
-                            <LuDatabaseZap />
-                        </Button>
-                        <Button size="lg">
-                            <LuSun />
-                        </Button>
+                        <DraggableButton id={dndIds.battery}>{idToIconMap.battery}</DraggableButton>
+                        <DraggableButton id={dndIds.solar}>{idToIconMap.solar}</DraggableButton>
                     </Flex>
                 </Card.Root>
             </Flex>
