@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Author
-    url: https://github.com/mvishiu11
-    about: Please ask and answer questions here.
+  - name: "General Task"
+    url: "./GeneralTemplate.md"
+    about: "Use this template for main tasks (not part of bigger task)."
+  - name: "Subtask"
+    url: "./SubtaskTemplate.md"
+    about: "Use this template for subtasks."
