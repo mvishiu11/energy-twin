@@ -52,6 +52,14 @@
         </dependency>
         <!-- end::actuator[] -->
 
+        <!-- tag::docs[] -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+        <!-- end::docs[] -->
+
         <!-- tag::tests[] -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
