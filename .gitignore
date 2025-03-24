@@ -34,3 +34,6 @@ bin/
 ### workspace ###
 */.idea
 .idea/
+
+### Env ###
+.env
