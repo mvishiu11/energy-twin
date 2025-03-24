@@ -65,10 +65,9 @@ public class AggregatorAgent extends SpringAgent {
                       + totalConsumption
                       + ", Remaining: "
                       + remaining);
-              double allocation = remaining;
-              ACLMessage allocMsg = new ACLMessage(ACLMessage.INFORM);
+                ACLMessage allocMsg = new ACLMessage(ACLMessage.INFORM);
               allocMsg.setOntology("ENERGY_ALLOCATION");
-              allocMsg.setContent(String.valueOf(allocation));
+              allocMsg.setContent(String.valueOf(remaining));
               // Send allocation to a topic "AllocationTopic"
               allocMsg.addReceiver(new AID("AllocationTopic", AID.ISLOCALNAME));
               send(allocMsg);
@@ -81,10 +80,5 @@ public class AggregatorAgent extends SpringAgent {
             }
           }
         });
-  }
-
-  @Override
-  public void onTick(long simulationTime) {
-    // Not used directly; allocation is handled by the cyclic behaviour.
   }
 }

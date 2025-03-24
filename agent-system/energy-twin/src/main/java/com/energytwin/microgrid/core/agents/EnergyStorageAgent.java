@@ -1,51 +1,36 @@
 package com.energytwin.microgrid.core.agents;
 
-import com.energytwin.microgrid.core.base.AbstractSimAgent;
-import com.energytwin.microgrid.core.behaviours.TickSubscriberBehaviour;
-import jade.core.AID;
-import jade.core.behaviours.CyclicBehaviour;
-import jade.lang.acl.ACLMessage;
-import jade.lang.acl.MessageTemplate;
+import com.energytwin.microgrid.core.base.AbstractEnergyStorageAgent;
+import com.energytwin.microgrid.core.behaviours.energy.EnergyStorageBehaviour;
+import java.util.Map;
 
 /** Energy Storage Agent that receives energy allocation messages. */
-public class EnergyStorageAgent extends AbstractSimAgent {
-
-  private double capacity;
-  private double currentStored = 0.0;
+public class EnergyStorageAgent extends AbstractEnergyStorageAgent {
 
   @Override
   protected void onAgentSetup() {
-    initSpring();
-    this.capacity = 200.0;
-    log("Energy Storage Agent started with capacity: " + capacity);
+    setConfigParams();
 
-    addBehaviour(
-        new CyclicBehaviour(this) {
-          @Override
-          public void action() {
-            MessageTemplate mt = MessageTemplate.MatchOntology("ENERGY_ALLOCATION");
-            ACLMessage msg = myAgent.receive(mt);
-            if (msg != null) {
-              try {
-                double allocated = Double.parseDouble(msg.getContent());
-                log("Received allocation: " + allocated);
-                currentStored = Math.min(currentStored + allocated, capacity);
-                log("Current stored energy: " + currentStored);
-              } catch (NumberFormatException e) {
-                log("Error parsing allocation message: " + msg.getContent());
-              }
-            } else {
-              block();
-            }
-          }
-        });
-
-    AID tickTopic = new AID("TickTopic", AID.ISLOCALNAME);
-    addBehaviour(new TickSubscriberBehaviour(this, tickTopic));
+    addBehaviour(new EnergyStorageBehaviour(this));
   }
 
-  @Override
-  public void onTick(long simulationTime) {
-    // For now, storage agent does not need to act on tick directly.
+  protected void setConfigParams() {
+    String type = "energyStorage";
+    String param = "capacity";
+    Map<String, Object> myConfig =
+        simulationConfigService.findAgentDefinition(type, getLocalName());
+    if (myConfig != null) {
+      Object rateObj = myConfig.get(param);
+      if (rateObj != null) {
+        try {
+          this.capacity = Double.parseDouble(rateObj.toString());
+        } catch (NumberFormatException e) {
+          log("Error parsing " + param + ": " + rateObj, e);
+        }
+      }
+    } else {
+      log("No configuration found for agent of type " + type + " with name: " + getLocalName());
+    }
+    log("Energy Storage Agent started with " + param + ": " + capacity);
   }
 }

@@ -1,23 +1,41 @@
 package com.energytwin.microgrid.core.agents;
 
-import com.energytwin.microgrid.core.base.AbstractSimAgent;
-import com.energytwin.microgrid.core.behaviours.TickSubscriberBehaviour;
+import com.energytwin.microgrid.core.base.AbstractLoadAgent;
+import com.energytwin.microgrid.core.behaviours.tick.TickSubscriberBehaviour;
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
+import java.util.Map;
 
 /** Load Agent that consumes energy and broadcasts its consumption. */
-public class LoadAgent extends AbstractSimAgent {
-
-  private double consumptionRate;
+public class LoadAgent extends AbstractLoadAgent {
 
   @Override
   protected void onAgentSetup() {
-    initSpring();
-    this.consumptionRate = 30.0;
-    log("Load Agent started with consumption rate: " + consumptionRate);
+    setConfigParams();
 
-    AID tickTopic = new AID("TickTopic", AID.ISLOCALNAME);
+    AID tickTopic = new AID("TICK_TOPIC", AID.ISLOCALNAME);
     addBehaviour(new TickSubscriberBehaviour(this, tickTopic));
+  }
+
+  @Override
+  protected void setConfigParams() {
+    String type = "load";
+    String param = "consumptionRate";
+    Map<String, Object> myConfig =
+        simulationConfigService.findAgentDefinition(type, getLocalName());
+    if (myConfig != null) {
+      Object rateObj = myConfig.get(param);
+      if (rateObj != null) {
+        try {
+          this.consumptionRate = Double.parseDouble(rateObj.toString());
+        } catch (NumberFormatException e) {
+          log("Error parsing " + param + ": " + rateObj, e);
+        }
+      }
+    } else {
+      log("No configuration found for agent of type " + type + " with name: " + getLocalName());
+    }
+    log("Load Agent started with " + param + ": " + consumptionRate);
   }
 
   @Override

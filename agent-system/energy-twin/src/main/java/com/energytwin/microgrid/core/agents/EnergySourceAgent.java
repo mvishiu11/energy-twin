@@ -1,7 +1,7 @@
 package com.energytwin.microgrid.core.agents;
 
 import com.energytwin.microgrid.core.base.AbstractEnergySourceAgent;
-import com.energytwin.microgrid.core.behaviours.TickSubscriberBehaviour;
+import com.energytwin.microgrid.core.behaviours.tick.TickSubscriberBehaviour;
 import jade.core.AID;
 import jade.lang.acl.ACLMessage;
 import java.util.Map;
@@ -11,24 +11,31 @@ public class EnergySourceAgent extends AbstractEnergySourceAgent {
 
   @Override
   protected void onAgentSetup() {
+    setConfigParams();
+
+    AID tickTopic = new AID("TICK_TOPIC", AID.ISLOCALNAME);
+    addBehaviour(new TickSubscriberBehaviour(this, tickTopic));
+  }
+
+  @Override
+  protected void setConfigParams() {
+    String type = "energySource";
+    String param = "productionRate";
     Map<String, Object> myConfig =
-        simulationConfigService.findAgentDefinition("energySource", getLocalName());
+        simulationConfigService.findAgentDefinition(type, getLocalName());
     if (myConfig != null) {
-      Object rateObj = myConfig.get("productionRate");
+      Object rateObj = myConfig.get(param);
       if (rateObj != null) {
         try {
           this.productionRate = Double.parseDouble(rateObj.toString());
         } catch (NumberFormatException e) {
-          log("Error parsing productionRate: " + rateObj, e);
+          log("Error parsing " + param + ": " + rateObj, e);
         }
       }
     } else {
-      log("No configuration found for agent of type 'energySource' with name: " + getLocalName());
+      log("No configuration found for agent of type " + type + " with name: " + getLocalName());
     }
-    log("Energy Source Agent started with production rate: " + productionRate);
-
-    AID tickTopic = new AID("TickTopic", AID.ISLOCALNAME);
-    addBehaviour(new TickSubscriberBehaviour(this, tickTopic));
+    log("Energy Source Agent started with " + param + ": " + productionRate);
   }
 
   @Override
