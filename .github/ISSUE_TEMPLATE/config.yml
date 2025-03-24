@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: "General Task"
-    url: "./GeneralTemplate.md"
+    url: "https://github.com/mvishiu11/energy-twin/blob/master/.github/ISSUE_TEMPLATE/GeneralTemplate.md"
     about: "Use this template for main tasks (not part of bigger task)."
   - name: "Subtask"
-    url: "./SubtaskTemplate.md"
+    url: "https://github.com/mvishiu11/energy-twin/blob/master/.github/ISSUE_TEMPLATE/SubtaskTemplate.md"
     about: "Use this template for subtasks."
