@@ -6,12 +6,13 @@ import com.energytwin.microgrid.service.SimulationConfigService;
 import com.energytwin.microgrid.service.SimulationControlService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /** REST Controller for simulation operations. */
 @RestController
-@RequestMapping("/simulate")
+@RequestMapping("/simulation")
 public class SimulationController {
 
   @Autowired private JadeContainerService jadeContainerService;
@@ -63,9 +64,16 @@ public class SimulationController {
     return ResponseEntity.ok("Simulation started.");
   }
 
+  /** Stops the simulation by killing the agent container. */
   @PostMapping("/stop")
   public ResponseEntity<String> stopSimulation() {
-    return ResponseEntity.ok("Simulation stopped.");
+    try {
+      jadeContainerService.stopContainer();
+      return ResponseEntity.ok("Simulation stopped.");
+    } catch (RuntimeException e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("Error stopping simulation: " + e.getMessage());
+    }
   }
 
   @GetMapping("/logs")
