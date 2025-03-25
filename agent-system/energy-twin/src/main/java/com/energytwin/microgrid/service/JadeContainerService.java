@@ -22,8 +22,7 @@ import org.springframework.stereotype.Service;
  * <p>This service first creates a main container (for core services like DF, AMS, etc.), then
  * creates an agent container (non‑main) with TopicManagement enabled.
  *
- * <p>The stopContainer() method stops the agent container on demand (via /simulation/stop
- * endpoint)
+ * <p>The stopContainer() method stops the agent container on demand (via /simulation/stop endpoint)
  */
 @Service
 public class JadeContainerService {
