@@ -1,7 +1,6 @@
 {
   "simulation": {
     "tickIntervalMillis": 1000,
-    "speedUpFactor": 3600,
     "agents": [
       {
         "type": "energySource",

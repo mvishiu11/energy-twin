@@ -16,19 +16,15 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/simulation")
 public class SimulationController {
 
-  @Autowired
-  private JadeContainerService jadeContainerService;
+  @Autowired private JadeContainerService jadeContainerService;
 
-  @Autowired
-  private LogAggregatorService logService;
+  @Autowired private LogAggregatorService logService;
 
-  @Autowired
-  private SimulationControlService simulationControlService;
+  @Autowired private SimulationControlService simulationControlService;
 
-  @Autowired
-  private SimulationConfigService simulationConfigService;
+  @Autowired private SimulationConfigService simulationConfigService;
 
-    /**
+  /**
    * Starts the simulation by receiving a startup configuration (JSON) via the request body,
    * updating the SimulationConfigService with it, and then launching agents accordingly.
    *
@@ -43,13 +39,13 @@ public class SimulationController {
 
       // Start the JADE container and launch core agents
       jadeContainerService.startContainer();
-        String AGENT_BASE_PATH = "com.energytwin.microgrid.core.agents.";
-        jadeContainerService.launchAgent("OrchestratorAgent", AGENT_BASE_PATH + "OrchestratorAgent");
+      String AGENT_BASE_PATH = "com.energytwin.microgrid.core.agents.";
+      jadeContainerService.launchAgent("OrchestratorAgent", AGENT_BASE_PATH + "OrchestratorAgent");
       jadeContainerService.launchAgent("AggregatorAgent", AGENT_BASE_PATH + "AggregatorAgent");
 
       // Load agent configuration from the updated configuration
       Object agentsObj =
-              ((Map<?, ?>) simulationConfigService.getConfig().get("simulation")).get("agents");
+          ((Map<?, ?>) simulationConfigService.getConfig().get("simulation")).get("agents");
       if (agentsObj instanceof List<?> agentsList) {
         for (Object agentDef : agentsList) {
           if (agentDef instanceof Map) {
@@ -76,10 +72,12 @@ public class SimulationController {
           }
         }
       }
+      int tickInterval = simulationConfigService.getTickIntervalMillis();
+      simulationControlService.setTickIntervalMillis(tickInterval);
       return ResponseEntity.ok("Simulation started.");
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-              .body("Error starting simulation: " + e.getMessage());
+          .body("Error starting simulation: " + e.getMessage());
     }
   }
 
@@ -90,7 +88,7 @@ public class SimulationController {
       return ResponseEntity.ok("Simulation stopped.");
     } catch (RuntimeException e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-              .body("Error stopping simulation: " + e.getMessage());
+          .body("Error stopping simulation: " + e.getMessage());
     }
   }
 
@@ -100,7 +98,7 @@ public class SimulationController {
   }
 
   @PostMapping("/control/speed")
-  public ResponseEntity<String> setSpeed(@RequestParam("factor") int factor) {
+  public ResponseEntity<String> setSpeed(@RequestParam("factor") double factor) {
     simulationControlService.setSpeedUpFactor(factor);
     return ResponseEntity.ok("Speed factor set to " + factor);
   }

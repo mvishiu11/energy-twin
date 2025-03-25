@@ -28,8 +28,8 @@ public class SimulationConfigService {
   }
 
   /**
-   * Sets the simulation configuration from a JSON string.
-   * This method parses the provided JSON and updates the internal configuration.
+   * Sets the simulation configuration from a JSON string. This method parses the provided JSON and
+   * updates the internal configuration.
    *
    * @param configJson the simulation configuration as a JSON string.
    */
@@ -48,14 +48,34 @@ public class SimulationConfigService {
     }
   }
 
+  public int getTickIntervalMillis() {
+    Object simulationObj = config.get("simulation");
+    if (simulationObj == null) {
+      throw new IllegalArgumentException("Missing 'simulation' key in configuration.");
+    }
+    if (!(simulationObj instanceof Map)) {
+      throw new IllegalArgumentException(
+          "'simulation' is not a Map. Found type: " + simulationObj.getClass().getName());
+    }
+    @SuppressWarnings("unchecked")
+    Map<String, Object> simulationMap = (Map<String, Object>) simulationObj;
+
+    Object intervalObj = simulationMap.get("tickIntervalMillis");
+    if (intervalObj == null) {
+      throw new IllegalArgumentException("Missing 'agents' key in simulation configuration.");
+    }
+    return (int) intervalObj;
+  }
+
   /**
    * Validates and retrieves the list of agent definitions from the simulation configuration.
-   * <p>
-   * It checks that:
+   *
+   * <p>It checks that:
+   *
    * <ul>
-   *   <li>The configuration contains a "simulation" key whose value is a Map.</li>
-   *   <li>The simulation Map contains an "agents" key whose value is a List.</li>
-   *   <li>Each element in the list is a Map with at least "type" and "name" as Strings.</li>
+   *   <li>The configuration contains a "simulation" key whose value is a Map.
+   *   <li>The simulation Map contains an "agents" key whose value is a List.
+   *   <li>Each element in the list is a Map with at least "type" and "name" as Strings.
    * </ul>
    *
    * @return a List of agent definitions (each a Map of String to Object).
@@ -69,7 +89,7 @@ public class SimulationConfigService {
     for (Object agentObj : rawAgentsList) {
       if (!(agentObj instanceof Map)) {
         throw new IllegalArgumentException(
-                "Agent definition is not a Map. Found type: " + agentObj.getClass().getName());
+            "Agent definition is not a Map. Found type: " + agentObj.getClass().getName());
       }
       @SuppressWarnings("unchecked")
       Map<String, Object> agentDef = (Map<String, Object>) agentObj;
@@ -77,13 +97,13 @@ public class SimulationConfigService {
       Object nameObj = agentDef.get("name");
       if (!(typeObj instanceof String)) {
         throw new IllegalArgumentException(
-                "Agent definition 'type' is not a String. Found type: "
-                        + (typeObj != null ? typeObj.getClass().getName() : "null"));
+            "Agent definition 'type' is not a String. Found type: "
+                + (typeObj != null ? typeObj.getClass().getName() : "null"));
       }
       if (!(nameObj instanceof String)) {
         throw new IllegalArgumentException(
-                "Agent definition 'name' is not a String. Found type: "
-                        + (nameObj != null ? nameObj.getClass().getName() : "null"));
+            "Agent definition 'name' is not a String. Found type: "
+                + (nameObj != null ? nameObj.getClass().getName() : "null"));
       }
       validAgents.add(agentDef);
     }
@@ -104,11 +124,12 @@ public class SimulationConfigService {
       Object typeObj = agentDef.get("type");
       Object nameObj = agentDef.get("name");
       if (typeObj instanceof String type && nameObj instanceof String name) {
-          if (expectedType.equalsIgnoreCase(type) && agentName.equals(name)) {
+        if (expectedType.equalsIgnoreCase(type) && agentName.equals(name)) {
           return agentDef;
         }
       } else {
-        logger.error("Warning: 'type' or 'name' field is not a String in agent definition: {}", agentDef);
+        logger.error(
+            "Warning: 'type' or 'name' field is not a String in agent definition: {}", agentDef);
       }
     }
     return null;
@@ -119,7 +140,8 @@ public class SimulationConfigService {
       throw new IllegalArgumentException("Missing 'simulation' key in configuration.");
     }
     if (!(simulationObj instanceof Map)) {
-      throw new IllegalArgumentException("'simulation' is not a Map. Found type: " + simulationObj.getClass().getName());
+      throw new IllegalArgumentException(
+          "'simulation' is not a Map. Found type: " + simulationObj.getClass().getName());
     }
     @SuppressWarnings("unchecked")
     Map<String, Object> simulationMap = (Map<String, Object>) simulationObj;
@@ -129,7 +151,8 @@ public class SimulationConfigService {
       throw new IllegalArgumentException("Missing 'agents' key in simulation configuration.");
     }
     if (!(agentsObj instanceof List)) {
-      throw new IllegalArgumentException("'agents' is not a List. Found type: " + agentsObj.getClass().getName());
+      throw new IllegalArgumentException(
+          "'agents' is not a List. Found type: " + agentsObj.getClass().getName());
     }
     @SuppressWarnings("unchecked")
     List<Object> rawAgentsList = (List<Object>) agentsObj;
