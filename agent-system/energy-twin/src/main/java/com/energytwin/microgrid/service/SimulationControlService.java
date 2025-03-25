@@ -9,17 +9,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class SimulationControlService {
 
-  @Setter private long tickIntervalMillis = 1000;
-  @Setter private int speedUpFactor = 1;
+  @Setter private int tickIntervalMillis = 1000;
+  @Setter private double speedUpFactor = 1;
   private volatile boolean paused = false;
 
   /**
-   * Returns the simulation tick increment in simulation seconds.
+   * Returns the simulation delay.
    *
-   * @return simulation tick increment.
+   * @return simulation delay.
    */
-  public long getSimulationTickIncrement() {
-    return tickIntervalMillis * speedUpFactor;
+  public long getSimulationDelay() {
+    return (long) (tickIntervalMillis / speedUpFactor);
   }
 
   public void pause() {
