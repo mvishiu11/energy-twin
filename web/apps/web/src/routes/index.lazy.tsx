@@ -19,11 +19,7 @@ function RouteComponent() {
     const [globalCoordinates, setGlobalCoordinates] = useState<{ clientX: number; clientY: number }>()
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
 
-    const {
-        markers: batteriesMarkers,
-        addMarker: addBatteryMarker,
-        markersPositions,
-    } = useMultipleMarkers({
+    const { markers: batteriesMarkers, addMarker: addBatteryMarker } = useMultipleMarkers({
         component: (
             <Icon color="green.500" size="2xl">
                 <LuDatabaseZap strokeWidth={2.5} />
@@ -31,8 +27,6 @@ function RouteComponent() {
         ),
         initialCoordinates: [[mapConfig.longitude, mapConfig.latitude]],
     })
-
-    console.log(markersPositions)
 
     const { markers: solarMarker, addMarker: addSolarMarker } = useMultipleMarkers({
         component: (
