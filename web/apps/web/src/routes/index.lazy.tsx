@@ -8,6 +8,7 @@ import { snapCenterToCursor } from "@dnd-kit/modifiers"
 import { mergeMarkers, useMultipleMarkers } from "../components/map/_hooks/useMultipleMarkers"
 import { Toolkit } from "../components/simulationSetup/Toolkit"
 import { idToIconMap } from "../components/simulationSetup/Toolkit/dndIds"
+import { mapConfig } from "../services/mapConfig"
 
 export const Route = createLazyFileRoute("/")({
     component: RouteComponent,
@@ -24,7 +25,7 @@ function RouteComponent() {
                 <LuDatabaseZap strokeWidth={2.5} />
             </Icon>
         ),
-        initialCoordinates: [[21.01167245859113, 52.22010375163748]],
+        initialCoordinates: [[mapConfig.longitude, mapConfig.latitude]],
     })
 
     const { markers: solarMarker, addMarker: addSolarMarker } = useMultipleMarkers({
@@ -70,9 +71,9 @@ function RouteComponent() {
                 <Map
                     ref={mapRef}
                     initialViewState={{
-                        longitude: 21.011672545859113,
-                        latitude: 52.22010375163748,
-                        zoom: 18,
+                        longitude: mapConfig.longitude,
+                        latitude: mapConfig.latitude,
+                        zoom: mapConfig.zoom,
                     }}
                     mapboxAccessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}
                     mapStyle="mapbox://styles/mapbox/light-v11">
