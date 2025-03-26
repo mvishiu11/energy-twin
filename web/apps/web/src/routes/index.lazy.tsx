@@ -2,7 +2,7 @@ import { Icon } from "@chakra-ui/react"
 import { createLazyFileRoute } from "@tanstack/react-router"
 import { useCallback, useMemo, useRef, useState } from "react"
 import { LuDatabaseZap, LuSun } from "react-icons/lu"
-import Map, { MapRef } from "react-map-gl/mapbox"
+import Map, { Layer, MapRef, Source } from "react-map-gl/mapbox"
 import { DndContext, DragOverlay, UniqueIdentifier } from "@dnd-kit/core"
 import { snapCenterToCursor } from "@dnd-kit/modifiers"
 import { mergeMarkers, useMultipleMarkers } from "../components/map/_hooks/useMultipleMarkers"
@@ -19,7 +19,11 @@ function RouteComponent() {
     const [globalCoordinates, setGlobalCoordinates] = useState<{ clientX: number; clientY: number }>()
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
 
-    const { markers: batteriesMarkers, addMarker: addBatteryMarker } = useMultipleMarkers({
+    const {
+        markers: batteriesMarkers,
+        addMarker: addBatteryMarker,
+        markersPositions,
+    } = useMultipleMarkers({
         component: (
             <Icon color="green.500" size="2xl">
                 <LuDatabaseZap strokeWidth={2.5} />
@@ -27,6 +31,8 @@ function RouteComponent() {
         ),
         initialCoordinates: [[mapConfig.longitude, mapConfig.latitude]],
     })
+
+    console.log(markersPositions)
 
     const { markers: solarMarker, addMarker: addSolarMarker } = useMultipleMarkers({
         component: (
@@ -78,6 +84,18 @@ function RouteComponent() {
                     mapboxAccessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}
                     mapStyle="mapbox://styles/mapbox/light-v11">
                     {combinedMarkers}
+                    <Source data={mapConfig.areaOfInterest} id="areaOfInterest" type="geojson" />
+                    <Layer
+                        id="areaOfInterest"
+                        paint={{
+                            "line-color": "var(--chakra-colors-color-palette-solid)",
+                            "line-width": 4,
+                            "line-dasharray": [3, 3],
+                            "line-opacity": 0.5,
+                        }}
+                        source="areaOfInterest"
+                        type="line"
+                    />
                 </Map>
                 <Toolkit />
                 <DragOverlay dropAnimation={null}>
