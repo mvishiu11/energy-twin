@@ -82,7 +82,7 @@ function RouteComponent() {
                     <Layer
                         id="areaOfInterest"
                         paint={{
-                            "line-color": "var(--chakra-colors-color-palette-solid)",
+                            "line-color": "green",
                             "line-width": 4,
                             "line-dasharray": [3, 3],
                             "line-opacity": 0.5,
@@ -92,7 +92,13 @@ function RouteComponent() {
                     />
                 </Map>
                 <Toolkit />
-                <DragOverlay dropAnimation={null}>
+                <DragOverlay
+                    dropAnimation={null}
+                    style={{
+                        display: "grid",
+                        placeItems: "center",
+                        cursor: "grabbing",
+                    }}>
                     {activeId && (
                         <Icon color="green.300" size="2xl">
                             {idToIconMap[activeId as keyof typeof idToIconMap]}
