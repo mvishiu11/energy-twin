@@ -46,7 +46,7 @@ public class EnergySourceAgent extends AbstractEnergySourceAgent {
     ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
     msg.setOntology("ENERGY_PRODUCTION");
     msg.setContent(String.valueOf(produced));
-    msg.addReceiver(new jade.core.AID("AggregationTopic", jade.core.AID.ISLOCALNAME));
+    msg.addReceiver(new jade.core.AID("AggregatorAgent", jade.core.AID.ISLOCALNAME));
     send(msg);
   }
 }

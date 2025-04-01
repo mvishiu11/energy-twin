@@ -8,14 +8,13 @@ import jade.lang.acl.ACLMessage;
 import lombok.Getter;
 
 /**
- * TickBroadcastBehaviour is responsible for broadcasting simulation tick messages.
- * It checks if the simulation is paused and increments simulation time.
- * It dynamically adjusts its tick interval by using the reset() method when the configuration changes.
+ * TickBroadcastBehaviour is responsible for broadcasting simulation tick messages. It checks if the
+ * simulation is paused and increments simulation time. It dynamically adjusts its tick interval by
+ * using the reset() method when the configuration changes.
  */
 public class TickBroadcastBehaviour extends TickerBehaviour {
 
-  @Getter
-  private long simulationTime = 0;
+  @Getter private long simulationTime = 0;
   private final AID tickTopic;
   private final SimulationControlService simulationControlService;
   private final SpringAgent agent;
@@ -27,9 +26,14 @@ public class TickBroadcastBehaviour extends TickerBehaviour {
    * @param a the agent that will run this behaviour.
    * @param period the initial tick interval in milliseconds.
    * @param tickTopic the AID of the tick topic to which tick messages will be sent.
-   * @param simulationControlService the simulation control service for getting tick increments and pause status.
+   * @param simulationControlService the simulation control service for getting tick increments and
+   *     pause status.
    */
-  public TickBroadcastBehaviour(SpringAgent a, long period, AID tickTopic, SimulationControlService simulationControlService) {
+  public TickBroadcastBehaviour(
+      SpringAgent a,
+      long period,
+      AID tickTopic,
+      SimulationControlService simulationControlService) {
     super(a, period);
     this.agent = a;
     this.tickTopic = tickTopic;

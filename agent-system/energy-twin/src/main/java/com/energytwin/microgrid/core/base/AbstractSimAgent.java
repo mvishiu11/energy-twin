@@ -14,6 +14,4 @@ public abstract class AbstractSimAgent extends SpringAgent {
    * @param simulationTime the current simulation time
    */
   public abstract void onTick(long simulationTime);
-
-  protected abstract void setConfigParams();
 }

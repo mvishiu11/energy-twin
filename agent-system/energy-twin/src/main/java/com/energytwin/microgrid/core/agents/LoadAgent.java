@@ -46,7 +46,7 @@ public class LoadAgent extends AbstractLoadAgent {
     ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
     msg.setOntology("ENERGY_CONSUMPTION");
     msg.setContent(String.valueOf(consumed));
-    msg.addReceiver(new jade.core.AID("AggregationTopic", jade.core.AID.ISLOCALNAME));
+    msg.addReceiver(new jade.core.AID("AggregatorAgent", jade.core.AID.ISLOCALNAME));
     send(msg);
   }
 }

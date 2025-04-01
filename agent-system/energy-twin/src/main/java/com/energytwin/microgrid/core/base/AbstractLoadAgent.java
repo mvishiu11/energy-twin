@@ -9,4 +9,6 @@ import lombok.Setter;
 @Setter
 public abstract class AbstractLoadAgent extends AbstractSimAgent {
   protected double consumptionRate;
+
+  protected abstract void setConfigParams();
 }

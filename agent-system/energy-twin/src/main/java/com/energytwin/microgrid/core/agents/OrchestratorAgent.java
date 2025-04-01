@@ -12,12 +12,12 @@ import jade.core.messaging.TopicManagementHelper;
  */
 public class OrchestratorAgent extends SpringAgent {
 
-    @Override
+  @Override
   protected void onAgentSetup() {
     log("Orchestrator Agent started.");
 
-      AID tickTopic;
-      try {
+    AID tickTopic;
+    try {
       TopicManagementHelper topicHelper =
           (TopicManagementHelper) getHelper(TopicManagementHelper.SERVICE_NAME);
       tickTopic = topicHelper.createTopic("TICK_TOPIC");
@@ -29,11 +29,12 @@ public class OrchestratorAgent extends SpringAgent {
       return;
     }
 
-        TickBroadcastBehaviour tickBroadcastBehaviour = new TickBroadcastBehaviour(
-                this,
-                simulationControlService.getSimulationDelay(),
-                tickTopic,
-                simulationControlService);
+    TickBroadcastBehaviour tickBroadcastBehaviour =
+        new TickBroadcastBehaviour(
+            this,
+            simulationControlService.getSimulationDelay(),
+            tickTopic,
+            simulationControlService);
     addBehaviour(tickBroadcastBehaviour);
   }
 }

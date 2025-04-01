@@ -1,6 +1,5 @@
 package com.energytwin.microgrid.core.base;
 
-import com.energytwin.microgrid.agentfusion.SpringAgent;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +9,18 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public abstract class AbstractEnergyStorageAgent extends SpringAgent {
-  protected double capacity;
-  protected double currentStored = 0.0;
+public abstract class AbstractEnergyStorageAgent extends AbstractSimAgent {
+  protected double capacity; // Maximum capacity in kW
+  public double currentSoC; // Current State of Charge
+  protected double cost; // Cost metric (single or separate for charge/discharge)
+
+  public double getAvailableToDischarge() {
+    return currentSoC;
+  }
+
+  public double getAvailableToCharge() {
+    return capacity - currentSoC;
+  }
+
+  protected abstract void setConfigParams();
 }

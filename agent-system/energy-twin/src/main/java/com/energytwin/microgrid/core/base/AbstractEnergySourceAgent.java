@@ -10,4 +10,6 @@ import lombok.Setter;
 public abstract class AbstractEnergySourceAgent extends AbstractSimAgent {
   /** -- SETTER -- Sets the production rate for this energy source. */
   protected double productionRate;
+
+  protected abstract void setConfigParams();
 }
