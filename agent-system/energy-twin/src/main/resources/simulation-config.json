@@ -1,6 +1,8 @@
 {
   "simulation": {
     "tickIntervalMillis": 1000,
+    "externalSourceCost": 5.0,
+    "externalSourceCap": 100,
     "agents": [
       {
         "type": "energySource",

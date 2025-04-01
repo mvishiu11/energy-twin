@@ -3,12 +3,11 @@ package com.energytwin.microgrid.core.agents;
 import com.energytwin.microgrid.agentfusion.SpringAgent;
 import com.energytwin.microgrid.core.behaviours.energy.ExternalSourceCNPResponder;
 import jade.core.AID;
-import java.util.Map;
 
 public class ExternalEnergySourceAgent extends SpringAgent {
 
-  public double maxSupplyPerTick = 100.0;
-  public double cost = 5.0;
+  public double maxSupplyPerTick;
+  public double cost;
 
   @Override
   protected void onAgentSetup() {
@@ -21,27 +20,8 @@ public class ExternalEnergySourceAgent extends SpringAgent {
   }
 
   private void setConfigParams() {
-    String type = "externalSource";
-    Map<String, Object> myConfig =
-        simulationConfigService.findAgentDefinition(type, getLocalName());
-    if (myConfig != null) {
-      Object supplyObj = myConfig.get("capacity");
-      if (supplyObj != null) {
-        try {
-          maxSupplyPerTick = Double.parseDouble(supplyObj.toString());
-        } catch (NumberFormatException e) {
-          log("Error parsing capacity for external source", e);
-        }
-      }
-      Object costObj = myConfig.get("cost");
-      if (costObj != null) {
-        try {
-          cost = Double.parseDouble(costObj.toString());
-        } catch (NumberFormatException e) {
-          log("Error parsing cost", e);
-        }
-      }
-    }
+    maxSupplyPerTick = simulationConfigService.getExternalSourceCap();
+    cost = simulationConfigService.getExternalSourceCost();
     log(
         "ExternalEnergySourceAgent config => maxSupplyPerTick="
             + maxSupplyPerTick

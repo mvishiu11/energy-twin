@@ -62,9 +62,48 @@ public class SimulationConfigService {
 
     Object intervalObj = simulationMap.get("tickIntervalMillis");
     if (intervalObj == null) {
-      throw new IllegalArgumentException("Missing 'agents' key in simulation configuration.");
+      throw new IllegalArgumentException(
+          "Missing 'tickIntervalMillis' key in simulation configuration.");
     }
     return (int) intervalObj;
+  }
+
+  public double getExternalSourceCost() {
+    Object simulationObj = config.get("simulation");
+    if (simulationObj == null) {
+      throw new IllegalArgumentException("Missing 'simulation' key in configuration.");
+    }
+    if (!(simulationObj instanceof Map)) {
+      throw new IllegalArgumentException(
+          "'simulation' is not a Map. Found type: " + simulationObj.getClass().getName());
+    }
+    @SuppressWarnings("unchecked")
+    Map<String, Object> simulationMap = (Map<String, Object>) simulationObj;
+
+    Object costObj = simulationMap.get("externalSourceCost");
+    if (costObj == null) {
+      return 9999.0;
+    }
+    return (double) costObj;
+  }
+
+  public double getExternalSourceCap() {
+    Object simulationObj = config.get("simulation");
+    if (simulationObj == null) {
+      throw new IllegalArgumentException("Missing 'simulation' key in configuration.");
+    }
+    if (!(simulationObj instanceof Map)) {
+      throw new IllegalArgumentException(
+          "'simulation' is not a Map. Found type: " + simulationObj.getClass().getName());
+    }
+    @SuppressWarnings("unchecked")
+    Map<String, Object> simulationMap = (Map<String, Object>) simulationObj;
+
+    Object capObj = simulationMap.get("externalSourceCap");
+    if (capObj == null) {
+      return 9999.0;
+    }
+    return (double) capObj;
   }
 
   /**
