@@ -1,33 +1,56 @@
 package com.energytwin.microgrid.service;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.springframework.stereotype.Service;
 
-/** Aggregates simulation logs in memory. */
+/** Aggregates simulation logs in memory, grouped by agent name. */
 @Service
 public class LogAggregatorService {
 
-  private final List<String> logs = new CopyOnWriteArrayList<>();
+  private final Map<String, List<String>> logsByAgent = new ConcurrentHashMap<>();
 
   /**
-   * Adds a log message with a timestamp.
+   * Adds a log message for a specific agent.
    *
-   * @param message the log message.
+   * @param agentName the name of the agent (e.g. Battery1, AggregatorAgent)
+   * @param message the log message
    */
-  public void log(String message) {
+  public void log(String agentName, String message) {
     String timestampedMessage = LocalDateTime.now() + ": " + message;
-    logs.add(timestampedMessage);
+    logsByAgent
+        .computeIfAbsent(agentName, k -> new CopyOnWriteArrayList<>())
+        .add(timestampedMessage);
   }
 
   /**
-   * Returns an unmodifiable list of all log messages.
+   * Returns all logs for all agents.
    *
-   * @return list of log messages.
+   * @return unmodifiable map of agent logs
    */
-  public List<String> getLogs() {
-    return Collections.unmodifiableList(logs);
+  public Map<String, List<String>> getAllLogs() {
+    Map<String, List<String>> copy = new HashMap<>();
+    for (Map.Entry<String, List<String>> entry : logsByAgent.entrySet()) {
+      copy.put(entry.getKey(), Collections.unmodifiableList(entry.getValue()));
+    }
+    return Collections.unmodifiableMap(copy);
+  }
+
+  /**
+   * Returns logs for a specific agent.
+   *
+   * @param agentName the agent's name
+   * @return unmodifiable list of logs, or empty list if agent not found
+   */
+  public List<String> getLogsForAgent(String agentName) {
+    return Collections.unmodifiableList(
+        logsByAgent.getOrDefault(agentName, Collections.emptyList()));
+  }
+
+  /** Clears all logs (useful for restarting simulations). */
+  public void clearLogs() {
+    logsByAgent.clear();
   }
 }

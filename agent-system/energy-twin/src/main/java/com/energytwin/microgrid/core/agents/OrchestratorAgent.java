@@ -1,7 +1,7 @@
 package com.energytwin.microgrid.core.agents;
 
 import com.energytwin.microgrid.agentfusion.SpringAgent;
-import com.energytwin.microgrid.core.behaviours.TickBroadcastBehaviour;
+import com.energytwin.microgrid.core.behaviours.tick.TickBroadcastBehaviour;
 import jade.core.AID;
 import jade.core.messaging.TopicManagementHelper;
 
@@ -12,17 +12,15 @@ import jade.core.messaging.TopicManagementHelper;
  */
 public class OrchestratorAgent extends SpringAgent {
 
-  private AID tickTopic;
-  private TickBroadcastBehaviour tickBroadcastBehaviour;
-
   @Override
   protected void onAgentSetup() {
     log("Orchestrator Agent started.");
 
+    AID tickTopic;
     try {
       TopicManagementHelper topicHelper =
           (TopicManagementHelper) getHelper(TopicManagementHelper.SERVICE_NAME);
-      tickTopic = topicHelper.createTopic("TickTopic");
+      tickTopic = topicHelper.createTopic("TICK_TOPIC");
       topicHelper.register(tickTopic);
       log("Tick topic created and registered: {}", tickTopic.getLocalName());
     } catch (Exception e) {
@@ -31,17 +29,12 @@ public class OrchestratorAgent extends SpringAgent {
       return;
     }
 
-    tickBroadcastBehaviour =
+    TickBroadcastBehaviour tickBroadcastBehaviour =
         new TickBroadcastBehaviour(
             this,
-            simulationControlService.getTickIntervalMillis(),
+            simulationControlService.getSimulationDelay(),
             tickTopic,
             simulationControlService);
     addBehaviour(tickBroadcastBehaviour);
-  }
-
-  @Override
-  public void onTick(long simulationTime) {
-    // Not used in the orchestrator.
   }
 }
