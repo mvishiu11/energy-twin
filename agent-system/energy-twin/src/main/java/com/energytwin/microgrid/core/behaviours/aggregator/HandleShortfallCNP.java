@@ -28,10 +28,6 @@ public class HandleShortfallCNP extends OneShotBehaviour {
     agent.log("SHORTFALL detected: " + shortfall + " kW. Attempting battery discharge first.");
 
     // 1) Send CFP to all storage + external agents for shortfall
-    // For simplicity, we can broadcast to a "STORAGE_TOPIC" or we can keep a known list.
-    // Let's broadcast to a well-known topic or “ALL_AGENTS” in a real system,
-    // then only the relevant agents respond. We'll assume all relevant agents respond
-    // if they can handle shortfall.
 
     ACLMessage cfp = new ACLMessage(ACLMessage.CFP);
     cfp.setOntology(ONT_CFP_SHORTFALL);
@@ -40,11 +36,11 @@ public class HandleShortfallCNP extends OneShotBehaviour {
 
     myAgent.send(cfp);
 
-    // 2) Wait for proposals. For demonstration, we'll do a blocking approach in the same tick
-    //    but ideally, you'd use an FSM or CyclicBehaviour to handle multiple messages.
+    // 2) Wait for proposals.
+    //    Ideally, we'd use an FSM or CyclicBehaviour to handle multiple messages.
 
     try {
-      Thread.sleep(100); // Give time for proposals to come in (placeholder approach).
+      Thread.sleep(100);
     } catch (InterruptedException e) {
       agent.log("Interrupted while waiting for proposals", e);
     }
@@ -108,8 +104,6 @@ public class HandleShortfallCNP extends OneShotBehaviour {
           "Still "
               + shortfallAfterBatteries
               + " kW shortfall after battery discharge. Logging partial blackout or future logic to request external source if not included above.");
-      // If external was not included in the above proposals, we can do another step here or log
-      // For now we assume external was included. If not satisfied => partial blackout
     } else {
       agent.log("Shortfall satisfied by battery discharge (and/or external if it responded).");
     }

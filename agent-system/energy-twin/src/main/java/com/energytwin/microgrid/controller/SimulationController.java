@@ -18,11 +18,11 @@ public class SimulationController {
 
   @Autowired private JadeContainerService jadeContainerService;
 
-  @Autowired private LogAggregatorService logService;
-
   @Autowired private SimulationControlService simulationControlService;
 
   @Autowired private SimulationConfigService simulationConfigService;
+
+  @Autowired private LogAggregatorService logAggregatorService;
 
   /**
    * Starts the simulation by receiving a startup configuration (JSON) via the request body,
@@ -87,16 +87,12 @@ public class SimulationController {
   public ResponseEntity<String> stopSimulation() {
     try {
       jadeContainerService.stopContainer();
+      logAggregatorService.clearLogs();
       return ResponseEntity.ok("Simulation stopped.");
     } catch (RuntimeException e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body("Error stopping simulation: " + e.getMessage());
     }
-  }
-
-  @GetMapping("/logs")
-  public ResponseEntity<List<String>> getLogs() {
-    return ResponseEntity.ok(logService.getLogs());
   }
 
   @PostMapping("/control/speed")
@@ -115,5 +111,17 @@ public class SimulationController {
   public ResponseEntity<String> resumeSimulation() {
     simulationControlService.resume();
     return ResponseEntity.ok("Simulation resumed.");
+  }
+
+  /** Returns all logs grouped by agent name. */
+  @GetMapping("/logs")
+  public ResponseEntity<Map<String, List<String>>> getAllLogs() {
+    return ResponseEntity.ok(logAggregatorService.getAllLogs());
+  }
+
+  /** Returns logs for a specific agent. */
+  @GetMapping("/logs/{agentName}")
+  public ResponseEntity<List<String>> getLogsForAgent(@PathVariable String agentName) {
+    return ResponseEntity.ok(logAggregatorService.getLogsForAgent(agentName));
   }
 }

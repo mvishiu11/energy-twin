@@ -66,7 +66,7 @@ public abstract class SpringAgent extends Agent {
     }
 
     if (logService != null) {
-      logService.log(formattedMessage);
+      logService.log(getLocalName(), formattedMessage);
     } else {
       logger.error("LogAggregatorService is not initialized!");
     }

@@ -67,9 +67,7 @@ public class ExternalSourceCNPResponder extends CyclicBehaviour {
 
   private void handleDecision(ACLMessage msg) {
     if (ONT_ACCEPT.equals(msg.getOntology())) {
-      // parse acceptedAmount
       double accepted = parseAccepted(msg.getContent());
-      // The external source just logs that it "sold" that amount of energy.
       agent.log("External source supplying " + accepted + " kW this tick.");
     } else if (ONT_REJECT.equals(msg.getOntology())) {
       agent.log("Proposal from external source was rejected: " + msg.getContent());

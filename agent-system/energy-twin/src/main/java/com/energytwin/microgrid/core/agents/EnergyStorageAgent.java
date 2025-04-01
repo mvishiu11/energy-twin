@@ -61,6 +61,6 @@ public class EnergyStorageAgent extends AbstractEnergyStorageAgent {
 
   @Override
   public void onTick(long simulationTime) {
-    log("Current SoC: " + this.getAvailableToDischarge());
+    log("Current SoC: " + this.getAvailableToDischarge() + " at tick: " + simulationTime);
   }
 }

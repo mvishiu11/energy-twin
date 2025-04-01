@@ -8,6 +8,6 @@ public class Proposal {
   AID sender;
   double amount;
   double cost;
-  int arrivalIndex; // tie-break
+  int arrivalIndex;
   double acceptedAmount;
 }

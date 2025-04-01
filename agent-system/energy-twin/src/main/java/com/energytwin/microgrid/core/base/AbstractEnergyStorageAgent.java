@@ -10,9 +10,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public abstract class AbstractEnergyStorageAgent extends AbstractSimAgent {
-  protected double capacity; // Maximum capacity in kW
-  public double currentSoC; // Current State of Charge
-  protected double cost; // Cost metric (single or separate for charge/discharge)
+  protected double capacity; // kW
+  public double currentSoC; // Current State of Charge in kW
+  protected double cost; // Cost metric
 
   public double getAvailableToDischarge() {
     return currentSoC;

@@ -126,7 +126,7 @@ public class BatteryCNPResponder extends CyclicBehaviour {
 
   private double parseAcceptedAmount(String content) {
     double amt = 0;
-    // content might be "acceptedAmount=5.0"
+    // example content "acceptedAmount=5.0"
     String[] tokens = content.split("=");
     if (tokens.length == 2) {
       try {

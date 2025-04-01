@@ -50,7 +50,7 @@ public class AggregatorAgent extends AbstractSimAgent {
 
   @Override
   public void onTick(long simulationTime) {
-    // 1) Compute net supply or net shortfall
+    // Compute net supply or net shortfall
     double net = totalProductionThisTick - totalConsumptionThisTick;
 
     log(
