@@ -1,7 +1,10 @@
 import { create } from "zustand"
 
+export type EntityType = "battery" | "solar"
+
 export type MapEntity = {
     id: string
+    name: string
     coordinates: [number, number]
 }
 
@@ -21,6 +24,8 @@ export type SimulationState = {
     addSolar: (entity: Solar) => void
     updateBattery: (id: string, updates: Partial<Battery>) => void
     updateSolar: (id: string, updates: Partial<Solar>) => void
+    selectedEntityId?: string
+    setSelectedEntityId: (id?: string) => void
 }
 
 export const useSimulationStore = create<SimulationState>()(set => ({
@@ -50,7 +55,7 @@ export const useSimulationStore = create<SimulationState>()(set => ({
             mapEntities: {
                 ...state.mapEntities,
                 batteries: state.mapEntities.batteries.map(battery =>
-                    battery.id === id ? { ...battery, ...updates } : battery
+                    battery.id === id ? { ...battery, ...updates } : battery,
                 ),
             },
         })),
@@ -58,9 +63,9 @@ export const useSimulationStore = create<SimulationState>()(set => ({
         set(state => ({
             mapEntities: {
                 ...state.mapEntities,
-                solar: state.mapEntities.solar.map(solar =>
-                    solar.id === id ? { ...solar, ...updates } : solar
-                ),
+                solar: state.mapEntities.solar.map(solar => (solar.id === id ? { ...solar, ...updates } : solar)),
             },
         })),
+    selectedEntityId: undefined,
+    setSelectedEntityId: (id?: string) => set({ selectedEntityId: id }),
 }))

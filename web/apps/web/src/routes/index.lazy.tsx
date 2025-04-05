@@ -1,13 +1,16 @@
-import { Icon } from "@chakra-ui/react"
+import { Button, Icon } from "@chakra-ui/react"
 import { createLazyFileRoute } from "@tanstack/react-router"
 import { useCallback, useMemo, useRef, useState } from "react"
-import { LuDatabaseZap, LuSun } from "react-icons/lu"
+import { LuDatabaseZap, LuSettings2, LuSun } from "react-icons/lu"
 import Map, { Layer, MapRef, Source } from "react-map-gl/mapbox"
 import { DndContext, DragOverlay, UniqueIdentifier } from "@dnd-kit/core"
 import { snapCenterToCursor } from "@dnd-kit/modifiers"
 import { useMarkers } from "../components/map/_hooks/useMarkers"
+import { SimulationDrawer } from "../components/simulationSetup/SimulationDrawer"
 import { Toolkit } from "../components/simulationSetup/Toolkit"
 import { idToIconMap } from "../components/simulationSetup/Toolkit/dndIds"
+import { Tooltip } from "../components/ui/tooltip"
+import { useDrawerStore } from "../infrastructure/stores/drawerStore"
 import { mapConfig } from "../services/mapConfig"
 
 export const Route = createLazyFileRoute("/")({
@@ -15,6 +18,7 @@ export const Route = createLazyFileRoute("/")({
 })
 
 function RouteComponent() {
+    const { isOpen, setIsOpen } = useDrawerStore()
     const mapRef = useRef<MapRef>(null)
     const [globalCoordinates, setGlobalCoordinates] = useState<{ clientX: number; clientY: number }>()
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
@@ -57,10 +61,10 @@ function RouteComponent() {
                             .unproject([globalCoordinates.clientX, globalCoordinates.clientY])
                         switch (activeId) {
                             case "battery":
-                                addBatteryMarker([lng, lat])
+                                addBatteryMarker([lng, lat], `Battery ${crypto.randomUUID()}`)
                                 break
                             case "solar":
-                                addSolarMarker([lng, lat])
+                                addSolarMarker([lng, lat], `Solar Panel ${crypto.randomUUID()}`)
                                 break
                         }
                     }
@@ -107,6 +111,19 @@ function RouteComponent() {
                     )}
                 </DragOverlay>
             </DndContext>
+            <Tooltip content="Open simulation setup" positioning={{ placement: "top" }}>
+                <Button
+                    bottom="10"
+                    hidden={isOpen}
+                    position="fixed"
+                    right="10"
+                    rounded="full"
+                    zIndex="max"
+                    onClick={() => setIsOpen(true)}>
+                    <LuSettings2 />
+                </Button>
+            </Tooltip>
+            <SimulationDrawer />
         </div>
     )
 }

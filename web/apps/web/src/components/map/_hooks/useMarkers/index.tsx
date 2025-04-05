@@ -1,33 +1,45 @@
 import { ReactNode } from "react"
 import { Marker } from "react-map-gl/mapbox"
-import { type Battery, type Solar, useSimulationStore } from "../../../../infrastructure/stores/simulationStore"
-
-type MarkerType = "battery" | "solar"
+import { useDrawerStore } from "../../../../infrastructure/stores/drawerStore"
+import {
+    type Battery,
+    EntityType,
+    type Solar,
+    useSimulationStore,
+} from "../../../../infrastructure/stores/simulationStore"
+import { SelectedMarker } from "./styles"
 
 type UseMarkersProps = {
-    type: MarkerType
+    type: EntityType
     component: ReactNode
 }
 
 export function useMarkers({ type, component }: UseMarkersProps) {
-    const { mapEntities, addBattery, addSolar, updateBattery, updateSolar } = useSimulationStore()
+    const { mapEntities, addBattery, addSolar, updateBattery, updateSolar, setSelectedEntityId, selectedEntityId } =
+        useSimulationStore()
 
-    const addMarker = (position: [number, number]) => {
+    const { setIsOpen } = useDrawerStore()
+
+    const addMarker = (position: [number, number], name: string) => {
+        const id = crypto.randomUUID()
         if (type === "battery") {
             const entity: Battery = {
-                id: crypto.randomUUID(),
+                id,
+                name,
                 coordinates: position,
                 capacity: 100,
             }
             addBattery(entity)
         } else {
             const entity: Solar = {
-                id: crypto.randomUUID(),
+                id,
+                name,
                 coordinates: position,
                 productionRate: 100,
             }
             addSolar(entity)
         }
+        setSelectedEntityId(id)
     }
 
     const markers = (type === "battery" ? mapEntities.batteries : mapEntities.solar).map(entity => (
@@ -36,6 +48,10 @@ export function useMarkers({ type, component }: UseMarkersProps) {
             draggable
             latitude={entity.coordinates[1]}
             longitude={entity.coordinates[0]}
+            onClick={() => {
+                setSelectedEntityId(entity.id)
+                setIsOpen(true)
+            }}
             onDragEnd={e => {
                 const { lng, lat } = e.target.getLngLat()
                 if (type === "battery") {
@@ -48,7 +64,7 @@ export function useMarkers({ type, component }: UseMarkersProps) {
                     })
                 }
             }}>
-            {component}
+            <SelectedMarker isSelected={selectedEntityId === entity.id}>{component}</SelectedMarker>
         </Marker>
     ))
 
