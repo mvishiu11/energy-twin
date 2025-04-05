@@ -5,7 +5,7 @@ import { LuDatabaseZap, LuSun } from "react-icons/lu"
 import Map, { Layer, MapRef, Source } from "react-map-gl/mapbox"
 import { DndContext, DragOverlay, UniqueIdentifier } from "@dnd-kit/core"
 import { snapCenterToCursor } from "@dnd-kit/modifiers"
-import { mergeMarkers, useMultipleMarkers } from "../components/map/_hooks/useMultipleMarkers"
+import { useMarkers } from "../components/map/_hooks/useMarkers"
 import { Toolkit } from "../components/simulationSetup/Toolkit"
 import { idToIconMap } from "../components/simulationSetup/Toolkit/dndIds"
 import { mapConfig } from "../services/mapConfig"
@@ -19,16 +19,17 @@ function RouteComponent() {
     const [globalCoordinates, setGlobalCoordinates] = useState<{ clientX: number; clientY: number }>()
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
 
-    const { markers: batteriesMarkers, addMarker: addBatteryMarker } = useMultipleMarkers({
+    const { markers: batteriesMarkers, addMarker: addBatteryMarker } = useMarkers({
+        type: "battery",
         component: (
             <Icon color="green.500" size="2xl">
                 <LuDatabaseZap strokeWidth={2.5} />
             </Icon>
         ),
-        initialCoordinates: [[mapConfig.longitude, mapConfig.latitude]],
     })
 
-    const { markers: solarMarker, addMarker: addSolarMarker } = useMultipleMarkers({
+    const { markers: solarMarker, addMarker: addSolarMarker } = useMarkers({
+        type: "solar",
         component: (
             <Icon color="green.500" size="2xl">
                 <LuSun strokeWidth={2.5} />
@@ -36,7 +37,7 @@ function RouteComponent() {
         ),
     })
 
-    const combinedMarkers = useMemo(() => mergeMarkers(batteriesMarkers, solarMarker), [batteriesMarkers, solarMarker])
+    const combinedMarkers = useMemo(() => [...batteriesMarkers, ...solarMarker], [batteriesMarkers, solarMarker])
 
     const mouseMoveHandler = useCallback((event: MouseEvent) => {
         const { clientX, clientY } = event
