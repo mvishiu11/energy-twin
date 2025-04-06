@@ -1,4 +1,4 @@
-import { Button, Icon } from "@chakra-ui/react"
+import { Icon, IconButton } from "@chakra-ui/react"
 import { createLazyFileRoute } from "@tanstack/react-router"
 import { useCallback, useMemo, useRef, useState } from "react"
 import { LuDatabaseZap, LuSettings2, LuSun } from "react-icons/lu"
@@ -112,16 +112,18 @@ function RouteComponent() {
                 </DragOverlay>
             </DndContext>
             <Tooltip content="Open simulation setup" positioning={{ placement: "top" }}>
-                <Button
+                <IconButton
                     bottom="10"
                     hidden={isOpen}
                     position="fixed"
                     right="10"
                     rounded="full"
+                    size="xl"
+                    variant="solid"
                     zIndex="max"
                     onClick={() => setIsOpen(true)}>
                     <LuSettings2 />
-                </Button>
+                </IconButton>
             </Tooltip>
             <SimulationDrawer />
         </div>

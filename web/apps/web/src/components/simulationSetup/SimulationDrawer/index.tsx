@@ -19,8 +19,8 @@ export function SimulationDrawer() {
                         <DrawerTitle>Simulation Setup</DrawerTitle>
                     </Drawer.Header>
                     <Drawer.Body>
-                        <Flex direction="column" gap="2">
-                            <Heading>Batteries</Heading>
+                        <Flex direction="column" gap="4">
+                            <Heading size="xl">Batteries</Heading>
                             {mapEntities.batteries.map(battery => (
                                 <BatteryEntityCard
                                     key={battery.id}
@@ -29,7 +29,7 @@ export function SimulationDrawer() {
                                     name={battery.name}
                                 />
                             ))}
-                            <Heading>Solar Panels</Heading>
+                            <Heading size="xl">Solar Panels</Heading>
                             {mapEntities.solar.map(solar => (
                                 <SolarEntityCard
                                     key={solar.id}
