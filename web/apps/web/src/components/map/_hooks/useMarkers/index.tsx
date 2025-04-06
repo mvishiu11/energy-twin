@@ -21,6 +21,7 @@ export function useMarkers({ type, component }: UseMarkersProps) {
     const { setIsOpen } = useDrawerStore()
 
     const addMarker = (position: [number, number], name: string) => {
+        setIsOpen(true)
         const id = crypto.randomUUID()
         if (type === "battery") {
             const entity: Battery = {
