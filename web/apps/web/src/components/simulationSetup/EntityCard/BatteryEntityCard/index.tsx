@@ -2,7 +2,7 @@ import { BaseEntityCard, BaseEntityCardProps } from ".."
 import { useSimulationStore } from "../../../../infrastructure/stores/simulationStore"
 import { EditableField } from "../../EditableField"
 
-type BatteryEntityCardProps = BaseEntityCardProps & {
+type BatteryEntityCardProps = Omit<BaseEntityCardProps, "type"> & {
     capacity: number
 }
 
@@ -16,7 +16,7 @@ export function BatteryEntityCard({ id, name, capacity }: BatteryEntityCardProps
     }
 
     return (
-        <BaseEntityCard id={id} name={name}>
+        <BaseEntityCard id={id} name={name} type="battery">
             <EditableField label="Capacity" value={capacity.toString()} onChange={handleValueChange} />
         </BaseEntityCard>
     )

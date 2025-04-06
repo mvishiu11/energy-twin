@@ -1,15 +1,16 @@
 import { Card } from "@chakra-ui/react"
 import { PropsWithChildren } from "react"
-import { useSimulationStore } from "../../../infrastructure/stores/simulationStore"
+import { EntityType, useSimulationStore } from "../../../infrastructure/stores/simulationStore"
 import { EditableField } from "../EditableField"
 
 export type BaseEntityCardProps = {
     id: string
     name: string
+    type: EntityType
 }
 
-export function BaseEntityCard({ id, name, children }: PropsWithChildren<BaseEntityCardProps>) {
-    const { updateBattery, selectedEntityId, setSelectedEntityId } = useSimulationStore()
+export function BaseEntityCard({ id, name, children, type }: PropsWithChildren<BaseEntityCardProps>) {
+    const { updateBattery, updateSolar, selectedEntityId, setSelectedEntityId } = useSimulationStore()
 
     return (
         <Card.Root
@@ -21,7 +22,13 @@ export function BaseEntityCard({ id, name, children }: PropsWithChildren<BaseEnt
             onClick={() => setSelectedEntityId(id)}>
             <Card.Body gap="4">
                 <Card.Title>
-                    <EditableField label="Name" value={name} onChange={name => updateBattery(id, { name })} />
+                    <EditableField
+                        label="Name"
+                        value={name}
+                        onChange={name =>
+                            type === "battery" ? updateBattery(id, { name }) : updateSolar(id, { name })
+                        }
+                    />
                 </Card.Title>
                 {children}
             </Card.Body>

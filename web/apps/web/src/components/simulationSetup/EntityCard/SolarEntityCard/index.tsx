@@ -2,7 +2,7 @@ import { BaseEntityCard, BaseEntityCardProps } from ".."
 import { useSimulationStore } from "../../../../infrastructure/stores/simulationStore"
 import { EditableField } from "../../EditableField"
 
-type SolarEntityCardProps = BaseEntityCardProps & {
+type SolarEntityCardProps = Omit<BaseEntityCardProps, "type"> & {
     productionRate: number
 }
 
@@ -16,7 +16,7 @@ export function SolarEntityCard({ id, name, productionRate }: SolarEntityCardPro
     }
 
     return (
-        <BaseEntityCard id={id} name={name}>
+        <BaseEntityCard id={id} name={name} type="solar">
             <EditableField label="Production Rate" value={productionRate.toString()} onChange={handleValueChange} />
         </BaseEntityCard>
     )
