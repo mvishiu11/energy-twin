@@ -1,13 +1,16 @@
-import { Icon } from "@chakra-ui/react"
+import { Icon, IconButton } from "@chakra-ui/react"
 import { createLazyFileRoute } from "@tanstack/react-router"
 import { useCallback, useMemo, useRef, useState } from "react"
-import { LuDatabaseZap, LuSun } from "react-icons/lu"
-import Map, { MapRef } from "react-map-gl/mapbox"
+import { LuDatabaseZap, LuSettings2, LuSun } from "react-icons/lu"
+import Map, { Layer, MapRef, Source } from "react-map-gl/mapbox"
 import { DndContext, DragOverlay, UniqueIdentifier } from "@dnd-kit/core"
 import { snapCenterToCursor } from "@dnd-kit/modifiers"
-import { mergeMarkers, useMultipleMarkers } from "../components/map/_hooks/useMultipleMarkers"
+import { useMarkers } from "../components/map/_hooks/useMarkers"
+import { SimulationDrawer } from "../components/simulationSetup/SimulationDrawer"
 import { Toolkit } from "../components/simulationSetup/Toolkit"
 import { idToIconMap } from "../components/simulationSetup/Toolkit/dndIds"
+import { Tooltip } from "../components/ui/tooltip"
+import { useDrawerStore } from "../infrastructure/stores/drawerStore"
 import { mapConfig } from "../services/mapConfig"
 
 export const Route = createLazyFileRoute("/")({
@@ -15,20 +18,22 @@ export const Route = createLazyFileRoute("/")({
 })
 
 function RouteComponent() {
+    const { isOpen, setIsOpen } = useDrawerStore()
     const mapRef = useRef<MapRef>(null)
     const [globalCoordinates, setGlobalCoordinates] = useState<{ clientX: number; clientY: number }>()
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
 
-    const { markers: batteriesMarkers, addMarker: addBatteryMarker } = useMultipleMarkers({
+    const { markers: batteriesMarkers, addMarker: addBatteryMarker } = useMarkers({
+        type: "battery",
         component: (
             <Icon color="green.500" size="2xl">
                 <LuDatabaseZap strokeWidth={2.5} />
             </Icon>
         ),
-        initialCoordinates: [[mapConfig.longitude, mapConfig.latitude]],
     })
 
-    const { markers: solarMarker, addMarker: addSolarMarker } = useMultipleMarkers({
+    const { markers: solarMarker, addMarker: addSolarMarker } = useMarkers({
+        type: "solar",
         component: (
             <Icon color="green.500" size="2xl">
                 <LuSun strokeWidth={2.5} />
@@ -36,7 +41,7 @@ function RouteComponent() {
         ),
     })
 
-    const combinedMarkers = useMemo(() => mergeMarkers(batteriesMarkers, solarMarker), [batteriesMarkers, solarMarker])
+    const combinedMarkers = useMemo(() => [...batteriesMarkers, ...solarMarker], [batteriesMarkers, solarMarker])
 
     const mouseMoveHandler = useCallback((event: MouseEvent) => {
         const { clientX, clientY } = event
@@ -56,10 +61,10 @@ function RouteComponent() {
                             .unproject([globalCoordinates.clientX, globalCoordinates.clientY])
                         switch (activeId) {
                             case "battery":
-                                addBatteryMarker([lng, lat])
+                                addBatteryMarker([lng, lat], `Battery ${crypto.randomUUID()}`)
                                 break
                             case "solar":
-                                addSolarMarker([lng, lat])
+                                addSolarMarker([lng, lat], `Solar Panel ${crypto.randomUUID()}`)
                                 break
                         }
                     }
@@ -78,9 +83,27 @@ function RouteComponent() {
                     mapboxAccessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}
                     mapStyle="mapbox://styles/mapbox/light-v11">
                     {combinedMarkers}
+                    <Source data={mapConfig.areaOfInterest} id="areaOfInterest" type="geojson" />
+                    <Layer
+                        id="areaOfInterest"
+                        paint={{
+                            "line-color": "green",
+                            "line-width": 4,
+                            "line-dasharray": [3, 3],
+                            "line-opacity": 0.5,
+                        }}
+                        source="areaOfInterest"
+                        type="line"
+                    />
                 </Map>
                 <Toolkit />
-                <DragOverlay dropAnimation={null}>
+                <DragOverlay
+                    dropAnimation={null}
+                    style={{
+                        display: "grid",
+                        placeItems: "center",
+                        cursor: "grabbing",
+                    }}>
                     {activeId && (
                         <Icon color="green.300" size="2xl">
                             {idToIconMap[activeId as keyof typeof idToIconMap]}
@@ -88,6 +111,21 @@ function RouteComponent() {
                     )}
                 </DragOverlay>
             </DndContext>
+            <Tooltip content="Open simulation setup" positioning={{ placement: "top" }}>
+                <IconButton
+                    bottom="10"
+                    hidden={isOpen}
+                    position="fixed"
+                    right="10"
+                    rounded="full"
+                    size="xl"
+                    variant="solid"
+                    zIndex="max"
+                    onClick={() => setIsOpen(true)}>
+                    <LuSettings2 />
+                </IconButton>
+            </Tooltip>
+            <SimulationDrawer />
         </div>
     )
 }
