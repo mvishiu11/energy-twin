@@ -1,4 +1,4 @@
-import { Button } from "@chakra-ui/react"
+import { IconButton } from "@chakra-ui/react"
 import { PropsWithChildren } from "react"
 import { useDraggable } from "@dnd-kit/core"
 
@@ -12,8 +12,8 @@ export function DraggableButton({ children, id }: PropsWithChildren<DraggableBut
     })
 
     return (
-        <Button ref={setNodeRef} {...listeners} {...attributes} size="lg">
+        <IconButton ref={setNodeRef} rounded="xl" {...listeners} {...attributes} size="xl">
             {children}
-        </Button>
+        </IconButton>
     )
 }
