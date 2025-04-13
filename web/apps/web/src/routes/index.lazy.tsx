@@ -6,6 +6,7 @@ import Map, { Layer, MapRef, Source } from "react-map-gl/mapbox"
 import { DndContext, DragOverlay, UniqueIdentifier } from "@dnd-kit/core"
 import { snapCenterToCursor } from "@dnd-kit/modifiers"
 import { useMarkers } from "../components/map/_hooks/useMarkers"
+import { LogsWindow } from "../components/simulationRuntime"
 import { SimulationDrawer } from "../components/simulationSetup/SimulationDrawer"
 import { Toolkit } from "../components/simulationSetup/Toolkit"
 import { idToIconMap } from "../components/simulationSetup/Toolkit/dndIds"
@@ -127,6 +128,7 @@ function RouteComponent() {
                 </IconButton>
             </Tooltip>
             <SimulationDrawer />
+            <LogsWindow />
         </div>
     )
 }
