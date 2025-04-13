@@ -4,6 +4,15 @@
   "type": "module",
   "private": true,
   "nx": {
-    "name": "web"
+    "name": "web",
+    "targets": {
+      "client-gen": {
+        "executor": "nx:run-commands",
+        "options": {
+          "cwd": "apps/web",
+          "command": "npx @hey-api/openapi-ts -i http://localhost:8081/v3/api-docs -c @hey-api/client-fetch -o src/infrastructure/fetching/api && eslint src/infrastructure/fetching/api --fix && prettier src/infrastructure/fetching/api --write"
+        }
+      }
+    }
   }
 }

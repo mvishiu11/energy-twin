@@ -2,6 +2,7 @@ import { createRouter, RouterProvider } from "@tanstack/react-router"
 import React from "react"
 import ReactDOM from "react-dom/client"
 import { Provider } from "./components/ui/provider"
+import { QueryProvider } from "./infrastructure/fetching/QueryClientProvider"
 import { routeTree } from "./routeTree.gen"
 import "mapbox-gl/dist/mapbox-gl.css"
 
@@ -19,7 +20,9 @@ if (rootElement && !rootElement.innerHTML) {
     root.render(
         <React.StrictMode>
             <Provider defaultTheme="light">
-                <RouterProvider router={router} />
+                <QueryProvider>
+                    <RouterProvider router={router} />
+                </QueryProvider>
             </Provider>
         </React.StrictMode>,
     )
