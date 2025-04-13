@@ -1,6 +1,6 @@
 import { Box, Code, Flex, Heading, IconButton, Text } from "@chakra-ui/react"
 import { Maximize2, Minimize2, X } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useLogs } from "../../infrastructure/fetching"
 import { useColorModeValue } from "../ui/color-mode"
 
@@ -13,12 +13,24 @@ export const LogsWindow = ({ onClose }: LogsWindowProps) => {
     const { data: logs } = useLogs()
     const [isMinimized, setIsMinimized] = useState(false)
     const [position, setPosition] = useState({ x: 10, y: 10 })
+    const logsContainerRef = useRef<HTMLDivElement>(null)
 
     const bgColor = useColorModeValue("gray.50", "gray.800")
     const headerBgColor = useColorModeValue("gray.200", "gray.700")
     const borderColor = useColorModeValue("gray.300", "gray.600")
     const textColor = useColorModeValue("gray.800", "gray.100")
     const codeBg = useColorModeValue("blackAlpha.50", "whiteAlpha.50")
+
+    // Auto-scroll to bottom when logs change
+    useEffect(() => {
+        if (logsContainerRef.current && logs && logs.length > 0) {
+            const container = logsContainerRef.current
+            container.scrollTo({
+                top: container.scrollHeight,
+                behavior: "smooth",
+            })
+        }
+    }, [logs])
 
     const handleMouseDown = (e: React.MouseEvent) => {
         const initialX = e.clientX - position.x
@@ -78,7 +90,13 @@ export const LogsWindow = ({ onClose }: LogsWindowProps) => {
                 </Flex>
             </Flex>
             {!isMinimized && (
-                <Box fontFamily="monospace" fontSize="sm" height="calc(100% - 40px)" overflowY="auto" padding="4">
+                <Box
+                    ref={logsContainerRef}
+                    fontFamily="monospace"
+                    fontSize="sm"
+                    height="calc(100% - 40px)"
+                    overflowY="auto"
+                    padding="4">
                     <Code
                         bg={codeBg}
                         borderRadius="md"
