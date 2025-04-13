@@ -19,7 +19,8 @@ export function SimulationDrawer() {
                 <DrawerRoot
                     animate={{ translateX: "0%" }}
                     exit={{ translateX: "100%" }}
-                    initial={{ translateX: "100%" }}>
+                    initial={{ translateX: "100%" }}
+                    transition={{ duration: 0.2, ease: "circInOut" }}>
                     <Flex direction="column" gap="4" width={drawerWidth}>
                         <Flex direction="row" justify="space-between">
                             <Heading size="xl">Simulation Setup</Heading>
@@ -28,7 +29,7 @@ export function SimulationDrawer() {
                             </IconButton>
                         </Flex>
                         <Flex direction="column" gap="4">
-                            <Heading size="xl">Batteries</Heading>
+                            <Heading size="md">Batteries</Heading>
                             {mapEntities.batteries.length ? (
                                 mapEntities.batteries.map(battery => (
                                     <BatteryEntityCard
@@ -44,7 +45,7 @@ export function SimulationDrawer() {
                                     message="No batteries added. Drag and drop a battery from the toolkit at the bottom to add one."
                                 />
                             )}
-                            <Heading size="xl">Solar Panels</Heading>
+                            <Heading size="md">Solar Panels</Heading>
                             {mapEntities.solar.length ? (
                                 mapEntities.solar.map(solar => (
                                     <SolarEntityCard
