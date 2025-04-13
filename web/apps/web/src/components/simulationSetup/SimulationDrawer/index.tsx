@@ -1,7 +1,8 @@
-import { EmptyState, Flex, Heading, IconButton } from "@chakra-ui/react"
+import { Button, EmptyState, Flex, Heading, IconButton } from "@chakra-ui/react"
 import { AnimatePresence } from "motion/react"
 import { ReactNode } from "react"
-import { LuDatabaseZap, LuSun, LuX } from "react-icons/lu"
+import { LuCirclePlay, LuCircleStop, LuDatabaseZap, LuSun, LuX } from "react-icons/lu"
+import { startSimulation, stopSimulation } from "../../../infrastructure/fetching/api"
 import { useDrawerStore } from "../../../infrastructure/stores/drawerStore"
 import { useSimulationStore } from "../../../infrastructure/stores/simulationStore"
 import { BatteryEntityCard } from "../EntityCard/BatteryEntityCard"
@@ -59,6 +60,16 @@ export function SimulationDrawer() {
                                     message="No solar panels added. Drag and drop a solar panel from the toolkit at the bottom to add one."
                                 />
                             )}
+                        </Flex>
+                        <Flex direction="row" gap="2" justifyContent="flex-end">
+                            <Button variant="solid" onClick={() => startSimulation()}>
+                                Start
+                                <LuCirclePlay />
+                            </Button>
+                            <Button colorPalette="red" variant="solid" onClick={() => stopSimulation()}>
+                                Stop
+                                <LuCircleStop />
+                            </Button>
                         </Flex>
                     </Flex>
                 </DrawerRoot>
