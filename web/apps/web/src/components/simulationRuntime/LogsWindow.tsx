@@ -21,7 +21,6 @@ export const LogsWindow = ({ onClose }: LogsWindowProps) => {
     const textColor = useColorModeValue("gray.800", "gray.100")
     const codeBg = useColorModeValue("blackAlpha.50", "whiteAlpha.50")
 
-    // Auto-scroll to bottom when logs change
     useEffect(() => {
         if (logsContainerRef.current && logs && logs.length > 0) {
             const container = logsContainerRef.current
@@ -54,7 +53,7 @@ export const LogsWindow = ({ onClose }: LogsWindowProps) => {
 
     return (
         <Box
-            bg={bgColor}
+            backgroundColor={bgColor}
             border="1px solid"
             borderColor={borderColor}
             borderRadius="md"
@@ -66,25 +65,20 @@ export const LogsWindow = ({ onClose }: LogsWindowProps) => {
             width={isMinimized ? "200px" : "700px"}>
             <Flex
                 alignItems="center"
-                bg={headerBgColor}
+                backgroundColor={headerBgColor}
                 cursor="move"
                 justifyContent="space-between"
-                p={2}
+                padding={2}
                 userSelect="none"
                 onMouseDown={handleMouseDown}>
                 <Heading fontFamily="monospace" size="sm">
                     Simulation Logs
                 </Heading>
                 <Flex>
-                    <IconButton
-                        aria-label={isMinimized ? "Maximize" : "Minimize"}
-                        mr={1}
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setIsMinimized(!isMinimized)}>
+                    <IconButton marginRight={1} size="sm" variant="ghost" onClick={() => setIsMinimized(!isMinimized)}>
                         {isMinimized ? <Maximize2 size={16} /> : <Minimize2 size={16} />}
                     </IconButton>
-                    <IconButton aria-label="Close" size="sm" variant="ghost" onClick={onClose}>
+                    <IconButton size="sm" variant="ghost" onClick={onClose}>
                         <X size={16} />
                     </IconButton>
                 </Flex>
@@ -98,7 +92,7 @@ export const LogsWindow = ({ onClose }: LogsWindowProps) => {
                     overflowY="auto"
                     padding="4">
                     <Code
-                        bg={codeBg}
+                        backgroundColor={codeBg}
                         borderRadius="md"
                         color={textColor}
                         display="block"
