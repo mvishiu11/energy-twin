@@ -44,6 +44,7 @@ public class SimulationController {
       jadeContainerService.launchAgent("AggregatorAgent", AGENT_BASE_PATH + "AggregatorAgent");
       jadeContainerService.launchAgent(
           "ExternalSupply", AGENT_BASE_PATH + "ExternalEnergySourceAgent");
+      jadeContainerService.launchAgent("WeatherAgent", AGENT_BASE_PATH + "WeatherAgent");
 
       // Load agent configuration from the updated configuration
       Object agentsObj =

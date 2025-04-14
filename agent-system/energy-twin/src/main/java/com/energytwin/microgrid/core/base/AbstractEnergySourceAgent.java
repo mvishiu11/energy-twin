@@ -1,5 +1,6 @@
 package com.energytwin.microgrid.core.base;
 
+import lombok.Getter;
 import lombok.Setter;
 
 /**
@@ -8,8 +9,9 @@ import lombok.Setter;
  */
 @Setter
 public abstract class AbstractEnergySourceAgent extends AbstractSimAgent {
-  /** -- SETTER -- Sets the production rate for this energy source. */
-  protected double productionRate;
+  protected double efficiency;
+  protected double area;
+  @Getter protected double latestIrradiance;
 
   protected abstract void setConfigParams();
 }
