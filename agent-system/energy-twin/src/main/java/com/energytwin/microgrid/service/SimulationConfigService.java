@@ -2,42 +2,114 @@ package com.energytwin.microgrid.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-/** Loads simulation configuration from an external JSON file. */
+/**
+ * Loads simulation configuration from an external JSON file or via API and provides utility methods
+ * to validate and retrieve the configuration.
+ */
+@Getter
 @Service
 public class SimulationConfigService {
 
-  @Value("classpath:simulation-config.json")
-  private Resource configResource;
+  private static final Logger logger = LoggerFactory.getLogger(SimulationConfigService.class);
 
-  @Getter private Map<?, ?> config;
-
-  private final Logger logger = LoggerFactory.getLogger(SimulationConfigService.class);
+  private Map<?, ?> config;
 
   @PostConstruct
   public void init() {
-    try (InputStream is = configResource.getInputStream()) {
-      ObjectMapper mapper = new ObjectMapper();
-      config = mapper.readValue(is, Map.class);
-      System.out.println("Simulation configuration loaded: " + config);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to load simulation configuration: " + e.getMessage(), e);
-    }
+    logger.info("No default simulation configuration loaded. Waiting for startup config via API.");
   }
 
   /**
-   * Validates and retrieves the list of agent definitions from the simulation configuration. It
-   * checks that:
+   * Sets the simulation configuration from a JSON string. This method parses the provided JSON and
+   * updates the internal configuration.
+   *
+   * @param configJson the simulation configuration as a JSON string.
+   */
+  public void setConfigFromString(String configJson) {
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      Map<?, ?> newConfig = mapper.readValue(configJson, Map.class);
+      if (!newConfig.containsKey("simulation")) {
+        throw new IllegalArgumentException("Provided configuration is missing 'simulation' key.");
+      }
+      this.config = newConfig;
+      logger.info("Simulation configuration updated via API: {}", config);
+    } catch (Exception e) {
+      logger.error("Error parsing simulation configuration from string", e);
+      throw new RuntimeException("Error parsing simulation configuration: " + e.getMessage(), e);
+    }
+  }
+
+  public int getTickIntervalMillis() {
+    Object simulationObj = config.get("simulation");
+    if (simulationObj == null) {
+      throw new IllegalArgumentException("Missing 'simulation' key in configuration.");
+    }
+    if (!(simulationObj instanceof Map)) {
+      throw new IllegalArgumentException(
+          "'simulation' is not a Map. Found type: " + simulationObj.getClass().getName());
+    }
+    @SuppressWarnings("unchecked")
+    Map<String, Object> simulationMap = (Map<String, Object>) simulationObj;
+
+    Object intervalObj = simulationMap.get("tickIntervalMillis");
+    if (intervalObj == null) {
+      throw new IllegalArgumentException(
+          "Missing 'tickIntervalMillis' key in simulation configuration.");
+    }
+    return (int) intervalObj;
+  }
+
+  public double getExternalSourceCost() {
+    Object simulationObj = config.get("simulation");
+    if (simulationObj == null) {
+      throw new IllegalArgumentException("Missing 'simulation' key in configuration.");
+    }
+    if (!(simulationObj instanceof Map)) {
+      throw new IllegalArgumentException(
+          "'simulation' is not a Map. Found type: " + simulationObj.getClass().getName());
+    }
+    @SuppressWarnings("unchecked")
+    Map<String, Object> simulationMap = (Map<String, Object>) simulationObj;
+
+    Object costObj = simulationMap.get("externalSourceCost");
+    if (costObj == null) {
+      return 9999.0;
+    }
+    return (double) costObj;
+  }
+
+  public double getExternalSourceCap() {
+    Object simulationObj = config.get("simulation");
+    if (simulationObj == null) {
+      throw new IllegalArgumentException("Missing 'simulation' key in configuration.");
+    }
+    if (!(simulationObj instanceof Map)) {
+      throw new IllegalArgumentException(
+          "'simulation' is not a Map. Found type: " + simulationObj.getClass().getName());
+    }
+    @SuppressWarnings("unchecked")
+    Map<String, Object> simulationMap = (Map<String, Object>) simulationObj;
+
+    Object capObj = simulationMap.get("externalSourceCap");
+    if (capObj == null) {
+      return 9999.0;
+    }
+    return (double) capObj;
+  }
+
+  /**
+   * Validates and retrieves the list of agent definitions from the simulation configuration.
+   *
+   * <p>It checks that:
    *
    * <ul>
    *   <li>The configuration contains a "simulation" key whose value is a Map.
@@ -82,7 +154,7 @@ public class SimulationConfigService {
    * matches the expected type and name.
    *
    * @param expectedType The expected type (e.g., "energySource").
-   * @param agentName The name of the agent (usually the result of getLocalName()).
+   * @param agentName The name of the agent.
    * @return The agent definition map if found; otherwise, null.
    */
   public Map<String, Object> findAgentDefinition(String expectedType, String agentName) {

@@ -1,4 +1,4 @@
-package com.energytwin.microgrid.core.behaviours;
+package com.energytwin.microgrid.core.behaviours.tick;
 
 import com.energytwin.microgrid.core.base.AbstractSimAgent;
 import jade.core.AID;
