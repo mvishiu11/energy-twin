@@ -1,0 +1,182 @@
+{
+  "name": "energy-twin",
+  "version": "1",
+  "items": [
+    {
+      "type": "http",
+      "name": "Simulation Start",
+      "filename": "Simulation Start.bru",
+      "seq": 2,
+      "request": {
+        "url": "http://localhost:8081/simulation/start",
+        "method": "POST",
+        "headers": [],
+        "params": [],
+        "body": {
+          "mode": "json",
+          "json": "{\n  \"simulation\": {\n    \"tickIntervalMillis\": 1000,\n    \"externalSourceCost\": 5.0,\n    \"externalSourceCap\": 100.0,\n    \"agents\": [\n      {\n        \"type\": \"energySource\",\n        \"name\": \"SolarPanel1\",\n        \"efficiency\": 0.21,\n        \"area\": 2.0\n      },\n      {\n        \"type\": \"energyStorage\",\n        \"name\": \"Battery1\",\n        \"capacity\": 300.0,\n        \"cost\": 2,\n        \"initialSoC\": 10\n      },\n      {\n        \"type\": \"energyStorage\",\n        \"name\": \"Battery2\",\n        \"capacity\": 300.0,\n        \"cost\": 1,\n        \"initialSoC\": 30\n      },\n      {\n        \"type\": \"load\",\n        \"name\": \"Building1\",\n        \"consumptionRate\": 90.0\n      },\n      {\n        \"type\": \"load\",\n        \"name\": \"Building2\",\n        \"consumptionRate\": 30.0\n      }\n    ]\n  }\n}",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "",
+        "auth": {
+          "mode": "inherit"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Get All Logs",
+      "filename": "Get All Logs.bru",
+      "seq": 3,
+      "request": {
+        "url": "http://localhost:8081/simulation/logs",
+        "method": "GET",
+        "headers": [],
+        "params": [],
+        "body": {
+          "mode": "none",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "",
+        "auth": {
+          "mode": "inherit"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Control Pause",
+      "filename": "Control Pause.bru",
+      "seq": 4,
+      "request": {
+        "url": "http://localhost:8081/simulation/control/pause",
+        "method": "POST",
+        "headers": [],
+        "params": [],
+        "body": {
+          "mode": "none",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "",
+        "auth": {
+          "mode": "inherit"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Control Resume",
+      "filename": "Control Resume.bru",
+      "seq": 5,
+      "request": {
+        "url": "http://localhost:8081/simulation/control/resume",
+        "method": "POST",
+        "headers": [],
+        "params": [],
+        "body": {
+          "mode": "none",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "",
+        "auth": {
+          "mode": "inherit"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Control Speed",
+      "filename": "Control Speed.bru",
+      "seq": 6,
+      "request": {
+        "url": "http://localhost:8081/simulation/control/speed?factor=0.5",
+        "method": "POST",
+        "headers": [],
+        "params": [
+          {
+            "name": "factor",
+            "value": "0.5",
+            "type": "query",
+            "enabled": true
+          }
+        ],
+        "body": {
+          "mode": "none",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "",
+        "auth": {
+          "mode": "inherit"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Simulation Stop",
+      "filename": "Simulation Stop.bru",
+      "seq": 7,
+      "request": {
+        "url": "http://localhost:8081/simulation/stop",
+        "method": "POST",
+        "headers": [],
+        "params": [],
+        "body": {
+          "mode": "none",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "",
+        "auth": {
+          "mode": "inherit"
+        }
+      }
+    }
+  ],
+  "environments": [],
+  "brunoConfig": {
+    "version": "1",
+    "name": "energy-twin",
+    "type": "collection",
+    "ignore": [
+      "node_modules",
+      ".git"
+    ],
+    "size": 0,
+    "filesCount": 0
+  }
+}
