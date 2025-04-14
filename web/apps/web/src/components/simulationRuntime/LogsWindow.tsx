@@ -1,6 +1,7 @@
 import { Box, Code, Flex, Heading, IconButton, Text } from "@chakra-ui/react"
 import { Maximize2, Minimize2, X } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
+import { Virtuoso } from "react-virtuoso"
 import { useLogs } from "../../infrastructure/fetching"
 import { useColorModeValue } from "../ui/color-mode"
 
@@ -100,11 +101,15 @@ export const LogsWindow = ({ onClose }: LogsWindowProps) => {
                         whiteSpace="pre-wrap"
                         width="100%">
                         {logs && logs.length > 0 ? (
-                            logs.map((log, index) => (
-                                <Text key={index} mb={1}>
-                                    {log}
-                                </Text>
-                            ))
+                            <Virtuoso
+                                itemContent={index => (
+                                    <Text key={index} marginBottom="1">
+                                        {logs[index]}
+                                    </Text>
+                                )}
+                                style={{ height: "300px" }}
+                                totalCount={logs.length}
+                            />
                         ) : (
                             <Text color="gray.500">No logs available...</Text>
                         )}
