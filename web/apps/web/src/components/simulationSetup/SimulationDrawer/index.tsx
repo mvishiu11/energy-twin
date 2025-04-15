@@ -1,8 +1,9 @@
 import { Button, EmptyState, Flex, Heading, IconButton } from "@chakra-ui/react"
 import { AnimatePresence } from "motion/react"
-import { ReactNode } from "react"
+import { ReactNode, useMemo } from "react"
 import { LuCirclePlay, LuCircleStop, LuDatabaseZap, LuSun, LuX } from "react-icons/lu"
-import { startSimulation, stopSimulation } from "../../../infrastructure/fetching/api"
+import { useStartSimulation } from "../../../infrastructure/fetching"
+import { stopSimulation } from "../../../infrastructure/fetching/api"
 import { useDrawerStore } from "../../../infrastructure/stores/drawerStore"
 import { useSimulationStore } from "../../../infrastructure/stores/simulationStore"
 import { BatteryEntityCard } from "../EntityCard/BatteryEntityCard"
@@ -12,6 +13,42 @@ import { DrawerRoot } from "./styles"
 export function SimulationDrawer() {
     const { mapEntities } = useSimulationStore()
     const { isOpen, setIsOpen, drawerWidth } = useDrawerStore()
+    const { mutate: startSimulation } = useStartSimulation()
+
+    const jsonStringConfig = useMemo(
+        () => ({
+            simulation: {
+                tickIntervalMillis: 1000,
+                externalSourceCost: 5.0,
+                externalSourceCap: 100,
+                agents: [
+                    ...mapEntities.batteries.map(battery => ({
+                        type: "energyStorage",
+                        name: battery.id,
+                        cost: 2,
+                        initialSoC: 10,
+                        capacity: battery.capacity,
+                    })),
+                    ...mapEntities.solar.map(solar => ({
+                        type: "energySource",
+                        name: solar.id,
+                        productionRate: solar.productionRate,
+                    })),
+                    {
+                        type: "load",
+                        name: "Building1",
+                        consumptionRate: 90.0,
+                    },
+                    {
+                        type: "load",
+                        name: "Building2",
+                        consumptionRate: 30.0,
+                    },
+                ],
+            },
+        }),
+        [mapEntities],
+    )
 
     return (
         <AnimatePresence>
@@ -63,7 +100,7 @@ export function SimulationDrawer() {
                             )}
                         </Flex>
                         <Flex direction="row" gap="2" justifyContent="flex-end">
-                            <Button variant="solid" onClick={() => startSimulation()}>
+                            <Button variant="solid" onClick={() => startSimulation(jsonStringConfig as any)}>
                                 Start
                                 <LuCirclePlay />
                             </Button>

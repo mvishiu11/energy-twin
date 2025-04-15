@@ -4,7 +4,7 @@ export type StopSimulationData = {
     body?: never
     path?: never
     query?: never
-    url: "/simulate/stop"
+    url: "/simulation/stop"
 }
 
 export type StopSimulationResponses = {
@@ -17,10 +17,10 @@ export type StopSimulationResponses = {
 export type StopSimulationResponse = StopSimulationResponses[keyof StopSimulationResponses]
 
 export type StartSimulationData = {
-    body?: never
+    body: string
     path?: never
     query?: never
-    url: "/simulate/start"
+    url: "/simulation/start"
 }
 
 export type StartSimulationResponses = {
@@ -38,7 +38,7 @@ export type SetSpeedData = {
     query: {
         factor: number
     }
-    url: "/simulate/control/speed"
+    url: "/simulation/control/speed"
 }
 
 export type SetSpeedResponses = {
@@ -54,7 +54,7 @@ export type ResumeSimulationData = {
     body?: never
     path?: never
     query?: never
-    url: "/simulate/control/resume"
+    url: "/simulation/control/resume"
 }
 
 export type ResumeSimulationResponses = {
@@ -70,7 +70,7 @@ export type PauseSimulationData = {
     body?: never
     path?: never
     query?: never
-    url: "/simulate/control/pause"
+    url: "/simulation/control/pause"
 }
 
 export type PauseSimulationResponses = {
@@ -82,21 +82,41 @@ export type PauseSimulationResponses = {
 
 export type PauseSimulationResponse = PauseSimulationResponses[keyof PauseSimulationResponses]
 
-export type GetLogsData = {
+export type GetAllLogsData = {
     body?: never
     path?: never
     query?: never
-    url: "/simulate/logs"
+    url: "/simulation/logs"
 }
 
-export type GetLogsResponses = {
+export type GetAllLogsResponses = {
+    /**
+     * OK
+     */
+    200: {
+        [key: string]: Array<string>
+    }
+}
+
+export type GetAllLogsResponse = GetAllLogsResponses[keyof GetAllLogsResponses]
+
+export type GetLogsForAgentData = {
+    body?: never
+    path: {
+        agentName: string
+    }
+    query?: never
+    url: "/simulation/logs/{agentName}"
+}
+
+export type GetLogsForAgentResponses = {
     /**
      * OK
      */
     200: Array<string>
 }
 
-export type GetLogsResponse = GetLogsResponses[keyof GetLogsResponses]
+export type GetLogsForAgentResponse = GetLogsForAgentResponses[keyof GetLogsForAgentResponses]
 
 export type ClientOptions = {
     baseUrl: "http://localhost:8081" | (string & {})

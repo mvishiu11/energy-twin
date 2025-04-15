@@ -2,8 +2,10 @@
 
 import { client as _heyApiClient } from "./client.gen"
 import type {
-    GetLogsData,
-    GetLogsResponse,
+    GetAllLogsData,
+    GetAllLogsResponse,
+    GetLogsForAgentData,
+    GetLogsForAgentResponse,
     PauseSimulationData,
     PauseSimulationResponse,
     ResumeSimulationData,
@@ -38,23 +40,27 @@ export const stopSimulation = <ThrowOnError extends boolean = false>(
     options?: Options<StopSimulationData, ThrowOnError>,
 ) => {
     return (options?.client ?? _heyApiClient).post<StopSimulationResponse, unknown, ThrowOnError>({
-        url: "/simulate/stop",
+        url: "/simulation/stop",
         ...options,
     })
 }
 
 export const startSimulation = <ThrowOnError extends boolean = false>(
-    options?: Options<StartSimulationData, ThrowOnError>,
+    options: Options<StartSimulationData, ThrowOnError>,
 ) => {
-    return (options?.client ?? _heyApiClient).post<StartSimulationResponse, unknown, ThrowOnError>({
-        url: "/simulate/start",
+    return (options.client ?? _heyApiClient).post<StartSimulationResponse, unknown, ThrowOnError>({
+        url: "/simulation/start",
         ...options,
+        headers: {
+            "Content-Type": "application/json",
+            ...options?.headers,
+        },
     })
 }
 
 export const setSpeed = <ThrowOnError extends boolean = false>(options: Options<SetSpeedData, ThrowOnError>) => {
     return (options.client ?? _heyApiClient).post<SetSpeedResponse, unknown, ThrowOnError>({
-        url: "/simulate/control/speed",
+        url: "/simulation/control/speed",
         ...options,
     })
 }
@@ -63,7 +69,7 @@ export const resumeSimulation = <ThrowOnError extends boolean = false>(
     options?: Options<ResumeSimulationData, ThrowOnError>,
 ) => {
     return (options?.client ?? _heyApiClient).post<ResumeSimulationResponse, unknown, ThrowOnError>({
-        url: "/simulate/control/resume",
+        url: "/simulation/control/resume",
         ...options,
     })
 }
@@ -72,14 +78,23 @@ export const pauseSimulation = <ThrowOnError extends boolean = false>(
     options?: Options<PauseSimulationData, ThrowOnError>,
 ) => {
     return (options?.client ?? _heyApiClient).post<PauseSimulationResponse, unknown, ThrowOnError>({
-        url: "/simulate/control/pause",
+        url: "/simulation/control/pause",
         ...options,
     })
 }
 
-export const getLogs = <ThrowOnError extends boolean = false>(options?: Options<GetLogsData, ThrowOnError>) => {
-    return (options?.client ?? _heyApiClient).get<GetLogsResponse, unknown, ThrowOnError>({
-        url: "/simulate/logs",
+export const getAllLogs = <ThrowOnError extends boolean = false>(options?: Options<GetAllLogsData, ThrowOnError>) => {
+    return (options?.client ?? _heyApiClient).get<GetAllLogsResponse, unknown, ThrowOnError>({
+        url: "/simulation/logs",
+        ...options,
+    })
+}
+
+export const getLogsForAgent = <ThrowOnError extends boolean = false>(
+    options: Options<GetLogsForAgentData, ThrowOnError>,
+) => {
+    return (options.client ?? _heyApiClient).get<GetLogsForAgentResponse, unknown, ThrowOnError>({
+        url: "/simulation/logs/{agentName}",
         ...options,
     })
 }
