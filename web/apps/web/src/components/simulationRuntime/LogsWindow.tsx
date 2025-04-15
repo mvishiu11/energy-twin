@@ -1,7 +1,6 @@
 import { Box, Code, Flex, Heading, IconButton, Text } from "@chakra-ui/react"
 import { Maximize2, Minimize2, X } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
-import { Virtuoso } from "react-virtuoso"
+import { useRef, useState } from "react"
 import { useLogs } from "../../infrastructure/fetching"
 import { useColorModeValue } from "../ui/color-mode"
 
@@ -12,7 +11,7 @@ interface LogsWindowProps {
 
 export const LogsWindow = ({ onClose }: LogsWindowProps) => {
     const { data: logs } = useLogs()
-    const [isMinimized, setIsMinimized] = useState(false)
+    const [isMinimized, setIsMinimized] = useState(true)
     const [position, setPosition] = useState({ x: 10, y: 10 })
     const logsContainerRef = useRef<HTMLDivElement>(null)
 
@@ -22,15 +21,15 @@ export const LogsWindow = ({ onClose }: LogsWindowProps) => {
     const textColor = useColorModeValue("gray.800", "gray.100")
     const codeBg = useColorModeValue("blackAlpha.50", "whiteAlpha.50")
 
-    useEffect(() => {
-        if (logsContainerRef.current && logs && logs.length > 0) {
-            const container = logsContainerRef.current
-            container.scrollTo({
-                top: container.scrollHeight,
-                behavior: "smooth",
-            })
-        }
-    }, [logs])
+    // useEffect(() => {
+    //     if (logsContainerRef.current && logs) {
+    //         const container = logsContainerRef.current
+    //         container.scrollTo({
+    //             top: container.scrollHeight,
+    //             behavior: "smooth",
+    //         })
+    //     }
+    // }, [logs])
 
     const handleMouseDown = (e: React.MouseEvent) => {
         const initialX = e.clientX - position.x
@@ -63,7 +62,7 @@ export const LogsWindow = ({ onClose }: LogsWindowProps) => {
             overflow="hidden"
             position="fixed"
             style={{ left: position.x, top: position.y }}
-            width={isMinimized ? "200px" : "700px"}>
+            width={isMinimized ? "200px" : "1000px"}>
             <Flex
                 alignItems="center"
                 backgroundColor={headerBgColor}
@@ -100,16 +99,8 @@ export const LogsWindow = ({ onClose }: LogsWindowProps) => {
                         padding="4"
                         whiteSpace="pre-wrap"
                         width="100%">
-                        {logs && logs.length > 0 ? (
-                            <Virtuoso
-                                itemContent={index => (
-                                    <Text key={index} marginBottom="1">
-                                        {logs[index]}
-                                    </Text>
-                                )}
-                                style={{ height: "300px" }}
-                                totalCount={logs.length}
-                            />
+                        {logs ? (
+                            <Text color="gray.500">{Object.keys(logs).map(key => logs[key])}</Text>
                         ) : (
                             <Text color="gray.500">No logs available...</Text>
                         )}
