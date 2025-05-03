@@ -49,7 +49,7 @@ function RouteComponent() {
     }, [])
 
     return (
-        <div style={{ width: "100vw", height: "100vh" }}>
+        <div style={{ width: "100%", height: "100vh" }}>
             <DndContext
                 modifiers={[snapCenterToCursor]}
                 onDragEnd={() => {
@@ -96,6 +96,7 @@ function RouteComponent() {
                         type="line"
                     />
                 </Map>
+
                 <Toolkit />
                 <DragOverlay
                     dropAnimation={null}
@@ -117,9 +118,9 @@ function RouteComponent() {
                     hidden={isOpen}
                     position="fixed"
                     right="10"
-                    rounded="full"
+                    rounded="xl"
                     size="xl"
-                    variant="solid"
+                    variant="subtle"
                     zIndex="max"
                     onClick={() => setIsOpen(true)}>
                     <LuSettings2 />
