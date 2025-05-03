@@ -1,5 +1,6 @@
 package com.energytwin.microgrid.controller;
 
+import com.energytwin.microgrid.dto.*;
 import com.energytwin.microgrid.service.JadeContainerService;
 import com.energytwin.microgrid.service.LogAggregatorService;
 import com.energytwin.microgrid.service.SimulationConfigService;
@@ -32,10 +33,10 @@ public class SimulationController {
    * @return HTTP response indicating success or error
    */
   @PostMapping("/start")
-  public ResponseEntity<String> startSimulation(@RequestBody String configJson) {
+  public ResponseEntity<String> startSimulation(@RequestBody StartSimulationDTO config) {
     try {
       // Update the simulation configuration with the provided JSON
-      simulationConfigService.setConfigFromString(configJson);
+//      simulationConfigService.setConfigFromString(configJson);
 
       // Start the JADE container and launch core agents
       jadeContainerService.startContainer();
@@ -47,33 +48,27 @@ public class SimulationController {
       jadeContainerService.launchAgent("WeatherAgent", AGENT_BASE_PATH + "WeatherAgent");
 
       // Load agent configuration from the updated configuration
-      Object agentsObj =
-          ((Map<?, ?>) simulationConfigService.getConfig().get("simulation")).get("agents");
-      if (agentsObj instanceof List<?> agentsList) {
-        for (Object agentDef : agentsList) {
-          if (agentDef instanceof Map) {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> agentConfig = (Map<String, Object>) agentDef;
-            String type = (String) agentConfig.get("type");
-            String name = (String) agentConfig.get("name");
-            // Decide agent class based on type
-            String className;
-            switch (type) {
-              case "energySource":
-                className = AGENT_BASE_PATH + "EnergySourceAgent";
-                break;
-              case "energyStorage":
-                className = AGENT_BASE_PATH + "EnergyStorageAgent";
-                break;
-              case "load":
-                className = AGENT_BASE_PATH + "LoadAgent";
-                break;
-              default:
-                continue; // Unknown type, skip
-            }
-            jadeContainerService.launchAgent(name, className);
+      List<AgentType> agentsList = config.getSimulation().getAgents();
+      for (AgentType agentDef : agentsList) {
+          String className;
+          String name;
+          switch (agentDef.getType()) {
+            case "energySource":
+              name = ((EnergySource) agentDef).getName();
+              className = AGENT_BASE_PATH + "EnergySourceAgent";
+              break;
+            case "energyStorage":
+              name = ((EnergyStorage) agentDef).getName();
+              className = AGENT_BASE_PATH + "EnergyStorageAgent";
+              break;
+            case "load":
+              name = ((Load) agentDef).getName();
+              className = AGENT_BASE_PATH + "LoadAgent";
+              break;
+            default:
+              continue;
           }
-        }
+          jadeContainerService.launchAgent(name, className);
       }
       int tickInterval = simulationConfigService.getTickIntervalMillis();
       simulationControlService.setTickIntervalMillis(tickInterval);
