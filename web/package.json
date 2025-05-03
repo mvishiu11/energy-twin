@@ -11,6 +11,8 @@
     "@dnd-kit/modifiers": "9.0.0",
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.0",
+    "@hey-api/client-fetch": "0.10.0",
+    "@tanstack/react-query": "5.73.3",
     "@tanstack/react-router": "1.114.25",
     "geojson": "0.5.0",
     "lucide-react": "0.483.0",
@@ -22,11 +24,13 @@
     "react-icons": "^5.5.0",
     "react-is": "19.0.0",
     "react-map-gl": "8.0.1",
+    "react-virtuoso": "4.12.6",
     "zustand": "5.0.3"
   },
   "devDependencies": {
     "@emotion/babel-plugin": "11.13.5",
     "@eslint/js": "^9.8.0",
+    "@hey-api/openapi-ts": "0.66.3",
     "@nx/eslint": "20.6.1",
     "@nx/eslint-plugin": "20.6.1",
     "@nx/js": "20.6.1",

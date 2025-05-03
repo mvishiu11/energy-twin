@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /** REST Controller for simulation operations. */
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/simulation")
 public class SimulationController {
