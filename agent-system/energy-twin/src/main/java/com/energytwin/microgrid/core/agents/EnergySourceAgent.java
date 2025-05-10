@@ -51,6 +51,8 @@ public class EnergySourceAgent extends AbstractEnergySourceAgent {
     double powerKW = latestIrradiance * area * efficiency;
     log("Produced: " + powerKW + " kW (Irradiance=" + latestIrradiance + ")");
 
+    reportState(0.0, powerKW, 0.0);
+
     ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
     msg.setOntology("ENERGY_PRODUCTION");
     msg.setContent(String.valueOf(powerKW));

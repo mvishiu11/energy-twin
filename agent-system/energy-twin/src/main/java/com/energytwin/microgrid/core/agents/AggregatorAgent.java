@@ -63,6 +63,8 @@ public class AggregatorAgent extends AbstractSimAgent {
             + ", Net="
             + net);
 
+    reportState(totalConsumptionThisTick, totalProductionThisTick, 0.0);
+
     if (net < 0) {
       // SHORTFALL scenario
       double shortfall = Math.abs(net);

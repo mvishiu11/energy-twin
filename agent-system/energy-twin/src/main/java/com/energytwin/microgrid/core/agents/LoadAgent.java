@@ -43,6 +43,8 @@ public class LoadAgent extends AbstractLoadAgent {
     double consumed = consumptionRate;
     log("Consumed energy: " + consumed + " kW at simulation time: " + simulationTime);
 
+    reportState(consumed, 0.0, 0.0);
+
     ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
     msg.setOntology("ENERGY_CONSUMPTION");
     msg.setContent(String.valueOf(consumed));

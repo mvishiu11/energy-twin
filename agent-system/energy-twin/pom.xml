@@ -29,14 +29,21 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!-- WebSocket + STOMP support -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+
+
         <!-- JADE dependency -->
         <dependency>
             <groupId>com.tilab.jade</groupId>
             <artifactId>jade</artifactId>
             <type>jar</type>
             <version>4.6.0</version>
-<!--            <scope>system</scope>-->
-<!--            <systemPath>${project.basedir}/lib/jade.jar</systemPath>-->
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/jade.jar</systemPath>
         </dependency>
 
         <!-- Lombok for boilerplate reduction -->

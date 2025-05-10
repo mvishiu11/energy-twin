@@ -34,7 +34,8 @@ public class OrchestratorAgent extends SpringAgent {
             this,
             simulationControlService.getSimulationDelay(),
             tickTopic,
-            simulationControlService);
+            simulationControlService,
+            simulationControlServiceWS);
     addBehaviour(tickBroadcastBehaviour);
   }
 }
