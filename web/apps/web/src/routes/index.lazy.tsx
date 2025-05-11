@@ -1,10 +1,11 @@
-import { Icon, IconButton, Tabs } from "@chakra-ui/react"
+import { Box, Icon, IconButton, Tabs } from "@chakra-ui/react"
 import { createLazyFileRoute } from "@tanstack/react-router"
 import { useCallback, useMemo, useRef, useState } from "react"
 import { LuDatabaseZap, LuLayoutDashboard, LuMap, LuSettings2, LuSun } from "react-icons/lu"
 import Map, { Layer, MapRef, Source } from "react-map-gl/mapbox"
 import { DndContext, DragOverlay, UniqueIdentifier } from "@dnd-kit/core"
 import { snapCenterToCursor } from "@dnd-kit/modifiers"
+import { Dashboard } from "../components/dashboard"
 import { useMarkers } from "../components/map/_hooks/useMarkers"
 import { SimulationDrawer } from "../components/simulationSetup/SimulationDrawer"
 import { Toolkit } from "../components/simulationSetup/Toolkit"
@@ -143,7 +144,9 @@ function RouteComponent() {
                         </div>
                     </Tabs.Content>
                     <Tabs.Content value="dashboard">
-                        <h2>Dashboard Content Will Go Here</h2>
+                        <Box paddingX={6}>
+                            <Dashboard />
+                        </Box>
                     </Tabs.Content>
                 </Tabs.ContentGroup>
             </Tabs.Root>
