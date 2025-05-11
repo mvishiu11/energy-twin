@@ -9,7 +9,7 @@ type SolarEntityCardProps = Omit<BaseEntityCardProps, "type"> & {
 }
 
 export function SolarEntityCard({ id, name, productionRate, currentProduction }: SolarEntityCardProps) {
-    const { updateSolar } = useSimulationStore()
+    const { updateSolar, isRunning } = useSimulationStore()
 
     const handleValueChange = (value: string) => {
         if (isNaN(Number(value))) return
@@ -19,10 +19,15 @@ export function SolarEntityCard({ id, name, productionRate, currentProduction }:
 
     return (
         <BaseEntityCard id={id} name={name} type="solar">
-            <EditableField label="Production Rate" value={productionRate.toString()} onChange={handleValueChange} />
-            <Field.Root justifyContent="start" orientation="horizontal">
+            <EditableField
+                disabled={isRunning}
+                label="Production Rate"
+                value={productionRate.toString()}
+                onChange={handleValueChange}
+            />
+            <Field.Root disabled={isRunning} justifyContent="start" orientation="horizontal">
                 <Field.Label>Current production</Field.Label>
-                {(currentProduction / 1000).toFixed(2)} kW
+                {(currentProduction ?? 0 / 1000).toFixed(2)} kW
             </Field.Root>
         </BaseEntityCard>
     )

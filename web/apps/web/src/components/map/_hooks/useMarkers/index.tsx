@@ -22,8 +22,9 @@ export function useMarkers({ type, component }: UseMarkersProps) {
 
     const addMarker = (position: [number, number], name: string) => {
         setIsOpen(true)
-        const id = crypto.randomUUID()
+        let id: string
         if (type === "battery") {
+            id = `Battery ${mapEntities.batteries.length + 1}`
             const entity: Battery = {
                 id,
                 name,
@@ -32,6 +33,7 @@ export function useMarkers({ type, component }: UseMarkersProps) {
             }
             addBattery(entity)
         } else {
+            id = `Solar ${mapEntities.solar.length + 1}`
             const entity: Solar = {
                 id,
                 name,

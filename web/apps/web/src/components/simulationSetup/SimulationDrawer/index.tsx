@@ -168,7 +168,7 @@ export function SimulationDrawer() {
                                     {isRunning ? <LuCircleStop /> : <LuCirclePlay />}
                                 </Button>
                             </motion.div>
-                            <Button variant="outline" onClick={() => pauseSimulation()}>
+                            <Button disabled={!isRunning} variant="outline" onClick={() => pauseSimulation()}>
                                 Pause
                                 <LuCirclePause />
                             </Button>

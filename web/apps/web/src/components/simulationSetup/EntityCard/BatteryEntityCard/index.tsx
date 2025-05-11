@@ -1,6 +1,5 @@
 import { HStack, Progress } from "@chakra-ui/react"
 import { interpolate } from "motion/react"
-import { useCallback } from "react"
 import { BaseEntityCard, BaseEntityCardProps } from ".."
 import { useSimulationStore } from "../../../../infrastructure/stores/simulationStore"
 import { EditableField } from "../../EditableField"
@@ -11,7 +10,7 @@ type BatteryEntityCardProps = Omit<BaseEntityCardProps, "type"> & {
 }
 
 export function BatteryEntityCard({ id, name, capacity, chargeLevel }: BatteryEntityCardProps) {
-    const { updateBattery } = useSimulationStore()
+    const { updateBattery, isRunning } = useSimulationStore()
 
     const handleValueChange = (value: string) => {
         if (isNaN(Number(value))) return
@@ -21,7 +20,12 @@ export function BatteryEntityCard({ id, name, capacity, chargeLevel }: BatteryEn
 
     return (
         <BaseEntityCard id={id} name={name} type="battery">
-            <EditableField label="Capacity" value={capacity.toString()} onChange={handleValueChange} />
+            <EditableField
+                disabled={isRunning}
+                label="Capacity"
+                value={capacity.toString()}
+                onChange={handleValueChange}
+            />
             {chargeLevel !== undefined && (
                 <>
                     <Progress.Root max={capacity} min={0} value={chargeLevel}>
