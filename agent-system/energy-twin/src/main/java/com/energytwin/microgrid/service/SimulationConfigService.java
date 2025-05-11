@@ -119,7 +119,7 @@ public class SimulationConfigService {
     @SuppressWarnings("unchecked")
     Map<String, Object> simulationMap = (Map<String, Object>) simulationObj;
 
-    Object metricsPerNTick = simulationMap.get("metricsPerNTick");
+    Object metricsPerNTick = simulationMap.get("metricsPerNTicks");
 
     if (metricsPerNTick == null){
       return 2;
