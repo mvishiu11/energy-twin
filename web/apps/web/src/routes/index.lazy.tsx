@@ -1,6 +1,6 @@
 import { Box, Icon, IconButton, Tabs } from "@chakra-ui/react"
 import { createLazyFileRoute } from "@tanstack/react-router"
-import { useCallback, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { LuDatabaseZap, LuLayoutDashboard, LuMap, LuSettings2, LuSun } from "react-icons/lu"
 import Map, { Layer, MapRef, Source } from "react-map-gl/mapbox"
 import { DndContext, DragOverlay, UniqueIdentifier } from "@dnd-kit/core"
@@ -11,6 +11,7 @@ import { SimulationDrawer } from "../components/simulationSetup/SimulationDrawer
 import { Toolkit } from "../components/simulationSetup/Toolkit"
 import { idToIconMap } from "../components/simulationSetup/Toolkit/dndIds"
 import { Tooltip } from "../components/ui/tooltip"
+import { useStopSimulation } from "../infrastructure/fetching"
 import { useDrawerStore } from "../infrastructure/stores/drawerStore"
 import { mapConfig } from "../services/mapConfig"
 
@@ -23,6 +24,19 @@ function RouteComponent() {
     const mapRef = useRef<MapRef>(null)
     const [globalCoordinates, setGlobalCoordinates] = useState<{ clientX: number; clientY: number }>()
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
+    const { mutateAsync: stopSimulation } = useStopSimulation()
+
+    const handleBeforeUnload = useCallback(async () => {
+        await stopSimulation()
+    }, [stopSimulation])
+
+    useEffect(() => {
+        window.addEventListener("beforeunload", handleBeforeUnload)
+
+        return () => {
+            window.removeEventListener("beforeunload", handleBeforeUnload)
+        }
+    }, [handleBeforeUnload])
 
     const { markers: batteriesMarkers, addMarker: addBatteryMarker } = useMarkers({
         type: "battery",
