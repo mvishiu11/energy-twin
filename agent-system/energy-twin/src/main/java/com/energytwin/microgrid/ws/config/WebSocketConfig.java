@@ -21,8 +21,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         //Data stream endpoint
         registry.addEndpoint("/ws/data").setAllowedOriginPatterns("*").withSockJS();
 
-        // Metrics stream endpoint
-        registry.addEndpoint("/ws/metrics").setAllowedOriginPatterns("*").withSockJS();
     }
 
 }

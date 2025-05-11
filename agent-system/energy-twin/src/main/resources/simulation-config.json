@@ -2,6 +2,7 @@
   "simulation": {
     "tickIntervalMillis": 1000,
     "externalSourceCost": 5.0,
+    "metricsPerNTicks": 2,
     "externalSourceCap": 100,
     "agents": [
       {
