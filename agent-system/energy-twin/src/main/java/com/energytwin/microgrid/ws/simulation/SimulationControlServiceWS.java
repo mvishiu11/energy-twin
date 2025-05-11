@@ -21,6 +21,9 @@ public class SimulationControlServiceWS {
     private double cumulativeTotalDemand = 0.0;
     private double cumulativeGreenSupply = 0.0;
 
+    private double totalDemandPerNTicks = 0.0;
+    private double totalProducedPerNTicks = 0.0;
+
     public SimulationControlServiceWS(TickPublishingService tickPublisher, MetricsPublishingService metricsPublisher, AgentStateRegistry registry, SimulationConfigService simulationConfigService) {
         this.tickPublisher = tickPublisher;
         this.metricsPublisher = metricsPublisher;
@@ -39,9 +42,12 @@ public class SimulationControlServiceWS {
         double thisTickGreen =  registry.getTotalGreenEnergyGeneration();
 
         cumulativeTotalDemand += thisTickDemand;
-        cumulativeGreenSupply+= thisTickGreen;
+        cumulativeGreenSupply += thisTickGreen;
 
-        // Gather, compute and send metric every METRICS_DATA_PER_N_TICKS ticks
+        totalProducedPerNTicks += thisTickGreen;
+        totalDemandPerNTicks += thisTickDemand;
+
+        // Gather, compute and send metric every simulationConfigService.getMetricsPerNTicks() ticks
         if( tickCounter % simulationConfigService.getMetricsPerNTicks() == 0){
             MetricsMessage metrics = computeMetrics();
             metricsPublisher.publish(metrics);
@@ -64,10 +70,15 @@ public class SimulationControlServiceWS {
         msg.setTickNumber(tickCounter);
         msg.setTotalConsumed(cumulativeTotalDemand);
         msg.setTotalProduced(cumulativeGreenSupply);
+        msg.setTotalProducedPerNTicks(totalProducedPerNTicks);
+        msg.setTotalDemandPerNTicks(totalDemandPerNTicks);
 
         double ratioPct = (cumulativeTotalDemand > 0) ? 100.0 * (cumulativeGreenSupply/cumulativeTotalDemand)
                 : 0.0;
         msg.setGreenEnergyRatioPct(ratioPct);
+
+        totalProducedPerNTicks = 0.0;
+        totalDemandPerNTicks = 0.0;
 
         return msg;
     }

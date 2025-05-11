@@ -10,6 +10,8 @@ public class MetricsMessage {
     private double totalProduced;
     private double totalConsumed;
     private int cnpNegotiations;
+    private double totalProducedPerNTicks;
+    private double totalDemandPerNTicks;
 
     private double greenEnergyRatioPct;
 }
