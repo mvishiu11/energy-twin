@@ -11,7 +11,7 @@ import { SelectedMarker } from "./styles"
 
 type UseMarkersProps = {
     type: EntityType
-    component: ReactNode
+    component: ((id: string) => ReactNode) | ReactNode
 }
 
 export function useMarkers({ type, component }: UseMarkersProps) {
@@ -65,7 +65,9 @@ export function useMarkers({ type, component }: UseMarkersProps) {
                     })
                 }
             }}>
-            <SelectedMarker isSelected={selectedEntityId === entity.id}>{component}</SelectedMarker>
+            <SelectedMarker isSelected={selectedEntityId === entity.id}>
+                {typeof component === "function" ? component(entity.id) : component}
+            </SelectedMarker>
         </Marker>
     ))
 

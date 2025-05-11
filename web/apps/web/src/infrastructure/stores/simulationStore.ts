@@ -1,3 +1,4 @@
+import { useCallback } from "react"
 import { create } from "zustand"
 
 export type EntityType = "battery" | "solar"
@@ -88,3 +89,16 @@ export const useSimulationStore = create<SimulationState>()(set => ({
             },
         })),
 }))
+
+export const useFindEntityById = () => {
+    const { mapEntities } = useSimulationStore()
+    return useCallback(
+        (id: string) => {
+            return (
+                mapEntities.batteries.find(battery => battery.id === id) ||
+                mapEntities.solar.find(solar => solar.id === id)
+            )
+        },
+        [mapEntities],
+    )
+}

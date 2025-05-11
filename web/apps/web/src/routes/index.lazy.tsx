@@ -1,12 +1,13 @@
 import { Box, Icon, IconButton, Tabs } from "@chakra-ui/react"
 import { createLazyFileRoute } from "@tanstack/react-router"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { LuDatabaseZap, LuLayoutDashboard, LuMap, LuSettings2, LuSun } from "react-icons/lu"
+import { LuLayoutDashboard, LuMap, LuSettings2, LuSun } from "react-icons/lu"
 import Map, { Layer, MapRef, Source } from "react-map-gl/mapbox"
 import { DndContext, DragOverlay, UniqueIdentifier } from "@dnd-kit/core"
 import { snapCenterToCursor } from "@dnd-kit/modifiers"
 import { Dashboard } from "../components/dashboard"
 import { useMarkers } from "../components/map/_hooks/useMarkers"
+import { BatteryMarker } from "../components/map/BatteryMarker"
 import { SimulationDrawer } from "../components/simulationSetup/SimulationDrawer"
 import { Toolkit } from "../components/simulationSetup/Toolkit"
 import { idToIconMap } from "../components/simulationSetup/Toolkit/dndIds"
@@ -40,11 +41,7 @@ function RouteComponent() {
 
     const { markers: batteriesMarkers, addMarker: addBatteryMarker } = useMarkers({
         type: "battery",
-        component: (
-            <Icon color="green.500" size="2xl">
-                <LuDatabaseZap strokeWidth={2.5} />
-            </Icon>
-        ),
+        component: id => <BatteryMarker id={id} />,
     })
 
     const { markers: solarMarker, addMarker: addSolarMarker } = useMarkers({

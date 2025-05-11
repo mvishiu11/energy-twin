@@ -5,3 +5,14 @@ export type Metrics = {
     cnpNegotiations: number
     greenEnergyRatioPct: number
 }
+
+export type TickData = {
+    tickNumber: number
+    agentStates: Record<string, AgentState>
+}
+
+export type AgentState = {
+    demand: number
+    production: number
+    stateOfCharge: number
+}
