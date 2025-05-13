@@ -32,7 +32,7 @@ public final class EnergySourceAgent extends AbstractEnergySourceAgent {
     Map<String, Object> cfg =
             simulationConfigService.findAgentDefinition("energySource", getLocalName());
 
-    no_of_panels = (int) get(cfg, "no_of_panels", 500);
+    noOfPanels = (int) get(cfg, "noOfPanels", 500);
     efficiency25 = get(cfg, "efficiency", 0.20);
     areaM2       = get(cfg, "area",       1.6);
     tempCoeff    = get(cfg, "tempCoeff", -0.0038);  // −0.38 % / °C
@@ -77,6 +77,6 @@ public final class EnergySourceAgent extends AbstractEnergySourceAgent {
     double Pdc = G * areaM2 * eta;     // W
 
     // AC power after inverter
-    return Math.max(0.0, Pdc * INV_EFF / 1000.0) * no_of_panels; // kW
+    return Math.max(0.0, Pdc * INV_EFF / 1000.0) * noOfPanels; // kW
   }
 }

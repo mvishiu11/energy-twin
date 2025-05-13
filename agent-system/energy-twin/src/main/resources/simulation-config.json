@@ -18,7 +18,7 @@
       {
         "type": "energySource",
         "name": "SolarPanel1",
-        "no_of_panels": 200,
+        "noOfPanels": 200,
         "area": 2.0,
         "efficiency": 0.21,
         "tempCoeff": -0.0040,
