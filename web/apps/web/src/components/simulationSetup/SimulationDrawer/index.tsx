@@ -8,6 +8,7 @@ import { useSimulationRuntimeStore } from "../../../infrastructure/stores/simula
 import { useSimulationStore } from "../../../infrastructure/stores/simulationStore"
 import { TickData } from "../../../infrastructure/websocket/types"
 import { useSubscription } from "../../../infrastructure/websocket/useSubscription"
+import { simulationConfig } from "../../../services/simulationConfig"
 import { BatteryEntityCard } from "../EntityCard/BatteryEntityCard"
 import { SolarEntityCard } from "../EntityCard/SolarEntityCard"
 import { DrawerRoot } from "./styles"
@@ -61,16 +62,7 @@ export function SimulationDrawer() {
                         name: solar.id,
                         productionRate: solar.productionRate,
                     })),
-                    {
-                        type: "load",
-                        name: "Building1",
-                        consumptionRate: 90.0,
-                    },
-                    {
-                        type: "load",
-                        name: "Building2",
-                        consumptionRate: 30.0,
-                    },
+                    ...simulationConfig.loads,
                 ],
             },
         }),
