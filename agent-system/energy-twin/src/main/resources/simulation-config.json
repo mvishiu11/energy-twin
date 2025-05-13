@@ -3,12 +3,26 @@
     "tickIntervalMillis": 1000,
     "externalSourceCost": 5.0,
     "metricsPerNTicks": 2,
-    "externalSourceCap": 100,
+    "externalSourceCap": 100.0,
+    "weather": {
+      "sunriseTick": 6,
+      "sunsetTick": 18,
+      "sunPeakTick": 12,
+      "gPeak": 1000,
+      "tempMeanDay": 26,
+      "tempMeanNight": 17,
+      "sigmaG": 0.15,
+      "sigmaT": 0.8
+    },
     "agents": [
       {
         "type": "energySource",
         "name": "SolarPanel1",
-        "productionRate": 200.0
+        "no_of_panels": 200,
+        "area": 2.0,
+        "efficiency": 0.21,
+        "tempCoeff": -0.0040,
+        "noct": 44
       },
       {
         "type": "energyStorage",

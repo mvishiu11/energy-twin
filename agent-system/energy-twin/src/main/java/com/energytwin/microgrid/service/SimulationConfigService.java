@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -107,7 +108,7 @@ public class SimulationConfigService {
     return (double) capObj;
   }
 
-  public int getMetricsPerNTicks(){
+  public int getMetricsPerNTicks() {
     Object simulationObj = config.get("simulation");
     if (simulationObj == null) {
       throw new IllegalArgumentException("Missing 'simulation' key in configuration.");
@@ -125,6 +126,35 @@ public class SimulationConfigService {
       return 2;
     }
     return (int) metricsPerNTick;
+  }
+
+  public Map<String, Object> getWeatherParams() {
+    Object simulationObj = config.get("simulation");
+    Map<String, Object> defaultWeatherMap = new HashMap<String, Object>();
+    defaultWeatherMap.put("sunriseTick", 6);
+    defaultWeatherMap.put("sunsetTick", 21);
+    defaultWeatherMap.put("sunPeakTick", 12);
+    defaultWeatherMap.put("gPeak", 1000);
+    defaultWeatherMap.put("tempMeanDay", 26);
+    defaultWeatherMap.put("tempMeanNight", 17);
+    defaultWeatherMap.put("sigmaG", 0.15);
+    defaultWeatherMap.put("sigmaT", 0.8);
+    if (simulationObj == null) {
+      throw new IllegalArgumentException("Missing 'simulation' key in configuration.");
+    }
+    if (!(simulationObj instanceof Map)) {
+      throw new IllegalArgumentException(
+              "'simulation' is not a Map. Found type: " + simulationObj.getClass().getName());
+    }
+
+    Map<String, Object> simulationMap = (Map<String, Object>) simulationObj;
+
+    Object weatherMap = simulationMap.get("weather");
+
+    if (weatherMap == null){
+      return defaultWeatherMap;
+    }
+    return (Map<String, Object>) weatherMap;
   }
 
   /**
