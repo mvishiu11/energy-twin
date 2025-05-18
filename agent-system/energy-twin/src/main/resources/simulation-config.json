@@ -25,18 +25,24 @@
         "noct": 44
       },
       {
-        "type": "energyStorage",
-        "name": "Battery1",
-        "capacity": 300.0,
-        "cost": 2,
-        "initialSoC": 10
+        "type"          : "energyStorage",
+        "name"          : "Battery1",
+        "capacity"      : 150.0,
+        "etaCharge"     : 0.97,
+        "etaDischarge"  : 0.96,
+        "cRate"         : 0.7,
+        "selfDischarge" : 3.9e-4,
+        "initialSoC"    : 90.0
       },
       {
-        "type": "energyStorage",
-        "name": "Battery2",
-        "capacity": 300.0,
-        "cost": 1,
-        "initialSoC": 30
+        "type"          : "energyStorage",
+        "name"          : "Battery2",
+        "capacity"      : 300.0,
+        "etaCharge"     : 0.94,
+        "etaDischarge"  : 0.92,
+        "cRate"         : 0.5,
+        "selfDischarge" : 3.9e-4,
+        "initialSoC"    : 90.0
       },
       {
         "type": "load",
