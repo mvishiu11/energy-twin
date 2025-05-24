@@ -2,13 +2,15 @@ package com.energytwin.microgrid.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Loads simulation configuration from an external JSON file or via API and provides utility methods
@@ -104,6 +106,55 @@ public class SimulationConfigService {
       return 9999.0;
     }
     return (double) capObj;
+  }
+
+  public int getMetricsPerNTicks() {
+    Object simulationObj = config.get("simulation");
+    if (simulationObj == null) {
+      throw new IllegalArgumentException("Missing 'simulation' key in configuration.");
+    }
+    if (!(simulationObj instanceof Map)) {
+      throw new IllegalArgumentException(
+              "'simulation' is not a Map. Found type: " + simulationObj.getClass().getName());
+    }
+    @SuppressWarnings("unchecked")
+    Map<String, Object> simulationMap = (Map<String, Object>) simulationObj;
+
+    Object metricsPerNTick = simulationMap.get("metricsPerNTicks");
+
+    if (metricsPerNTick == null){
+      return 2;
+    }
+    return (int) metricsPerNTick;
+  }
+
+  public Map<String, Object> getWeatherParams() {
+    Object simulationObj = config.get("simulation");
+    Map<String, Object> defaultWeatherMap = new HashMap<String, Object>();
+    defaultWeatherMap.put("sunriseTick", 6);
+    defaultWeatherMap.put("sunsetTick", 21);
+    defaultWeatherMap.put("sunPeakTick", 12);
+    defaultWeatherMap.put("gPeak", 1000);
+    defaultWeatherMap.put("tempMeanDay", 26);
+    defaultWeatherMap.put("tempMeanNight", 17);
+    defaultWeatherMap.put("sigmaG", 0.15);
+    defaultWeatherMap.put("sigmaT", 0.8);
+    if (simulationObj == null) {
+      throw new IllegalArgumentException("Missing 'simulation' key in configuration.");
+    }
+    if (!(simulationObj instanceof Map)) {
+      throw new IllegalArgumentException(
+              "'simulation' is not a Map. Found type: " + simulationObj.getClass().getName());
+    }
+
+    Map<String, Object> simulationMap = (Map<String, Object>) simulationObj;
+
+    Object weatherMap = simulationMap.get("weather");
+
+    if (weatherMap == null){
+      return defaultWeatherMap;
+    }
+    return (Map<String, Object>) weatherMap;
   }
 
   /**

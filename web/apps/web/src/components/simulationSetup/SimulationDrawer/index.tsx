@@ -1,26 +1,53 @@
-import { Button, EmptyState, Flex, Heading, IconButton } from "@chakra-ui/react"
-import { AnimatePresence } from "motion/react"
-import { ReactNode, useMemo } from "react"
-import { LuCirclePlay, LuCircleStop, LuDatabaseZap, LuSun, LuX } from "react-icons/lu"
-import { useStartSimulation } from "../../../infrastructure/fetching"
-import { stopSimulation } from "../../../infrastructure/fetching/api"
+import { Button, EmptyState, Field, Flex, Heading, IconButton, Input } from "@chakra-ui/react"
+import { AnimatePresence, motion } from "motion/react"
+import { ReactNode, useEffect, useMemo } from "react"
+import { LuCirclePause, LuCirclePlay, LuCircleStop, LuDatabaseZap, LuSun, LuX } from "react-icons/lu"
+import { usePauseSimulation, useStartSimulation, useStopSimulation } from "../../../infrastructure/fetching"
 import { useDrawerStore } from "../../../infrastructure/stores/drawerStore"
+import { useSimulationRuntimeStore } from "../../../infrastructure/stores/simulationRuntimeStore"
 import { useSimulationStore } from "../../../infrastructure/stores/simulationStore"
+import { TickData } from "../../../infrastructure/websocket/types"
+import { useSubscription } from "../../../infrastructure/websocket/useSubscription"
 import { BatteryEntityCard } from "../EntityCard/BatteryEntityCard"
 import { SolarEntityCard } from "../EntityCard/SolarEntityCard"
 import { DrawerRoot } from "./styles"
 
 export function SimulationDrawer() {
-    const { mapEntities } = useSimulationStore()
+    const {
+        mapEntities,
+        isRunning,
+        tickIntervalMilliseconds,
+        externalSourceCost,
+        externalSourceCap,
+        setTickIntervalMilliseconds,
+        setExternalSourceCost,
+        setExternalSourceCap,
+    } = useSimulationStore()
     const { isOpen, setIsOpen, drawerWidth } = useDrawerStore()
     const { mutate: startSimulation } = useStartSimulation()
+    const { mutate: pauseSimulation } = usePauseSimulation()
+    const { mutate: stopSimulation } = useStopSimulation()
+
+    const { data } = useSubscription<TickData>("/topic/tickData", {
+        tickNumber: 0,
+        agentStates: {},
+    })
+
+    const { setTickNumber, setAgentStates, agentStates } = useSimulationRuntimeStore()
+
+    useEffect(() => {
+        if (data) {
+            setTickNumber(data.tickNumber)
+            setAgentStates(data.agentStates)
+        }
+    }, [data, setAgentStates, setTickNumber])
 
     const jsonStringConfig = useMemo(
         () => ({
             simulation: {
-                tickIntervalMillis: 1000,
-                externalSourceCost: 5.0,
-                externalSourceCap: 100,
+                tickIntervalMillis: tickIntervalMilliseconds,
+                externalSourceCost: externalSourceCost,
+                externalSourceCap: externalSourceCap,
                 agents: [
                     ...mapEntities.batteries.map(battery => ({
                         type: "energyStorage",
@@ -47,7 +74,7 @@ export function SimulationDrawer() {
                 ],
             },
         }),
-        [mapEntities],
+        [mapEntities, tickIntervalMilliseconds, externalSourceCost, externalSourceCap],
     )
 
     return (
@@ -65,6 +92,30 @@ export function SimulationDrawer() {
                                 <LuX />
                             </IconButton>
                         </Flex>
+                        <Field.Root>
+                            <Field.Label>Tick Interval</Field.Label>
+                            <Input
+                                type="number"
+                                value={tickIntervalMilliseconds}
+                                onChange={e => setTickIntervalMilliseconds(Number(e.target.value))}
+                            />
+                        </Field.Root>
+                        <Field.Root>
+                            <Field.Label>External Source Cost</Field.Label>
+                            <Input
+                                type="number"
+                                value={externalSourceCost}
+                                onChange={e => setExternalSourceCost(Number(e.target.value))}
+                            />
+                        </Field.Root>
+                        <Field.Root>
+                            <Field.Label>External Source Cap</Field.Label>
+                            <Input
+                                type="number"
+                                value={externalSourceCap}
+                                onChange={e => setExternalSourceCap(Number(e.target.value))}
+                            />
+                        </Field.Root>
                         <Flex direction="column" gap="4">
                             <Heading size="md">Batteries</Heading>
                             {mapEntities.batteries.length ? (
@@ -72,6 +123,7 @@ export function SimulationDrawer() {
                                     <BatteryEntityCard
                                         key={battery.id}
                                         capacity={battery.capacity}
+                                        chargeLevel={agentStates[battery.id]?.stateOfCharge}
                                         id={battery.id}
                                         name={battery.name}
                                     />
@@ -87,6 +139,7 @@ export function SimulationDrawer() {
                                 mapEntities.solar.map(solar => (
                                     <SolarEntityCard
                                         key={solar.id}
+                                        currentProduction={agentStates[solar.id]?.production}
                                         id={solar.id}
                                         name={solar.name}
                                         productionRate={solar.productionRate}
@@ -100,13 +153,24 @@ export function SimulationDrawer() {
                             )}
                         </Flex>
                         <Flex direction="row" gap="2" justifyContent="flex-end">
-                            <Button variant="solid" onClick={() => startSimulation(jsonStringConfig as any)}>
-                                Start
-                                <LuCirclePlay />
-                            </Button>
-                            <Button colorPalette="red" variant="solid" onClick={() => stopSimulation()}>
-                                Stop
-                                <LuCircleStop />
+                            <motion.div>
+                                <Button
+                                    colorPalette={isRunning ? "red" : "green"}
+                                    variant="solid"
+                                    onClick={() => {
+                                        if (isRunning) {
+                                            stopSimulation()
+                                        } else {
+                                            startSimulation(jsonStringConfig as any)
+                                        }
+                                    }}>
+                                    {isRunning ? "Stop" : "Start"}
+                                    {isRunning ? <LuCircleStop /> : <LuCirclePlay />}
+                                </Button>
+                            </motion.div>
+                            <Button disabled={!isRunning} variant="outline" onClick={() => pauseSimulation()}>
+                                Pause
+                                <LuCirclePause />
                             </Button>
                         </Flex>
                     </Flex>

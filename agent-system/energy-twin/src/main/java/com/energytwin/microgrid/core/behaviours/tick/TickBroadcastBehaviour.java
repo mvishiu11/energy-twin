@@ -2,6 +2,7 @@ package com.energytwin.microgrid.core.behaviours.tick;
 
 import com.energytwin.microgrid.agentfusion.SpringAgent;
 import com.energytwin.microgrid.service.SimulationControlService;
+import com.energytwin.microgrid.ws.simulation.SimulationControlServiceWS;
 import jade.core.AID;
 import jade.core.behaviours.TickerBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -14,9 +15,11 @@ import lombok.Getter;
  */
 public class TickBroadcastBehaviour extends TickerBehaviour {
 
+
   @Getter private long simulationTime = 0;
   private final AID tickTopic;
   private final SimulationControlService simulationControlService;
+  private final SimulationControlServiceWS simulationControlServiceWS;
   private final SpringAgent agent;
   private long currentPeriod;
 
@@ -33,12 +36,14 @@ public class TickBroadcastBehaviour extends TickerBehaviour {
       SpringAgent a,
       long period,
       AID tickTopic,
-      SimulationControlService simulationControlService) {
+      SimulationControlService simulationControlService,
+      SimulationControlServiceWS simulationControlServiceWS) {
     super(a, period);
     this.agent = a;
     this.tickTopic = tickTopic;
     this.simulationControlService = simulationControlService;
     this.currentPeriod = period;
+    this.simulationControlServiceWS = simulationControlServiceWS;
   }
 
   @Override
@@ -61,5 +66,7 @@ public class TickBroadcastBehaviour extends TickerBehaviour {
     tickMsg.addReceiver(tickTopic);
     myAgent.send(tickMsg);
     agent.log("Broadcast tick: {}", simulationTime);
+
+    simulationControlServiceWS.onTickCompleted(); // zbiera info z poprzedniego
   }
 }

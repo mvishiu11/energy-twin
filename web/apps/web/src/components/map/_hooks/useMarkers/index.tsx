@@ -11,7 +11,7 @@ import { SelectedMarker } from "./styles"
 
 type UseMarkersProps = {
     type: EntityType
-    component: ReactNode
+    component: ((id: string) => ReactNode) | ReactNode
 }
 
 export function useMarkers({ type, component }: UseMarkersProps) {
@@ -22,8 +22,9 @@ export function useMarkers({ type, component }: UseMarkersProps) {
 
     const addMarker = (position: [number, number], name: string) => {
         setIsOpen(true)
-        const id = crypto.randomUUID()
+        let id: string
         if (type === "battery") {
+            id = `Battery ${mapEntities.batteries.length + 1}`
             const entity: Battery = {
                 id,
                 name,
@@ -32,6 +33,7 @@ export function useMarkers({ type, component }: UseMarkersProps) {
             }
             addBattery(entity)
         } else {
+            id = `Solar ${mapEntities.solar.length + 1}`
             const entity: Solar = {
                 id,
                 name,
@@ -65,7 +67,9 @@ export function useMarkers({ type, component }: UseMarkersProps) {
                     })
                 }
             }}>
-            <SelectedMarker isSelected={selectedEntityId === entity.id}>{component}</SelectedMarker>
+            <SelectedMarker isSelected={selectedEntityId === entity.id}>
+                {typeof component === "function" ? component(entity.id) : component}
+            </SelectedMarker>
         </Marker>
     ))
 

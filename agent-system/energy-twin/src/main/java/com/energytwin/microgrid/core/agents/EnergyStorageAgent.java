@@ -6,61 +6,46 @@ import com.energytwin.microgrid.core.behaviours.tick.TickSubscriberBehaviour;
 import jade.core.AID;
 import java.util.Map;
 
-public class EnergyStorageAgent extends AbstractEnergyStorageAgent {
+public final class EnergyStorageAgent extends AbstractEnergyStorageAgent {
 
   @Override
   protected void onAgentSetup() {
     setConfigParams();
 
-    // Add a behaviour to respond to CFP (shortfall or surplus)
     AID shortfallTopic = new AID("CNP_SHORTFALL_TOPIC", AID.ISLOCALNAME);
-    AID surplusTopic = new AID("CNP_SURPLUS_TOPIC", AID.ISLOCALNAME);
-    AID tickTopic = new AID("TICK_TOPIC", AID.ISLOCALNAME);
+    AID surplusTopic   = new AID("CNP_SURPLUS_TOPIC",   AID.ISLOCALNAME);
+    AID tickTopic      = new AID("TICK_TOPIC",          AID.ISLOCALNAME);
+
     addBehaviour(new BatteryCNPResponder(this, shortfallTopic, surplusTopic));
     addBehaviour(new TickSubscriberBehaviour(this, tickTopic));
-    log("Energy Storage Agent started with capacity=" + capacity + " cost=" + cost);
+
+    log("Battery %.0f kWh  ηc=%.2f  ηd=%.2f  C-rate=%.2f h⁻¹  self-d=%.2e  SoC=%.1f",
+            capacityKwh, chargeEffBase, dischargeEffBase, cRate, selfDischargePerHour, socKwh);
   }
 
   @Override
   protected void setConfigParams() {
-    String type = "energyStorage";
-    Map<String, Object> myConfig =
-        simulationConfigService.findAgentDefinition(type, getLocalName());
-    if (myConfig != null) {
-      // parse capacity
-      Object capObj = myConfig.get("capacity");
-      if (capObj != null) {
-        try {
-          this.capacity = Double.parseDouble(capObj.toString());
-        } catch (NumberFormatException e) {
-          log("Error parsing capacity: " + capObj, e);
-        }
-      }
-      // parse cost
-      Object costObj = myConfig.get("cost");
-      if (costObj != null) {
-        try {
-          this.cost = Double.parseDouble(costObj.toString());
-        } catch (NumberFormatException e) {
-          log("Error parsing cost: " + costObj, e);
-        }
-      }
-      // parse initial SoC if needed
-      Object socObj = myConfig.get("initialSoC");
-      if (socObj != null) {
-        try {
-          this.currentSoC = Double.parseDouble(socObj.toString());
-        } catch (NumberFormatException e) {
-          log("Error parsing initialSoC: " + socObj, e);
-        }
-      }
-    } else {
-      log("No configuration found for agent of type " + type + " with name: " + getLocalName());
-    }
+    Map<String, Object> cfg =
+            simulationConfigService.findAgentDefinition("energyStorage", getLocalName());
+    if (cfg == null)
+      throw new IllegalArgumentException("No config for battery " + getLocalName());
+
+    capacityKwh         = dbl(cfg, "capacity",      300.0);
+    chargeEffBase       = dbl(cfg, "etaCharge",     0.94);
+    dischargeEffBase    = dbl(cfg, "etaDischarge",  0.92);
+    cRate               = dbl(cfg, "cRate",         0.5);
+    selfDischargePerHour= dbl(cfg, "selfDischarge", 3.9e-4);
+    socKwh              = dbl(cfg, "initialSoC",    0.10 * capacityKwh);
   }
 
-  @Override
-  public void onTick(long simulationTime) {
-    log("Current SoC: " + this.getAvailableToDischarge() + " at tick: " + simulationTime);
+  private double dbl(Map<String, Object> m, String k, double def) {
+    Object v = m.get(k); return v == null ? def : Double.parseDouble(v.toString());
+  }
+
+  /* tick bookkeeping */
+  @Override public void onTick(long t) {
+    applySelfDischarge();
+    log("t=%d  SoC=%.2f kWh (%.0f %%)".formatted(t, socKwh, 100*socKwh/capacityKwh));
+    reportState(0,0,socKwh);
   }
 }

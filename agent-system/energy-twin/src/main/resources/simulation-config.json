@@ -2,36 +2,57 @@
   "simulation": {
     "tickIntervalMillis": 1000,
     "externalSourceCost": 5.0,
-    "externalSourceCap": 100,
+    "metricsPerNTicks": 2,
+    "externalSourceCap": 100.0,
+    "weather": {
+      "sunriseTick": 6,
+      "sunsetTick": 18,
+      "sunPeakTick": 12,
+      "gPeak": 1000,
+      "tempMeanDay": 26,
+      "tempMeanNight": 17,
+      "sigmaG": 0.15,
+      "sigmaT": 0.8
+    },
     "agents": [
       {
         "type": "energySource",
         "name": "SolarPanel1",
-        "productionRate": 200.0
+        "noOfPanels": 200,
+        "area": 2.0,
+        "efficiency": 0.21,
+        "tempCoeff": -0.0040,
+        "noct": 44
       },
       {
-        "type": "energyStorage",
-        "name": "Battery1",
-        "capacity": 300.0,
-        "cost": 2,
-        "initialSoC": 10
+        "type"          : "energyStorage",
+        "name"          : "Battery1",
+        "capacity"      : 150.0,
+        "etaCharge"     : 0.97,
+        "etaDischarge"  : 0.96,
+        "cRate"         : 0.7,
+        "selfDischarge" : 3.9e-4,
+        "initialSoC"    : 90.0
       },
       {
-        "type": "energyStorage",
-        "name": "Battery2",
-        "capacity": 300.0,
-        "cost": 1,
-        "initialSoC": 30
+        "type"          : "energyStorage",
+        "name"          : "Battery2",
+        "capacity"      : 300.0,
+        "etaCharge"     : 0.94,
+        "etaDischarge"  : 0.92,
+        "cRate"         : 0.5,
+        "selfDischarge" : 3.9e-4,
+        "initialSoC"    : 90.0
       },
       {
         "type": "load",
         "name": "Building1",
-        "consumptionRate": 90.0
+        "nominalLoad": 90.0
       },
       {
         "type": "load",
         "name": "Building2",
-        "consumptionRate": 30.0
+        "nominalLoad": 30.0
       }
     ]
   }

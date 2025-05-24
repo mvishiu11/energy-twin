@@ -1,3 +1,4 @@
+import { useCallback } from "react"
 import { create } from "zustand"
 
 export type EntityType = "battery" | "solar"
@@ -14,8 +15,13 @@ export type Solar = MapEntity & { productionRate: number }
 
 export type SimulationState = {
     isRunning: boolean
-    start: () => void
-    stop: () => void
+    setIsRunning: (isRunning: boolean) => void
+    tickIntervalMilliseconds: number
+    setTickIntervalMilliseconds: (milliseconds: number) => void
+    externalSourceCost: number
+    setExternalSourceCost: (cost: number) => void
+    externalSourceCap: number
+    setExternalSourceCap: (cap: number) => void
     mapEntities: {
         batteries: Battery[]
         solar: Solar[]
@@ -26,12 +32,18 @@ export type SimulationState = {
     updateSolar: (id: string, updates: Partial<Solar>) => void
     selectedEntityId?: string
     setSelectedEntityId: (id?: string) => void
+    removeEntity: (id: string) => void
 }
 
 export const useSimulationStore = create<SimulationState>()(set => ({
     isRunning: false,
-    start: () => set({ isRunning: true }),
-    stop: () => set({ isRunning: false }),
+    setIsRunning: (isRunning: boolean) => set({ isRunning }),
+    tickIntervalMilliseconds: 1000,
+    setTickIntervalMilliseconds: (milliseconds: number) => set({ tickIntervalMilliseconds: milliseconds }),
+    externalSourceCost: 5.0,
+    setExternalSourceCost: (cost: number) => set({ externalSourceCost: cost }),
+    externalSourceCap: 100,
+    setExternalSourceCap: (cap: number) => set({ externalSourceCap: cap }),
     mapEntities: {
         batteries: [],
         solar: [],
@@ -68,4 +80,25 @@ export const useSimulationStore = create<SimulationState>()(set => ({
         })),
     selectedEntityId: undefined,
     setSelectedEntityId: (id?: string) => set({ selectedEntityId: id }),
+    removeEntity: (id: string) =>
+        set(state => ({
+            mapEntities: {
+                ...state.mapEntities,
+                batteries: state.mapEntities.batteries.filter(battery => battery.id !== id),
+                solar: state.mapEntities.solar.filter(solar => solar.id !== id),
+            },
+        })),
 }))
+
+export const useFindEntityById = () => {
+    const { mapEntities } = useSimulationStore()
+    return useCallback(
+        (id: string) => {
+            return (
+                mapEntities.batteries.find(battery => battery.id === id) ||
+                mapEntities.solar.find(solar => solar.id === id)
+            )
+        },
+        [mapEntities],
+    )
+}

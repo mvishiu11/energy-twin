@@ -3,6 +3,7 @@ import React from "react"
 import ReactDOM from "react-dom/client"
 import { Provider } from "./components/ui/provider"
 import { QueryProvider } from "./infrastructure/fetching/QueryClientProvider"
+import { WebSocketProvider } from "./infrastructure/websocket/WebSocketProvider"
 import { routeTree } from "./routeTree.gen"
 import "mapbox-gl/dist/mapbox-gl.css"
 
@@ -21,7 +22,9 @@ if (rootElement && !rootElement.innerHTML) {
         <React.StrictMode>
             <Provider defaultTheme="light">
                 <QueryProvider>
-                    <RouterProvider router={router} />
+                    <WebSocketProvider>
+                        <RouterProvider router={router} />
+                    </WebSocketProvider>
                 </QueryProvider>
             </Provider>
         </React.StrictMode>,

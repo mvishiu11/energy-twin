@@ -7,134 +7,107 @@ import jade.core.messaging.TopicManagementHelper;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
-/** A unified class to handle Contract-Net Protocol messages for shortfall/surplus. */
-public class BatteryCNPResponder extends CyclicBehaviour {
-  private final AbstractEnergyStorageAgent agent;
-  private static final String ONT_CFP_SHORTFALL = "CNP_SHORTFALL";
-  private static final String ONT_CFP_SURPLUS = "CNP_SURPLUS";
+/** Responds to shortfall/surplus CFPs with physically valid proposals. */
+public final class BatteryCNPResponder extends CyclicBehaviour {
+
+  private final AbstractEnergyStorageAgent bat;
+  private static final String CFP_SHORT = "CNP_SHORTFALL";
+  private static final String CFP_SURPL = "CNP_SURPLUS";
+  private static final String ONT_PROP  = "CNP_PROPOSAL";
   private static final String ONT_ACCEPT = "CNP_ACCEPT";
   private static final String ONT_REJECT = "CNP_REJECT";
 
-  public BatteryCNPResponder(
-      AbstractEnergyStorageAgent agent, AID shortfallTopic, AID surplusTopic) {
-    super(agent);
-    this.agent = agent;
+  public BatteryCNPResponder(AbstractEnergyStorageAgent bat, AID shortfallTopic, AID surplusTopic) {
+    super(bat);
+    this.bat = bat;
     try {
-      TopicManagementHelper topicHelper =
-          (TopicManagementHelper) agent.getHelper(TopicManagementHelper.SERVICE_NAME);
-      topicHelper.register(shortfallTopic);
-      topicHelper.register(surplusTopic);
-      agent.log(
-          "Successfully subscribed to CFP topics: "
-              + shortfallTopic.getLocalName()
-              + " and "
-              + surplusTopic.getLocalName());
-    } catch (Exception e) {
-      agent.log("Error subscribing to CFP topics: {}", e.getMessage(), e);
-    }
+      TopicManagementHelper h = (TopicManagementHelper)
+              bat.getHelper(TopicManagementHelper.SERVICE_NAME);
+      h.register(shortfallTopic); h.register(surplusTopic);
+    } catch (Exception e) { bat.log("Topic register error: {}", e.getMessage(), e); }
   }
 
   @Override
   public void action() {
-    ACLMessage msg =
-        myAgent.receive(
-            MessageTemplate.or(
-                MessageTemplate.MatchOntology(ONT_CFP_SHORTFALL),
-                MessageTemplate.MatchOntology(ONT_CFP_SURPLUS)));
-    if (msg != null) {
-      handleCFP(msg);
-    } else {
-      ACLMessage decision =
-          myAgent.receive(
-              MessageTemplate.or(
-                  MessageTemplate.MatchOntology(ONT_ACCEPT),
-                  MessageTemplate.MatchOntology(ONT_REJECT)));
-      if (decision != null) {
-        handleDecision(decision);
-      } else {
-        block();
-      }
+
+    ACLMessage msg = myAgent.receive(MessageTemplate.or(
+            MessageTemplate.MatchOntology(CFP_SHORT),
+            MessageTemplate.MatchOntology(CFP_SURPL)));
+
+    if (msg != null) { respondToCFP(msg); return; }
+
+    ACLMessage dec = myAgent.receive(MessageTemplate.or(
+            MessageTemplate.MatchOntology(ONT_ACCEPT),
+            MessageTemplate.MatchOntology(ONT_REJECT)));
+
+    if (dec != null) { handleDecision(dec); return; }
+
+    block();
+  }
+
+  /* ---------- CFP ---------- */
+  private void respondToCFP(ACLMessage cfp) {
+    String ont = cfp.getOntology();
+    double req = Double.parseDouble(cfp.getContent());   // kWh demand or surplus
+
+    ACLMessage prop = cfp.createReply();
+    prop.setPerformative(ACLMessage.PROPOSE);
+    prop.setOntology(ONT_PROP);
+    prop.setInReplyTo(ont);
+
+    if (CFP_SHORT.equals(ont)) {          // discharge request
+      double avail = bat.getAvailableToDischarge();          // kWh deliverable
+      double supply = Math.min(avail, req);
+      double cost = 1.0 - bat.dischargeEffEff();             // fractional loss
+      prop.setContent("supply=" + supply + ";cost=" + cost);
+
+    } else {                              // surplus storage request
+      double room = bat.getAvailableToCharge();              // kWh storable (grid view)
+      double store = Math.min(room, req);
+      double cost = 1.0 - bat.chargeEffEff();
+      prop.setContent("store=" + store + ";cost=" + cost);
+    }
+    bat.send(prop);
+    bat.log("Proposal sent: " + prop.getContent());
+  }
+
+  /* ---------- Accept / Reject ---------- */
+  /* ---------- Accept / Reject ---------- */
+  private void handleDecision(ACLMessage dec) {
+
+    boolean accepted = ONT_ACCEPT.equals(dec.getOntology());
+    if (!accepted) {                      // it is a REJECT
+      bat.log("Proposal rejected: " + dec.getContent());
+      return;
+    }
+
+    double amt = parseAccepted(dec.getContent());   // only for ACCEPT
+    if (dec.getInReplyTo() == null) return;
+
+    if (CFP_SHORT.equals(dec.getInReplyTo())) {          // discharge accepted
+      double ηd = bat.dischargeEffEff();
+      double Δsoc = amt / ηd;
+      bat.setSocKwh(Math.max(0, bat.getSocKwh() - Δsoc));
+      bat.log("Delivered %.2f kWh  ηd=%.2f  new SoC=%.2f"
+              .formatted(amt, ηd, bat.getSocKwh()));
+
+    } else if (CFP_SURPL.equals(dec.getInReplyTo())) {   // charge accepted
+      double ηc = bat.chargeEffEff();
+      double Δsoc = amt * ηc;
+      bat.setSocKwh(Math.min(bat.getCapacityKwh(), bat.getSocKwh() + Δsoc));
+      bat.log("Stored %.2f kWh  ηc=%.2f  new SoC=%.2f"
+              .formatted(amt, ηc, bat.getSocKwh()));
     }
   }
 
-  private void handleCFP(ACLMessage msg) {
-    String ontology = msg.getOntology();
-    double requested = Double.parseDouble(msg.getContent());
-    ACLMessage proposal = msg.createReply();
-    proposal.setPerformative(ACLMessage.PROPOSE);
-    proposal.setOntology("CNP_PROPOSAL");
-    // Make sure aggregator knows which CFP type we are replying to
-    proposal.setInReplyTo(ontology);
-
-    if (ONT_CFP_SHORTFALL.equals(ontology)) {
-      // aggregator needs X kW => we propose supply = min(X, currentSoC)
-      double canSupply = Math.min(requested, agent.getAvailableToDischarge());
-      if (canSupply > 0.0001) {
-        // respond with "supply=...,cost=..."
-        proposal.setContent("supply=" + canSupply + ";cost=" + agent.getCost());
-      } else {
-        // If we can't supply anything, we might not respond or we respond with 0
-        // Let’s respond with 0 supply so aggregator can ignore us
-        proposal.setContent("supply=0;cost=9999");
-      }
-      agent.log("Proposed: " + proposal.getContent());
-      agent.send(proposal);
-
-    } else if (ONT_CFP_SURPLUS.equals(ontology)) {
-      // aggregator has X surplus => we propose store = min(X, capacity - currentSoC)
-      double canStore = Math.min(requested, agent.getAvailableToCharge());
-      if (canStore > 0.0001) {
-        proposal.setContent("store=" + canStore + ";cost=" + agent.getCost());
-      } else {
-        // respond with 0
-        proposal.setContent("store=0;cost=9999");
-      }
-      agent.log("Proposed: " + proposal.getContent());
-      agent.send(proposal);
+  /* Parse "acceptedAmount=5.0" safely */
+  private double parseAccepted(String content) {
+    if (!content.startsWith("acceptedAmount=")) return 0;
+    try {
+      return Double.parseDouble(content.split("=")[1]);
+    } catch (NumberFormatException e) {
+      bat.log("Failed to parse accepted amount: " + content, e);
+      return 0;
     }
-  }
-
-  private void handleDecision(ACLMessage msg) {
-    String ontology = msg.getOntology();
-    String content = msg.getContent();
-    if (ONT_ACCEPT.equals(ontology)) {
-      // parse "acceptedAmount=XX"
-      // apply to SoC
-      double acceptedAmount = parseAcceptedAmount(content);
-      if (msg.getInReplyTo() != null) {
-        if (msg.getInReplyTo().equals(ONT_CFP_SHORTFALL)) {
-          // We are discharging
-          agent.currentSoC -= acceptedAmount;
-          if (agent.currentSoC < 0) {
-            agent.currentSoC = 0;
-          }
-          agent.log("Discharged " + acceptedAmount + " kW. New SoC=" + agent.currentSoC);
-        } else if (msg.getInReplyTo().equals(ONT_CFP_SURPLUS)) {
-          // We are charging
-          agent.currentSoC += acceptedAmount;
-          if (agent.currentSoC > agent.getCapacity()) {
-            agent.currentSoC = agent.getCapacity();
-          }
-          agent.log("Charged " + acceptedAmount + " kW. New SoC=" + agent.currentSoC);
-        }
-      }
-    } else if (ONT_REJECT.equals(ontology)) {
-      // aggregator did not accept our proposal
-      agent.log("Proposal rejected: " + content);
-    }
-  }
-
-  private double parseAcceptedAmount(String content) {
-    double amt = 0;
-    // example content "acceptedAmount=5.0"
-    String[] tokens = content.split("=");
-    if (tokens.length == 2) {
-      try {
-        amt = Double.parseDouble(tokens[1]);
-      } catch (NumberFormatException e) {
-        agent.log("Failed to parse accepted amount from: " + content, e);
-      }
-    }
-    return amt;
   }
 }

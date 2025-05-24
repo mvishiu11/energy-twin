@@ -1,14 +1,16 @@
 package com.energytwin.microgrid.core.base;
 
+import lombok.Getter;
 import lombok.Setter;
 
-/**
- * Abstract base class for load agents. Includes common properties and methods for agents that
- * consume energy.
- */
+/** Common base for building / load agents that consume energy. */
 @Setter
+@Getter
 public abstract class AbstractLoadAgent extends AbstractSimAgent {
-  protected double consumptionRate;
 
+  /** Nominal design-load of the building (kW at 100 %). */
+  protected double nominalLoadKw;
+
+  /** Implementations must populate nominalLoadKw from config. */
   protected abstract void setConfigParams();
 }

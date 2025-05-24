@@ -1,5 +1,6 @@
-import { Card } from "@chakra-ui/react"
+import { Card, Flex, IconButton } from "@chakra-ui/react"
 import { PropsWithChildren } from "react"
+import { LuTrash } from "react-icons/lu"
 import { EntityType, useSimulationStore } from "../../../infrastructure/stores/simulationStore"
 import { EditableField } from "../EditableField"
 
@@ -10,7 +11,7 @@ export type BaseEntityCardProps = {
 }
 
 export function BaseEntityCard({ id, name, children, type }: PropsWithChildren<BaseEntityCardProps>) {
-    const { updateBattery, updateSolar, selectedEntityId, setSelectedEntityId } = useSimulationStore()
+    const { updateBattery, updateSolar, selectedEntityId, setSelectedEntityId, removeEntity } = useSimulationStore()
 
     return (
         <Card.Root
@@ -22,13 +23,18 @@ export function BaseEntityCard({ id, name, children, type }: PropsWithChildren<B
             onClick={() => setSelectedEntityId(id)}>
             <Card.Body gap="4">
                 <Card.Title>
-                    <EditableField
-                        label="Name"
-                        value={name}
-                        onChange={name =>
-                            type === "battery" ? updateBattery(id, { name }) : updateSolar(id, { name })
-                        }
-                    />
+                    <Flex align="center" direction="row" justify="space-between">
+                        <EditableField
+                            label="Name"
+                            value={name}
+                            onChange={name =>
+                                type === "battery" ? updateBattery(id, { name }) : updateSolar(id, { name })
+                            }
+                        />
+                        <IconButton size="xs" variant="ghost" onClick={() => removeEntity(id)}>
+                            <LuTrash />
+                        </IconButton>
+                    </Flex>
                 </Card.Title>
                 {children}
             </Card.Body>
