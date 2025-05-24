@@ -4,9 +4,8 @@ import com.energytwin.microgrid.core.base.AbstractEnergySourceAgent;
 import com.energytwin.microgrid.core.behaviours.source.RESReceiveBehaviour;
 import com.energytwin.microgrid.core.behaviours.tick.TickSubscriberBehaviour;
 import jade.core.AID;
-import jade.core.messaging.TopicManagementHelper;
 import jade.lang.acl.ACLMessage;
-import jade.lang.acl.MessageTemplate;
+
 import java.util.Map;
 
 /** Physically-based PV panel agent (NOCT + temperature coefficient model). */
@@ -58,6 +57,8 @@ public final class EnergySourceAgent extends AbstractEnergySourceAgent {
     msg.setContent(String.valueOf(PkW));
     msg.addReceiver(new AID("AggregatorAgent", AID.ISLOCALNAME));
     send(msg);
+
+    reportState(0.0, PkW, 0.0);
 
     log("t=%d  G=%.1f W/m²  Ta=%.1f °C  P=%.2f kW".formatted(t, latestIrradiance, ambientTemp, PkW));
   }

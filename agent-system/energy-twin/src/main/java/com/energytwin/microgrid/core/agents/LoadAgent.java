@@ -72,6 +72,8 @@ public final class LoadAgent extends AbstractLoadAgent {
     msg.addReceiver(new AID("AggregatorAgent", AID.ISLOCALNAME));
     send(msg);
 
+    reportState(consumedKw, 0.0, 0.0);
+
     log("t=%d  hour=%02d  baseline=%.0f%%  Δ=%.1f%%  load=%.2f kW"
             .formatted(tick, hour, baselineFrac * 100, delta * 100, consumedKw));
   }
