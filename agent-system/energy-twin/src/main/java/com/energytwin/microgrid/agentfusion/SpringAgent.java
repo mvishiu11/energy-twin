@@ -2,6 +2,7 @@ package com.energytwin.microgrid.agentfusion;
 
 import com.energytwin.microgrid.agentfusion.util.SpringContext;
 import com.energytwin.microgrid.registry.AgentStateRegistry;
+import com.energytwin.microgrid.service.EventControlService;
 import com.energytwin.microgrid.service.LogAggregatorService;
 import com.energytwin.microgrid.service.SimulationConfigService;
 import com.energytwin.microgrid.service.SimulationControlService;
@@ -25,6 +26,7 @@ public abstract class SpringAgent extends Agent {
   protected SimulationControlService simulationControlService;
   protected AgentStateRegistry registry;
   protected SimulationControlServiceWS simulationControlServiceWS;
+  protected EventControlService eventControlService;
   private static final Logger logger = LoggerFactory.getLogger(SpringAgent.class);
 
   @Override
@@ -44,6 +46,7 @@ public abstract class SpringAgent extends Agent {
       simulationControlService = ctx.getBean(SimulationControlService.class);
       registry = ctx.getBean(AgentStateRegistry.class);
       simulationControlServiceWS = ctx.getBean(SimulationControlServiceWS.class);
+      eventControlService = ctx.getBean(EventControlService.class);
     } else {
       System.err.println("Spring ApplicationContext is not initialized!");
     }

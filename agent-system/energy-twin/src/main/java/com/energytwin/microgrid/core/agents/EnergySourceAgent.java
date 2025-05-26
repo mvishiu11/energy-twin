@@ -11,6 +11,7 @@ import java.util.Map;
 /** Physically-based PV panel agent (NOCT + temperature coefficient model). */
 public final class EnergySourceAgent extends AbstractEnergySourceAgent {
 
+
   private static final double INV_EFF = 0.96;   // inverter efficiency
 
   @Override
@@ -51,14 +52,19 @@ public final class EnergySourceAgent extends AbstractEnergySourceAgent {
 
   @Override
   public void onTick(long t) {
+    boolean isBroken = eventControlService.isBroken(getLocalName());
     double PkW = computePVPowerKW(latestIrradiance, ambientTemp);
     ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
     msg.setOntology("ENERGY_PRODUCTION");
-    msg.setContent(String.valueOf(PkW));
+    if( isBroken){
+      msg.setContent(String.valueOf(-1));
+    }else{
+      msg.setContent(String.valueOf(PkW));
+    }
     msg.addReceiver(new AID("AggregatorAgent", AID.ISLOCALNAME));
     send(msg);
 
-    reportState(0.0, PkW, 0.0);
+    reportState(0.0, isBroken ? -1 : PkW, 0.0);
 
     log("t=%d  G=%.1f W/m²  Ta=%.1f °C  P=%.2f kW".formatted(t, latestIrradiance, ambientTemp, PkW));
   }
