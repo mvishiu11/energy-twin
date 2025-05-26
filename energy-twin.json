@@ -4,59 +4,6 @@
   "items": [
     {
       "type": "http",
-      "name": "Simulation Start",
-      "filename": "Simulation Start.bru",
-      "seq": 2,
-      "request": {
-        "url": "http://localhost:8081/simulation/start",
-        "method": "POST",
-        "headers": [],
-        "params": [],
-        "body": {
-          "mode": "json",
-          "json": "{\n  \"simulation\": {\n    \"tickIntervalMillis\": 1000,\n    \"externalSourceCost\": 5.0,\n    \"externalSourceCap\": 100.0,\n    \"agents\": [\n      {\n        \"type\": \"energySource\",\n        \"name\": \"SolarPanel1\",\n        \"efficiency\": 0.21,\n        \"area\": 2.0\n      },\n      {\n        \"type\": \"energyStorage\",\n        \"name\": \"Battery1\",\n        \"capacity\": 300.0,\n        \"cost\": 2,\n        \"initialSoC\": 10\n      },\n      {\n        \"type\": \"energyStorage\",\n        \"name\": \"Battery2\",\n        \"capacity\": 300.0,\n        \"cost\": 1,\n        \"initialSoC\": 30\n      },\n      {\n        \"type\": \"load\",\n        \"name\": \"Building1\",\n        \"consumptionRate\": 90.0\n      },\n      {\n        \"type\": \"load\",\n        \"name\": \"Building2\",\n        \"consumptionRate\": 30.0\n      }\n    ]\n  }\n}",
-          "formUrlEncoded": [],
-          "multipartForm": [],
-          "file": []
-        },
-        "script": {},
-        "vars": {},
-        "assertions": [],
-        "tests": "",
-        "docs": "",
-        "auth": {
-          "mode": "inherit"
-        }
-      }
-    },
-    {
-      "type": "http",
-      "name": "Get All Logs",
-      "filename": "Get All Logs.bru",
-      "seq": 3,
-      "request": {
-        "url": "http://localhost:8081/simulation/logs",
-        "method": "GET",
-        "headers": [],
-        "params": [],
-        "body": {
-          "mode": "none",
-          "formUrlEncoded": [],
-          "multipartForm": [],
-          "file": []
-        },
-        "script": {},
-        "vars": {},
-        "assertions": [],
-        "tests": "",
-        "docs": "",
-        "auth": {
-          "mode": "inherit"
-        }
-      }
-    },
-    {
-      "type": "http",
       "name": "Control Pause",
       "filename": "Control Pause.bru",
       "seq": 4,
@@ -142,6 +89,59 @@
     },
     {
       "type": "http",
+      "name": "Get All Logs",
+      "filename": "Get All Logs.bru",
+      "seq": 3,
+      "request": {
+        "url": "http://localhost:8081/simulation/logs",
+        "method": "GET",
+        "headers": [],
+        "params": [],
+        "body": {
+          "mode": "none",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "",
+        "auth": {
+          "mode": "inherit"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Simulation Start",
+      "filename": "Simulation Start.bru",
+      "seq": 2,
+      "request": {
+        "url": "http://localhost:8081/simulation/start",
+        "method": "POST",
+        "headers": [],
+        "params": [],
+        "body": {
+          "mode": "json",
+          "json": "{\n  \"simulation\": {\n    \"tickIntervalMillis\": 1000,\n    \"externalSourceCost\": 5.0,\n    \"metricsPerNTicks\": 2,\n    \"externalSourceCap\": 100.0,\n    \"weather\": {\n      \"sunriseTick\": 6,\n      \"sunsetTick\": 18,\n      \"sunPeakTick\": 12,\n      \"gPeak\": 1000,\n      \"tempMeanDay\": 26,\n      \"tempMeanNight\": 17,\n      \"sigmaG\": 0.15,\n      \"sigmaT\": 0.8\n    },\n    \"agents\": [\n      {\n        \"type\": \"energySource\",\n        \"name\": \"SolarPanel1\",\n        \"noOfPanels\": 200,\n        \"area\": 2.0,\n        \"efficiency\": 0.21,\n        \"tempCoeff\": -0.0040,\n        \"noct\": 44\n      },\n      {\n        \"type\"          : \"energyStorage\",\n        \"name\"          : \"Battery1\",\n        \"capacity\"      : 150.0,\n        \"etaCharge\"     : 0.97,\n        \"etaDischarge\"  : 0.96,\n        \"cRate\"         : 0.7,\n        \"selfDischarge\" : 3.9e-4,\n        \"initialSoC\"    : 90.0\n      },\n      {\n        \"type\"          : \"energyStorage\",\n        \"name\"          : \"Battery2\",\n        \"capacity\"      : 300.0,\n        \"etaCharge\"     : 0.94,\n        \"etaDischarge\"  : 0.92,\n        \"cRate\"         : 0.5,\n        \"selfDischarge\" : 3.9e-4,\n        \"initialSoC\"    : 90.0\n      },\n      {\n        \"type\": \"load\",\n        \"name\": \"Building1\",\n        \"nominalLoad\": 90.0\n      },\n      {\n        \"type\": \"load\",\n        \"name\": \"Building2\",\n        \"nominalLoad\": 30.0\n      }\n    ]\n  }\n}",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "",
+        "auth": {
+          "mode": "inherit"
+        }
+      }
+    },
+    {
+      "type": "http",
       "name": "Simulation Stop",
       "filename": "Simulation Stop.bru",
       "seq": 7,
@@ -152,6 +152,33 @@
         "params": [],
         "body": {
           "mode": "none",
+          "formUrlEncoded": [],
+          "multipartForm": [],
+          "file": []
+        },
+        "script": {},
+        "vars": {},
+        "assertions": [],
+        "tests": "",
+        "docs": "",
+        "auth": {
+          "mode": "inherit"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Weather Update",
+      "filename": "Weather Update.bru",
+      "seq": 8,
+      "request": {
+        "url": "http://localhost:8081/simulation/weather/update",
+        "method": "POST",
+        "headers": [],
+        "params": [],
+        "body": {
+          "mode": "json",
+          "json": "{ \n  \"sunriseTick\":5, \n  \"sunsetTick\":19,\n  \"gPeak\":800, \n  \"sigmaG\":0.25,\n  \"tempMeanDay\":28, \n  \"tempMeanNight\":18 \n}",
           "formUrlEncoded": [],
           "multipartForm": [],
           "file": []
@@ -176,7 +203,7 @@
       "node_modules",
       ".git"
     ],
-    "size": 0,
-    "filesCount": 0
+    "size": 0.0022840499877929688,
+    "filesCount": 7
   }
 }

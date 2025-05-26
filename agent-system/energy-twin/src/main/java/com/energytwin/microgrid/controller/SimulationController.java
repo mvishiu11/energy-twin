@@ -115,6 +115,17 @@ public class SimulationController {
     return ResponseEntity.ok("Simulation resumed.");
   }
 
+  @PostMapping("/weather/update")
+  public ResponseEntity<String> updateWeather(@RequestBody Map<String,Object> weatherJson) {
+    try {
+      simulationConfigService.updateWeatherParams(weatherJson);
+      return ResponseEntity.ok("Weather parameters updated.");
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+              .body("Invalid payload: " + e.getMessage());
+    }
+  }
+
   /** Returns all logs grouped by agent name. */
   @GetMapping("/logs")
   public ResponseEntity<Map<String, List<String>>> getAllLogs() {
