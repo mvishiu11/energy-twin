@@ -64,7 +64,7 @@ public final class EnergySourceAgent extends AbstractEnergySourceAgent {
     msg.addReceiver(new AID("AggregatorAgent", AID.ISLOCALNAME));
     send(msg);
 
-    reportState(0.0, isBroken ? -1 : PkW, 0.0);
+    reportState(0.0, isBroken ? -1 : PkW, 0.0, isBroken ? true : false);
 
     log("t=%d  G=%.1f W/m²  Ta=%.1f °C  P=%.2f kW".formatted(t, latestIrradiance, ambientTemp, PkW));
   }
