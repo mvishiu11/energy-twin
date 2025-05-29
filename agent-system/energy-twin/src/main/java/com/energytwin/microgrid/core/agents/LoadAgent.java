@@ -48,6 +48,7 @@ public final class LoadAgent extends AbstractLoadAgent {
 
   @Override
   public void onTick(long tick) {
+    int rate = eventControlService.checkLoadSpike(getLocalName());
     int hour = (int) (tick % 24);
     double baselineFrac = baselineFraction(hour);
 
@@ -63,7 +64,7 @@ public final class LoadAgent extends AbstractLoadAgent {
     frac = Math.max(0.10, frac);
     frac = Math.min(1.30, frac);
 
-    double consumedKw = frac * nominalLoadKw;
+    double consumedKw = frac * nominalLoadKw * rate;
 
     /* ---------- messaging ---------- */
     ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
