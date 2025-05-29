@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Loads simulation configuration from an external JSON file or via API and provides utility methods
@@ -24,6 +25,10 @@ public class SimulationConfigService {
 
   private Map<?, ?> config;
 
+  @Getter
+  private volatile Map<String,Object>  weatherParams   = Map.of();
+  private final AtomicLong weatherVersion  = new AtomicLong(0);
+
   @PostConstruct
   public void init() {
     logger.info("No default simulation configuration loaded. Waiting for startup config via API.");
@@ -33,21 +38,34 @@ public class SimulationConfigService {
    * Sets the simulation configuration from a JSON string. This method parses the provided JSON and
    * updates the internal configuration.
    *
-   * @param configJson the simulation configuration as a JSON string.
+   * @param json the simulation configuration as a JSON string.
    */
-  public void setConfigFromString(String configJson) {
+  public void setConfigFromString(String json) {
     try {
       ObjectMapper mapper = new ObjectMapper();
-      Map<?, ?> newConfig = mapper.readValue(configJson, Map.class);
-      if (!newConfig.containsKey("simulation")) {
-        throw new IllegalArgumentException("Provided configuration is missing 'simulation' key.");
-      }
-      this.config = newConfig;
-      logger.info("Simulation configuration updated via API: {}", config);
+      Map<?,?> newCfg = mapper.readValue(json, Map.class);
+      if (!newCfg.containsKey("simulation"))
+        throw new IllegalArgumentException("missing simulation block");
+      this.config = newCfg;
+
+      Object w = ((Map<?,?>) newCfg.get("simulation")).get("weather");
+      if (w instanceof Map<?,?> mp)
+        //noinspection unchecked
+        updateWeatherParams( (Map<String,Object>) mp );
+
+      logger.info("Full simulation config loaded.");
     } catch (Exception e) {
-      logger.error("Error parsing simulation configuration from string", e);
-      throw new RuntimeException("Error parsing simulation configuration: " + e.getMessage(), e);
+      throw new RuntimeException("config parse error", e);
     }
+  }
+
+  public long getWeatherVersion() { return weatherVersion.get(); }
+
+  public synchronized void updateWeatherParams(Map<String,Object> newParams) {
+    if (newParams == null) throw new IllegalArgumentException("weather map null");
+    this.weatherParams = newParams;
+    weatherVersion.incrementAndGet();
+    logger.info("Weather parameters updated at runtime (version {}) : {}", weatherVersion.get(), newParams);
   }
 
   public int getTickIntervalMillis() {
@@ -126,35 +144,6 @@ public class SimulationConfigService {
       return 2;
     }
     return (int) metricsPerNTick;
-  }
-
-  public Map<String, Object> getWeatherParams() {
-    Object simulationObj = config.get("simulation");
-    Map<String, Object> defaultWeatherMap = new HashMap<String, Object>();
-    defaultWeatherMap.put("sunriseTick", 6);
-    defaultWeatherMap.put("sunsetTick", 21);
-    defaultWeatherMap.put("sunPeakTick", 12);
-    defaultWeatherMap.put("gPeak", 1000);
-    defaultWeatherMap.put("tempMeanDay", 26);
-    defaultWeatherMap.put("tempMeanNight", 17);
-    defaultWeatherMap.put("sigmaG", 0.15);
-    defaultWeatherMap.put("sigmaT", 0.8);
-    if (simulationObj == null) {
-      throw new IllegalArgumentException("Missing 'simulation' key in configuration.");
-    }
-    if (!(simulationObj instanceof Map)) {
-      throw new IllegalArgumentException(
-              "'simulation' is not a Map. Found type: " + simulationObj.getClass().getName());
-    }
-
-    Map<String, Object> simulationMap = (Map<String, Object>) simulationObj;
-
-    Object weatherMap = simulationMap.get("weather");
-
-    if (weatherMap == null){
-      return defaultWeatherMap;
-    }
-    return (Map<String, Object>) weatherMap;
   }
 
   /**

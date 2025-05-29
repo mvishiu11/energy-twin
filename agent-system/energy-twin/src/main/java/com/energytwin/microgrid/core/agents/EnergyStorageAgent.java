@@ -44,8 +44,15 @@ public final class EnergyStorageAgent extends AbstractEnergyStorageAgent {
 
   /* tick bookkeeping */
   @Override public void onTick(long t) {
+
+    if (eventControlService.isBroken(getLocalName())) {
+      log("t=%d  AGENT BROKEN – skipping tick", t);
+      reportState(0,0,-1, true);
+      return;
+    }
+
     applySelfDischarge();
     log("t=%d  SoC=%.2f kWh (%.0f %%)".formatted(t, socKwh, 100*socKwh/capacityKwh));
-    reportState(0,0,socKwh);
+    reportState(0,0,socKwh, false);
   }
 }

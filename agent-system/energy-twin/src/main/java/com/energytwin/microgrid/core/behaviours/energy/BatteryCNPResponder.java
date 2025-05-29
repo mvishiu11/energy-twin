@@ -1,6 +1,8 @@
 package com.energytwin.microgrid.core.behaviours.energy;
 
+import com.energytwin.microgrid.agentfusion.util.SpringContext;
 import com.energytwin.microgrid.core.base.AbstractEnergyStorageAgent;
+import com.energytwin.microgrid.service.EventControlService;
 import jade.core.AID;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.messaging.TopicManagementHelper;
@@ -11,6 +13,7 @@ import jade.lang.acl.MessageTemplate;
 public final class BatteryCNPResponder extends CyclicBehaviour {
 
   private final AbstractEnergyStorageAgent bat;
+  private final EventControlService controlService;
   private static final String CFP_SHORT = "CNP_SHORTFALL";
   private static final String CFP_SURPL = "CNP_SURPLUS";
   private static final String ONT_PROP  = "CNP_PROPOSAL";
@@ -20,6 +23,7 @@ public final class BatteryCNPResponder extends CyclicBehaviour {
   public BatteryCNPResponder(AbstractEnergyStorageAgent bat, AID shortfallTopic, AID surplusTopic) {
     super(bat);
     this.bat = bat;
+    this.controlService = SpringContext.getBean(EventControlService.class);
     try {
       TopicManagementHelper h = (TopicManagementHelper)
               bat.getHelper(TopicManagementHelper.SERVICE_NAME);
@@ -29,6 +33,11 @@ public final class BatteryCNPResponder extends CyclicBehaviour {
 
   @Override
   public void action() {
+
+    if(controlService.isBroken(bat.getLocalName())){
+      block();
+      return;
+    }
 
     ACLMessage msg = myAgent.receive(MessageTemplate.or(
             MessageTemplate.MatchOntology(CFP_SHORT),

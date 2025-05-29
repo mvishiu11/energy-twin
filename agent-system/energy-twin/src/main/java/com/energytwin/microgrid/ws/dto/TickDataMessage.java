@@ -21,5 +21,7 @@ public class TickDataMessage {
 
         private double stateOfCharge;
 
+        private boolean broken;
+
     }
 }

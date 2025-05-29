@@ -36,12 +36,14 @@ public final class WeatherAgent extends AbstractSimAgent {
   private double sigmaG;        // relative STD for G
   private double sigmaT;        // °C STD for temp
 
+  private long cachedVersion;   // weather version
   private AID irradianceTopic;
   private final Random rnd = new Random();
 
   @Override
   protected void onAgentSetup() {
     readConfig();
+    cachedVersion = simulationConfigService.getWeatherVersion();
 
     try {
       TopicManagementHelper helper =
@@ -77,6 +79,13 @@ public final class WeatherAgent extends AbstractSimAgent {
 
   @Override
   public void onTick(long tick) {
+    long v = simulationConfigService.getWeatherVersion();
+    if (v != cachedVersion) {
+      readConfig();
+      cachedVersion = v;
+      log("Weather parameters reloaded (version {})", v);
+    }
+
     double G = computeIrradiance((int) (tick % 24));
     double Ta = computeAmbientTemp((int) (tick % 24));
 
