@@ -5,6 +5,7 @@ import { useSimulationStore } from "../../infrastructure/stores/simulationStore"
 import { Metrics } from "../../infrastructure/websocket/types"
 import { useSubscription } from "../../infrastructure/websocket/useSubscription"
 import { AllBatteriesChart } from "./AllBatteriesChart"
+import { AllSolarPanelsChart } from "./AllSolarPanelsChart"
 import { ChartCard } from "./ChartCard"
 import { DashboardContainer } from "./styles"
 
@@ -151,6 +152,11 @@ export function Dashboard() {
                 title="All Batteries"
                 tooltip="Displays the state of charge for all battery agents in the simulation.">
                 <AllBatteriesChart />
+            </ChartCard>
+            <ChartCard
+                title="Solar Panel Production"
+                tooltip="Displays the production for all solar panel agents in the simulation.">
+                <AllSolarPanelsChart />
             </ChartCard>
         </DashboardContainer>
     )
