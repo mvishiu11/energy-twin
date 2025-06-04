@@ -94,18 +94,18 @@ public final class BatteryCNPResponder extends CyclicBehaviour {
     if (dec.getInReplyTo() == null) return;
 
     if (CFP_SHORT.equals(dec.getInReplyTo())) {          // discharge accepted
-      double ηd = bat.dischargeEffEff();
-      double Δsoc = amt / ηd;
-      bat.setSocKwh(Math.max(0, bat.getSocKwh() - Δsoc));
+      double nd = bat.dischargeEffEff();
+      double dsoc = amt / nd;
+      bat.setSocKwh(Math.max(0, bat.getSocKwh() - dsoc));
       bat.log("Delivered %.2f kWh  ηd=%.2f  new SoC=%.2f"
-              .formatted(amt, ηd, bat.getSocKwh()));
+              .formatted(amt, nd, bat.getSocKwh()));
 
     } else if (CFP_SURPL.equals(dec.getInReplyTo())) {   // charge accepted
-      double ηc = bat.chargeEffEff();
-      double Δsoc = amt * ηc;
-      bat.setSocKwh(Math.min(bat.getCapacityKwh(), bat.getSocKwh() + Δsoc));
+      double nc = bat.chargeEffEff();
+      double dsoc = amt * nc;
+      bat.setSocKwh(Math.min(bat.getCapacityKwh(), bat.getSocKwh() + dsoc));
       bat.log("Stored %.2f kWh  ηc=%.2f  new SoC=%.2f"
-              .formatted(amt, ηc, bat.getSocKwh()));
+              .formatted(amt, nc, bat.getSocKwh()));
     }
   }
 
