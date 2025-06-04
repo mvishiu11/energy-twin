@@ -6,6 +6,7 @@ import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from "r
 import { Metrics } from "../../infrastructure/websocket/types"
 import { useSubscription } from "../../infrastructure/websocket/useSubscription"
 import { Tooltip as TooltipUI } from "../ui/tooltip"
+import { AllBatteriesChart } from "./AllBatteriesChart"
 import { DashboardContainer } from "./styles"
 
 type TotalProducedChartData = {
@@ -61,7 +62,7 @@ export function Dashboard() {
                 <InfoTitle title="Totals" tooltip="Total energy produced and consumed" />
                 <Card.Root size="lg">
                     <Card.Body p="4">
-                        <Chart.Root chart={chart}>
+                        <Chart.Root chart={chart} height="100%" width="100%">
                             <LineChart data={chart.data}>
                                 <CartesianGrid stroke={chart.color("border")} vertical={false} />
                                 <XAxis
@@ -110,7 +111,7 @@ export function Dashboard() {
                 />
                 <Card.Root size="lg">
                     <Card.Body p="4">
-                        <Chart.Root chart={greenEnergyChart}>
+                        <Chart.Root chart={greenEnergyChart} height="100%" width="100%">
                             <LineChart data={greenEnergyChart.data}>
                                 <CartesianGrid stroke={greenEnergyChart.color("border")} vertical={false} />
                                 <XAxis
@@ -151,6 +152,7 @@ export function Dashboard() {
                         </Chart.Root>
                     </Card.Body>
                 </Card.Root>
+                <AllBatteriesChart />
             </Flex>
         </DashboardContainer>
     )
