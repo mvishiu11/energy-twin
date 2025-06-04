@@ -6,7 +6,7 @@ import { TickData } from "../../../infrastructure/websocket/types"
 import { useSubscription } from "../../../infrastructure/websocket/useSubscription"
 
 export function AllBatteriesChart() {
-    const { mapEntities } = useSimulationStore()
+    const { mapEntities, isRunning } = useSimulationStore()
     const { data } = useSubscription<TickData>("/topic/tickData", {
         tickNumber: 0,
         agentStates: {},
@@ -15,9 +15,13 @@ export function AllBatteriesChart() {
     const [chartData, setChartData] = useState<Record<string, number>[]>([])
 
     useEffect(() => {
+        if (!isRunning) {
+            setChartData([])
+            return
+        }
         if (data) {
             setChartData(prev => {
-                if (data.agentStates || data.tickNumber === 0) {
+                if (data.agentStates && data.tickNumber !== 0) {
                     return [
                         ...prev,
                         {
@@ -35,13 +39,13 @@ export function AllBatteriesChart() {
                 return prev
             })
         }
-    }, [data, mapEntities.batteries])
+    }, [data, isRunning, mapEntities.batteries])
 
     const chart = useChart({
         data: chartData,
-        series: mapEntities.batteries.map(battery => ({
+        series: mapEntities.batteries.map((battery, index) => ({
             name: battery.id,
-            color: "green.500",
+            color: seriesColors[index % seriesColors.length],
         })),
     })
 
@@ -86,3 +90,16 @@ export function AllBatteriesChart() {
         </Chart.Root>
     )
 }
+
+const seriesColors = [
+    "green.500",
+    "yellow.500",
+    "teal.500",
+    "purple.500",
+    "orange.500",
+    "red.500",
+    "blue.500",
+    "pink.500",
+    "gray.500",
+    "cyan.500",
+]

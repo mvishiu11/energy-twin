@@ -87,10 +87,10 @@ function RouteComponent() {
                                             .unproject([globalCoordinates.clientX, globalCoordinates.clientY - 69])
                                         switch (activeId) {
                                             case "battery":
-                                                addBatteryMarker([lng, lat], `Battery ${crypto.randomUUID()}`)
+                                                addBatteryMarker([lng, lat], `Battery ${batteriesMarkers.length + 1}`)
                                                 break
                                             case "solar":
-                                                addSolarMarker([lng, lat], `Solar Panel ${crypto.randomUUID()}`)
+                                                addSolarMarker([lng, lat], `Solar Panel ${solarMarker.length + 1}`)
                                                 break
                                         }
                                     }

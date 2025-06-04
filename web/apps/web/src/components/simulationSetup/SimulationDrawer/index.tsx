@@ -78,7 +78,16 @@ export function SimulationDrawer() {
                     initial={{ translateX: "100%" }}
                     transition={{ duration: 0.2, ease: "circInOut" }}>
                     <Flex direction="column" gap="4" width={drawerWidth}>
-                        <Flex direction="row" justify="space-between">
+                        <Flex
+                            backgroundColor="white"
+                            borderBottom="1px solid #e2e8f0"
+                            direction="row"
+                            justify="space-between"
+                            paddingBottom="2"
+                            paddingTop="6"
+                            position="sticky"
+                            top="0"
+                            zIndex="999">
                             <Heading size="xl">Simulation Setup</Heading>
                             <IconButton rounded="xl" variant="ghost" onClick={() => setIsOpen(false)}>
                                 <LuX />

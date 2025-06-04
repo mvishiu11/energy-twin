@@ -16,6 +16,7 @@ export function BaseEntityCard({ id, name, children, type }: PropsWithChildren<B
     return (
         <Card.Root
             cursor="pointer"
+            marginX="1"
             outlineColor={selectedEntityId === id ? "green.600" : undefined}
             outlineStyle={selectedEntityId === id ? "solid" : undefined}
             outlineWidth={selectedEntityId === id ? 2 : 0}
