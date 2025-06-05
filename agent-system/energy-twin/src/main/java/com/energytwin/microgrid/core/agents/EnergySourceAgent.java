@@ -57,14 +57,14 @@ public final class EnergySourceAgent extends AbstractEnergySourceAgent {
     ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
     msg.setOntology("ENERGY_PRODUCTION");
     if( isBroken){
-      msg.setContent(String.valueOf(-1));
+      msg.setContent(String.valueOf(0));
     }else{
       msg.setContent(String.valueOf(PkW));
     }
     msg.addReceiver(new AID("AggregatorAgent", AID.ISLOCALNAME));
     send(msg);
 
-    reportState(0.0, isBroken ? -1 : PkW, 0.0, isBroken ? true : false);
+    reportState(0.0, isBroken ? 0 : PkW, 0.0, isBroken ? true : false);
 
     log("t=%d  G=%.1f W/m²  Ta=%.1f °C  P=%.2f kW".formatted(t, latestIrradiance, ambientTemp, PkW));
   }
