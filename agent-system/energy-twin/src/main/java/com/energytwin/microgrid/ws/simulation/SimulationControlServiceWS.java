@@ -65,7 +65,6 @@ public class SimulationControlServiceWS {
     }
 
     private MetricsMessage computeMetrics() {
-        // cumulative ( na 1 tick ) time under green blackout - procent energii z sieci a jaki zielony,  energie zielona /  total zapotrzebowanie
         MetricsMessage msg = new MetricsMessage();
         msg.setTickNumber(tickCounter);
         msg.setTotalConsumed(cumulativeTotalDemand);

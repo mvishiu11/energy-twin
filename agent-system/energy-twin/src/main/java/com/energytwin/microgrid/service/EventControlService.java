@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Getter
 @Service
@@ -25,6 +26,7 @@ public class EventControlService {
 
     private final Map<String,Integer> brokenComponents = new ConcurrentHashMap<>();
     private final Map<String, IntPair> loadSpikes = new ConcurrentHashMap<>();
+    private final AtomicLong blackoutTicksRemaining = new AtomicLong(0);
 
     public void addBrokenComponent(String name, int ticks){
         brokenComponents.put(name, ticks);
@@ -58,5 +60,20 @@ public class EventControlService {
                 ? loadSpikes.get(name).rate
                 : 1;
     }
+
+    public void startBlackout(long ticks) {
+        blackoutTicksRemaining.set(ticks);
+    }
+
+    public boolean inBlackoutAndTick() {
+        long rem = blackoutTicksRemaining.get();
+        if (rem > 0) {
+            blackoutTicksRemaining.decrementAndGet();
+            return true;
+        }
+        return false;
+    }
+
+    public long getBlackoutRemaining() { return blackoutTicksRemaining.get(); }
 }
 
