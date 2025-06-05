@@ -74,8 +74,10 @@ public class ExternalSourceCNPResponder extends CyclicBehaviour {
     if (ONT_ACCEPT.equals(msg.getOntology())) {
       double accepted = parseAccepted(msg.getContent());
       agent.log("External source supplying " + accepted + " kW this tick.");
+      agent.reportState(0.0, accepted, 0.0);
     } else if (ONT_REJECT.equals(msg.getOntology())) {
       agent.log("Proposal from external source was rejected: " + msg.getContent());
+      agent.reportState(0.0, 0.0, 0.0);
     }
   }
 
