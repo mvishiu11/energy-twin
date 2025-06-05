@@ -71,6 +71,7 @@ public class HandleShortfallCNP extends OneShotBehaviour {
 
     for (Proposal p : proposals) {
       if (remainingShortfall <= 0) break;
+      if (p.getAmount() <= 0) continue;
       double used = Math.min(remainingShortfall, p.getAmount());
       remainingShortfall -= used;
       p.setAcceptedAmount(used);

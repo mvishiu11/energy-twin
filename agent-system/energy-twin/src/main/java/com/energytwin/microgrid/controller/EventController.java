@@ -22,10 +22,10 @@ public class EventController {
     @PostMapping("/breakComponent")
     public ResponseEntity<String> breakSource(
         @RequestParam String name,
-        @RequestParam(required = false, defaultValue = "10") int ticks
+        @RequestParam(required = false, defaultValue = "8") int ticks
     ){
-        if( ticks < 10){
-            return ResponseEntity.badRequest().body("Ticks must be at least 10");
+        if( ticks < 1){
+            return ResponseEntity.badRequest().body("Ticks must be at least 1");
         }
 
         eventControlService.addBrokenComponent(name, ticks);
@@ -44,11 +44,11 @@ public class EventController {
     @PostMapping("/loadSpike")
     public ResponseEntity<String> loadSpike(
             @RequestParam String name,
-            @RequestParam(required = false, defaultValue = "10") int ticks,
+            @RequestParam(required = false, defaultValue = "8") int ticks,
             @RequestParam(required = false, defaultValue = "2") int rate
     ){
-        if( ticks < 10){
-            return ResponseEntity.badRequest().body("Ticks must be at least 10");
+        if( ticks < 1){
+            return ResponseEntity.badRequest().body("Ticks must be at least 1");
         }
 
         eventControlService.addLoadSpike(name, ticks, rate);
