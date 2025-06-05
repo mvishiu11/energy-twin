@@ -56,4 +56,14 @@ public class EventController {
         return ResponseEntity.ok("Load spike added.");
     }
 
+    /**
+     * Cuts off external supply for a number of ticks.
+     * @param ticks duration of the blackout in ticks (default 5)
+     */
+    @PostMapping("/blackout")
+    public ResponseEntity<String> blackout(@RequestParam(defaultValue="5") long ticks) {
+        if (ticks < 1) return ResponseEntity.badRequest().body("Ticks must be at least 1");
+        eventControlService.startBlackout(ticks);
+        return ResponseEntity.ok("Blackout for " + ticks + " ticks started.");
+    }
 }

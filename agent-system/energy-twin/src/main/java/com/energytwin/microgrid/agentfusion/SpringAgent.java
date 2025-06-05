@@ -93,7 +93,7 @@ public abstract class SpringAgent extends Agent {
     registry.update(getLocalName(), st);
   }
 
-  protected void reportState(double demand, double production, double soc){
+  public void reportState(double demand, double production, double soc){
     TickDataMessage.AgentState st = new TickDataMessage.AgentState();
     st.setDemand(demand);
     st.setProduction(production);
