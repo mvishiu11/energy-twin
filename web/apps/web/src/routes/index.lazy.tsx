@@ -1,6 +1,6 @@
 import { Box, Icon, IconButton, Tabs } from "@chakra-ui/react"
 import { createLazyFileRoute } from "@tanstack/react-router"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { LuLayoutDashboard, LuMap, LuSettings2, LuSun } from "react-icons/lu"
 import Map, { Layer, MapRef, Source } from "react-map-gl/mapbox"
 import { DndContext, DragOverlay, UniqueIdentifier } from "@dnd-kit/core"
@@ -15,6 +15,9 @@ import { Tooltip } from "../components/ui/tooltip"
 import { useStopSimulation } from "../infrastructure/fetching"
 import { useDrawerStore } from "../infrastructure/stores/drawerStore"
 import { mapConfig } from "../services/mapConfig"
+
+const MemoizedDrawer = memo(SimulationDrawer)
+const MemoizedToolkit = memo(Toolkit)
 
 export const Route = createLazyFileRoute("/")({
     component: RouteComponent,
@@ -122,7 +125,7 @@ function RouteComponent() {
                                         type="line"
                                     />
                                 </Map>
-                                <Toolkit />
+                                <MemoizedToolkit />
                                 <DragOverlay
                                     dropAnimation={null}
                                     style={{
@@ -151,7 +154,7 @@ function RouteComponent() {
                                     <LuSettings2 />
                                 </IconButton>
                             </Tooltip>
-                            <SimulationDrawer />
+                            <MemoizedDrawer />
                         </div>
                     </Tabs.Content>
                     <Tabs.Content value="dashboard">

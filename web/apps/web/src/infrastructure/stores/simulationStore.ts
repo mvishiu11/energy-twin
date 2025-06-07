@@ -13,15 +13,39 @@ export type Battery = MapEntity & { capacity: number }
 
 export type Solar = MapEntity & { productionRate: number }
 
+type Weather = {
+    sunriseTick: number
+    sunsetTick: number
+    sunPeakTick: number
+    gPeak: number
+    tempMeanDay: number
+    tempMeanNight: number
+    sigmaG: number
+    sigmaT: number
+}
+
 export type SimulationState = {
     isRunning: boolean
     setIsRunning: (isRunning: boolean) => void
+    isPaused: boolean
+    setIsPaused: (isPaused: boolean) => void
     tickIntervalMilliseconds: number
     setTickIntervalMilliseconds: (milliseconds: number) => void
     externalSourceCost: number
     setExternalSourceCost: (cost: number) => void
     externalSourceCap: number
     setExternalSourceCap: (cap: number) => void
+    weather: {
+        sunriseTick: number
+        sunsetTick: number
+        sunPeakTick: number
+        gPeak: number
+        tempMeanDay: number
+        tempMeanNight: number
+        sigmaG: number
+        sigmaT: number
+    }
+    setWeather: (weather: Weather) => void
     mapEntities: {
         batteries: Battery[]
         solar: Solar[]
@@ -37,13 +61,26 @@ export type SimulationState = {
 
 export const useSimulationStore = create<SimulationState>()(set => ({
     isRunning: false,
+    isPaused: false,
     setIsRunning: (isRunning: boolean) => set({ isRunning }),
+    setIsPaused: (isPaused: boolean) => set({ isPaused }),
     tickIntervalMilliseconds: 1000,
     setTickIntervalMilliseconds: (milliseconds: number) => set({ tickIntervalMilliseconds: milliseconds }),
     externalSourceCost: 5.0,
     setExternalSourceCost: (cost: number) => set({ externalSourceCost: cost }),
     externalSourceCap: 100,
     setExternalSourceCap: (cap: number) => set({ externalSourceCap: cap }),
+    weather: {
+        sunriseTick: 6,
+        sunsetTick: 18,
+        sunPeakTick: 12,
+        gPeak: 1000,
+        tempMeanDay: 26,
+        tempMeanNight: 17,
+        sigmaG: 0.15,
+        sigmaT: 0.8,
+    },
+    setWeather: (weather: Weather) => set({ weather }),
     mapEntities: {
         batteries: [],
         solar: [],

@@ -2,6 +2,7 @@ import { createRouter, RouterProvider } from "@tanstack/react-router"
 import React from "react"
 import ReactDOM from "react-dom/client"
 import { Provider } from "./components/ui/provider"
+import { Toaster } from "./components/ui/toaster"
 import { QueryProvider } from "./infrastructure/fetching/QueryClientProvider"
 import { WebSocketProvider } from "./infrastructure/websocket/WebSocketProvider"
 import { routeTree } from "./routeTree.gen"
@@ -24,6 +25,7 @@ if (rootElement && !rootElement.innerHTML) {
                 <QueryProvider>
                     <WebSocketProvider>
                         <RouterProvider router={router} />
+                        <Toaster />
                     </WebSocketProvider>
                 </QueryProvider>
             </Provider>

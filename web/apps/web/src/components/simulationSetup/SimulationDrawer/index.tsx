@@ -1,8 +1,9 @@
-import { Button, EmptyState, Field, Flex, Heading, IconButton, Input } from "@chakra-ui/react"
+import { Accordion, Button, EmptyState, Flex, Heading, IconButton } from "@chakra-ui/react"
 import { AnimatePresence, motion } from "motion/react"
-import { ReactNode, useEffect, useMemo } from "react"
+import { memo, ReactNode, useEffect, useMemo } from "react"
 import { LuCirclePause, LuCirclePlay, LuCircleStop, LuDatabaseZap, LuSun, LuX } from "react-icons/lu"
 import { usePauseSimulation, useStartSimulation, useStopSimulation } from "../../../infrastructure/fetching"
+import { resumeSimulation } from "../../../infrastructure/fetching/api"
 import { useDrawerStore } from "../../../infrastructure/stores/drawerStore"
 import { useSimulationRuntimeStore } from "../../../infrastructure/stores/simulationRuntimeStore"
 import { useSimulationStore } from "../../../infrastructure/stores/simulationStore"
@@ -11,7 +12,14 @@ import { useSubscription } from "../../../infrastructure/websocket/useSubscripti
 import { simulationConfig } from "../../../services/simulationConfig"
 import { BatteryEntityCard } from "../EntityCard/BatteryEntityCard"
 import { SolarEntityCard } from "../EntityCard/SolarEntityCard"
+import { SimulationSettings } from "./SimulationSettings"
 import { DrawerRoot } from "./styles"
+import { WeatherSettings } from "./WeatherSettings"
+
+const MemoizedBatteryEntityCard = memo(BatteryEntityCard)
+const MemoizedSolarEntityCard = memo(SolarEntityCard)
+const MemoizedSimulationSettings = memo(SimulationSettings)
+const MemoizedWeatherSettings = memo(WeatherSettings)
 
 export function SimulationDrawer() {
     const {
@@ -20,9 +28,8 @@ export function SimulationDrawer() {
         tickIntervalMilliseconds,
         externalSourceCost,
         externalSourceCap,
-        setTickIntervalMilliseconds,
-        setExternalSourceCost,
-        setExternalSourceCap,
+        weather,
+        isPaused,
     } = useSimulationStore()
     const { isOpen, setIsOpen, drawerWidth } = useDrawerStore()
     const { mutate: startSimulation } = useStartSimulation()
@@ -49,6 +56,17 @@ export function SimulationDrawer() {
                 tickIntervalMillis: tickIntervalMilliseconds,
                 externalSourceCost: externalSourceCost,
                 externalSourceCap: externalSourceCap,
+                metricsPerNTicks: 2,
+                weather: {
+                    sunriseTick: weather.sunriseTick,
+                    sunsetTick: weather.sunsetTick,
+                    sunPeakTick: weather.sunPeakTick,
+                    gPeak: weather.gPeak,
+                    tempMeanDay: weather.tempMeanDay,
+                    tempMeanNight: weather.tempMeanNight,
+                    sigmaG: weather.sigmaG,
+                    sigmaT: weather.sigmaT,
+                },
                 agents: [
                     ...mapEntities.batteries.map(battery => ({
                         type: "energyStorage",
@@ -66,7 +84,7 @@ export function SimulationDrawer() {
                 ],
             },
         }),
-        [mapEntities, tickIntervalMilliseconds, externalSourceCost, externalSourceCap],
+        [mapEntities, tickIntervalMilliseconds, externalSourceCost, externalSourceCap, weather],
     )
 
     return (
@@ -93,35 +111,12 @@ export function SimulationDrawer() {
                                 <LuX />
                             </IconButton>
                         </Flex>
-                        <Field.Root>
-                            <Field.Label>Tick Interval</Field.Label>
-                            <Input
-                                type="number"
-                                value={tickIntervalMilliseconds}
-                                onChange={e => setTickIntervalMilliseconds(Number(e.target.value))}
-                            />
-                        </Field.Root>
-                        <Field.Root>
-                            <Field.Label>External Source Cost</Field.Label>
-                            <Input
-                                type="number"
-                                value={externalSourceCost}
-                                onChange={e => setExternalSourceCost(Number(e.target.value))}
-                            />
-                        </Field.Root>
-                        <Field.Root>
-                            <Field.Label>External Source Cap</Field.Label>
-                            <Input
-                                type="number"
-                                value={externalSourceCap}
-                                onChange={e => setExternalSourceCap(Number(e.target.value))}
-                            />
-                        </Field.Root>
+                        <MemoizedSettingsAccordion />
                         <Flex direction="column" gap="4">
                             <Heading size="md">Batteries</Heading>
                             {mapEntities.batteries.length ? (
                                 mapEntities.batteries.map(battery => (
-                                    <BatteryEntityCard
+                                    <MemoizedBatteryEntityCard
                                         key={battery.id}
                                         capacity={battery.capacity}
                                         chargeLevel={agentStates[battery.id]?.stateOfCharge}
@@ -138,7 +133,7 @@ export function SimulationDrawer() {
                             <Heading size="md">Solar Panels</Heading>
                             {mapEntities.solar.length ? (
                                 mapEntities.solar.map(solar => (
-                                    <SolarEntityCard
+                                    <MemoizedSolarEntityCard
                                         key={solar.id}
                                         currentProduction={agentStates[solar.id]?.production}
                                         id={solar.id}
@@ -160,16 +155,23 @@ export function SimulationDrawer() {
                                     variant="solid"
                                     onClick={() => {
                                         if (isRunning) {
-                                            stopSimulation()
+                                            if (isPaused) {
+                                                resumeSimulation()
+                                            } else {
+                                                stopSimulation()
+                                            }
                                         } else {
                                             startSimulation(jsonStringConfig as any)
                                         }
                                     }}>
-                                    {isRunning ? "Stop" : "Start"}
-                                    {isRunning ? <LuCircleStop /> : <LuCirclePlay />}
+                                    {isRunning ? (isPaused ? "Resume" : "Stop") : "Start"}
+                                    {isRunning ? isPaused ? <LuCirclePlay /> : <LuCircleStop /> : <LuCirclePlay />}
                                 </Button>
                             </motion.div>
-                            <Button disabled={!isRunning} variant="outline" onClick={() => pauseSimulation()}>
+                            <Button
+                                disabled={!isRunning || isPaused}
+                                variant="outline"
+                                onClick={() => pauseSimulation()}>
                                 Pause
                                 <LuCirclePause />
                             </Button>
@@ -196,3 +198,14 @@ function EmptyStateMessage({ message, icon }: EmptyStateProps) {
         </EmptyState.Root>
     )
 }
+
+function SettingsAccordion() {
+    return (
+        <Accordion.Root collapsible multiple defaultValue={["simulation-parameters"]} size="lg" variant="enclosed">
+            <MemoizedSimulationSettings />
+            <MemoizedWeatherSettings />
+        </Accordion.Root>
+    )
+}
+
+const MemoizedSettingsAccordion = memo(SettingsAccordion)

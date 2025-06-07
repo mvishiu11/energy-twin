@@ -3,12 +3,12 @@ export const simulationConfig = {
         {
             type: "load",
             name: "Building1",
-            consumptionRate: 90.0,
+            nominalLoad: 90.0,
         },
         {
             type: "load",
             name: "Building2",
-            consumptionRate: 30.0,
+            nominalLoad: 30.0,
         },
     ],
 }

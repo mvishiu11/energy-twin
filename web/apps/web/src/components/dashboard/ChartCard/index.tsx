@@ -11,7 +11,7 @@ interface ChartCardProps {
 
 export function ChartCard({ title, tooltip, children }: ChartCardProps) {
     return (
-        <Flex direction="column" gap="4">
+        <Flex direction="column" gap="4" overflow="hidden">
             <InfoTitle title={title} tooltip={tooltip} />
             <Card.Root size="lg">
                 <Card.Body p="4">{children}</Card.Body>

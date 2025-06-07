@@ -65,7 +65,7 @@ export function Dashboard() {
     return (
         <DashboardContainer>
             <ChartCard title="Totals" tooltip="Total energy produced and consumed">
-                <Chart.Root chart={chart} height="100%" width="100%">
+                <Chart.Root chart={chart} height="100%" overflow="hidden" width="100%">
                     <LineChart data={chart.data}>
                         <CartesianGrid stroke={chart.color("border")} vertical={false} />
                         <XAxis
