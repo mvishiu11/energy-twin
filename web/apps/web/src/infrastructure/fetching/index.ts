@@ -2,7 +2,10 @@ import { useMutation, useQuery } from "@tanstack/react-query"
 import { toaster } from "../../components/ui/toaster"
 import { useSimulationStore } from "../stores/simulationStore"
 import {
+    blackout,
     getAllLogs,
+    loadSpike,
+    LoadSpikeData,
     pauseSimulation,
     resumeSimulation,
     startSimulation,
@@ -29,14 +32,12 @@ export function useStartSimulation() {
         onSuccess: () => {
             toaster.create({
                 title: "Simulation started",
-                description: "The simulation has been started.",
                 type: "success",
             })
         },
         onError: () => {
             toaster.create({
                 title: "Simulation failed to start",
-                description: "The simulation failed to start.",
                 type: "error",
             })
         },
@@ -56,14 +57,12 @@ export function usePauseSimulation() {
         onSuccess: () => {
             toaster.create({
                 title: "Simulation paused",
-                description: "The simulation has been paused.",
                 type: "success",
             })
         },
         onError: () => {
             toaster.create({
                 title: "Simulation failed to pause",
-                description: "The simulation failed to pause.",
                 type: "error",
             })
         },
@@ -83,14 +82,12 @@ export function useStopSimulation() {
         onSuccess: () => {
             toaster.create({
                 title: "Simulation stopped",
-                description: "The simulation has been stopped.",
                 type: "success",
             })
         },
         onError: () => {
             toaster.create({
                 title: "Simulation failed to stop",
-                description: "The simulation failed to stop.",
                 type: "error",
             })
         },
@@ -113,14 +110,12 @@ export function useUpdateWeather() {
         onSuccess: () => {
             toaster.create({
                 title: "Weather injected",
-                description: "The weather has been injected.",
                 type: "success",
             })
         },
         onError: () => {
             toaster.create({
                 title: "Failed to inject weather",
-                description: "The weather failed to inject.",
                 type: "error",
             })
         },
@@ -134,14 +129,12 @@ export function useResumeSimulation() {
         onSuccess: () => {
             toaster.create({
                 title: "Simulation resumed",
-                description: "The simulation has been resumed.",
                 type: "success",
             })
         },
         onError: () => {
             toaster.create({
                 title: "Simulation failed to resume",
-                description: "The simulation failed to resume.",
                 type: "error",
             })
         },
@@ -151,5 +144,55 @@ export function useResumeSimulation() {
             return response.data
         },
         mutationKey: ["resume-simulation"],
+    })
+}
+
+export function useBlackout() {
+    return useMutation({
+        mutationFn: async () => {
+            const response = await blackout()
+            return response.data
+        },
+        mutationKey: ["blackout"],
+        onSuccess: () => {
+            toaster.create({
+                title: "Blackout simulated",
+                type: "success",
+            })
+        },
+        onError: () => {
+            toaster.create({
+                title: "Failed to simulate blackout",
+                type: "error",
+            })
+        },
+    })
+}
+
+export function useLoadSpike() {
+    return useMutation({
+        mutationFn: async ({ name, rate, ticks }: LoadSpikeData["query"]) => {
+            const response = await loadSpike({
+                query: {
+                    name,
+                    rate,
+                    ticks,
+                },
+            })
+            return response.data
+        },
+        mutationKey: ["load-spike"],
+        onSuccess: () => {
+            toaster.create({
+                title: "Load spike simulated",
+                type: "success",
+            })
+        },
+        onError: () => {
+            toaster.create({
+                title: "Failed to simulate load spike",
+                type: "error",
+            })
+        },
     })
 }

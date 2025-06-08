@@ -1,8 +1,22 @@
-import { Accordion, Button, EmptyState, Flex, Heading, IconButton } from "@chakra-ui/react"
+import { Accordion, Button, EmptyState, Flex, Heading, IconButton, Separator } from "@chakra-ui/react"
 import { AnimatePresence, motion } from "motion/react"
 import { memo, ReactNode, useEffect, useMemo } from "react"
-import { LuBuilding, LuCirclePause, LuCirclePlay, LuCircleStop, LuDatabaseZap, LuSun, LuX } from "react-icons/lu"
-import { usePauseSimulation, useStartSimulation, useStopSimulation } from "../../../infrastructure/fetching"
+import {
+    LuBuilding,
+    LuCirclePause,
+    LuCirclePlay,
+    LuCircleStop,
+    LuDatabaseZap,
+    LuSun,
+    LuX,
+    LuZapOff,
+} from "react-icons/lu"
+import {
+    useBlackout,
+    usePauseSimulation,
+    useStartSimulation,
+    useStopSimulation,
+} from "../../../infrastructure/fetching"
 import { resumeSimulation } from "../../../infrastructure/fetching/api"
 import { useDrawerStore } from "../../../infrastructure/stores/drawerStore"
 import { useSimulationRuntimeStore } from "../../../infrastructure/stores/simulationRuntimeStore"
@@ -12,6 +26,7 @@ import { useSubscription } from "../../../infrastructure/websocket/useSubscripti
 import { BatteryEntityCard } from "../EntityCard/BatteryEntityCard"
 import { BuildingEntityCard } from "../EntityCard/BuildingEntityCard"
 import { SolarEntityCard } from "../EntityCard/SolarEntityCard"
+import { LoadSpikeButton } from "./LoadSpikeButton"
 import { SimulationSettings } from "./SimulationSettings"
 import { DrawerRoot } from "./styles"
 import { WeatherSettings } from "./WeatherSettings"
@@ -36,6 +51,7 @@ export function SimulationDrawer() {
     const { mutate: startSimulation } = useStartSimulation()
     const { mutate: pauseSimulation } = usePauseSimulation()
     const { mutate: stopSimulation } = useStopSimulation()
+    const { mutate: simulateBlackout } = useBlackout()
 
     const { data } = useSubscription<TickData>("/topic/tickData", {
         tickNumber: 0,
@@ -123,6 +139,16 @@ export function SimulationDrawer() {
                                 <LuX />
                             </IconButton>
                         </Flex>
+                        <Flex direction="column" gap="4">
+                            <Heading size="md">Events</Heading>
+                            <Flex direction="row" gap="2">
+                                <Button disabled={!isRunning} variant="surface" onClick={() => simulateBlackout()}>
+                                    Simulate Blackout <LuZapOff />
+                                </Button>
+                                <LoadSpikeButton disabled={!isRunning} />
+                            </Flex>
+                        </Flex>
+                        <Separator />
                         <MemoizedSettingsAccordion />
                         <Flex direction="column" gap="4">
                             <Heading size="md">Batteries</Heading>
