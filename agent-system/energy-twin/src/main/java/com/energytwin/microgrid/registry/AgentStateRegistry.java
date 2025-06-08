@@ -24,6 +24,8 @@ public class AgentStateRegistry {
 
     private volatile double[] latestForecastLoad = new double[0];
     private volatile double[] latestForecastPv   = new double[0];
+    public volatile double[] fanLo = new double[0];
+    public volatile double[] fanHi = new double[0];
     private volatile double predictedLoadKw = Double.NaN;
     private volatile double predictedPvKw   = Double.NaN;
     private final DoubleAdder squaredErrorLoad   = new DoubleAdder();
@@ -72,4 +74,11 @@ public class AgentStateRegistry {
             squaredErrorLoad.sum()/Math.max(1,errorSamples.sum())); }
     public double currentRmsePv   () { return Math.sqrt(
             squaredErrorPv  .sum()/Math.max(1,errorSamples.sum())); }
+
+    public void setFanChart(double[] lo, double[] hi){
+        TickDataMessage.AgentState dummy = new TickDataMessage.AgentState();
+        update("_fanLo", dummy);
+        update("_fanHi", dummy);
+        fanLo = lo; fanHi = hi;
+    }
 }

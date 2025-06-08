@@ -52,6 +52,7 @@
             <artifactId>lombok</artifactId>
         </dependency>
 
+        <!-- === Forecasting === -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
@@ -63,6 +64,21 @@
             <artifactId>smile-core</artifactId>
             <version>3.1.1</version>
         </dependency>
+
+        <!-- === Scenario-generation & LP solver === -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-rng-simple</artifactId>
+            <version>1.5</version>
+        </dependency>
+
+        <!-- OR-Tools LP solver (native binaries are auto-unpacked) -->
+        <dependency>
+            <groupId>com.google.ortools</groupId>
+            <artifactId>ortools-java</artifactId>
+            <version>9.11.4210</version>
+        </dependency>
+
 
         <!-- tag::actuator[] -->
         <dependency>

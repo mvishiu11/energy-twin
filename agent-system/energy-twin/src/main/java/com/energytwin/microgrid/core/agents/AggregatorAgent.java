@@ -8,6 +8,10 @@ import com.energytwin.microgrid.core.behaviours.aggregator.ProductionConsumption
 import com.energytwin.microgrid.core.behaviours.tick.TickSubscriberBehaviour;
 import com.energytwin.microgrid.core.forecast.ProbabilisticForecaster;
 import com.energytwin.microgrid.core.history.HistoryBuffer;
+import com.energytwin.microgrid.core.scenario.MonteCarloGenerator;
+import com.energytwin.microgrid.core.scenario.QuantileTreeGenerator;
+import com.energytwin.microgrid.core.scenario.Scenario;
+import com.energytwin.microgrid.core.scenario.ScenarioGenerator;
 import com.energytwin.microgrid.ws.dto.TickDataMessage;
 import jade.core.AID;
 import jade.core.behaviours.CyclicBehaviour;
@@ -17,6 +21,7 @@ import jade.lang.acl.MessageTemplate;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class AggregatorAgent extends AbstractSimAgent {
@@ -39,6 +44,9 @@ public final class AggregatorAgent extends AbstractSimAgent {
   private int  planPtr = 0;
 
   private int ticksSincePlan = 0;
+
+  private ScenarioGenerator scenGen;
+  private List<Scenario>   scenarios = List.of();
 
   private volatile double latestG = 0.0;   // W m⁻²
   private volatile double latestTa = 20.0; // °C
@@ -84,12 +92,16 @@ public final class AggregatorAgent extends AbstractSimAgent {
 
     /* ------------ forecast buffers & meta ------------ */
     Map<String,Integer> fp = simulationConfigService.getForecastParams();
-    H_hist = fp.getOrDefault("H_hist", 168);
+    H_hist = fp.getOrDefault("H_hist", 48);
     H_pred   = fp.getOrDefault("H_pred", 4);
     planEvery= fp.getOrDefault("replanEvery", 2);
     hist = new HistoryBuffer(H_hist);
     meta = new AggregatorMetaStore();
     loadBatteryMetaFromConfig();
+    boolean useMc = simulationConfigService.getForecastParams()
+            .getOrDefault("useMC",0)==1;
+    scenGen = useMc ? new MonteCarloGenerator(H_pred,50)
+            : new QuantileTreeGenerator(H_pred);
 
     forecaster = new ProbabilisticForecaster(H_pred);
     planLoad = new double[H_pred];
@@ -147,9 +159,17 @@ public final class AggregatorAgent extends AbstractSimAgent {
       double[][] loadQ = forecaster.predictLoad();     // [q05,q50,q95][H_pred]
       double[][] pvQ   = forecaster.predictPv();
 
-      planLoad = loadQ[1];     // q50 → median plan
-      planPv   = pvQ  [1];
-      planPtr  = 0;            // index 0 = next tick
+      // build discrete scenarios
+      scenarios = scenGen.generate(loadQ,pvQ);
+      log("Fan chart: " + Arrays.toString(loadQ[0]) + " Q95: " + Arrays.toString(loadQ[2]));
+
+      // push q05 & q95 to UI (fan chart)
+      registry.setFanChart(loadQ[0], loadQ[2]);
+
+      // select median scenario for the deterministic planner (stage 4)
+      planLoad = loadQ[1];
+      planPv   = pvQ[1];
+      planPtr  = 0;
 
       /* optional immediate push so the UI sees it instantly */
       registry.setForecast(planLoad[0], planPv[0]);

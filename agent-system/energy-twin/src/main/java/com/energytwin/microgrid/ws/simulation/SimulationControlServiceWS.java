@@ -53,6 +53,9 @@ public class SimulationControlServiceWS {
         tickDataMessage.setErrorLoadKw(Math.abs(thisTickDemand - predLoad));
         tickDataMessage.setErrorPvKw(Math.abs(thisTickGreen   - predPv));
 
+        tickDataMessage.setFanLo(registry.fanLo);
+        tickDataMessage.setFanHi(registry.fanHi);
+
         tickPublisher.publish(tickDataMessage);
 
         cumulativeTotalDemand += thisTickDemand;
