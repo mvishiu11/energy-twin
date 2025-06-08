@@ -1,48 +1,14 @@
-import { useEffect, useState } from "react"
 import { Chart, useChart } from "@chakra-ui/charts"
 import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts"
+import { useSimulationRuntimeStore } from "../../../infrastructure/stores/simulationRuntimeStore"
 import { useSimulationStore } from "../../../infrastructure/stores/simulationStore"
-import { TickData } from "../../../infrastructure/websocket/types"
-import { useSubscription } from "../../../infrastructure/websocket/useSubscription"
 
 export function AllBatteriesChart() {
-    const { mapEntities, isRunning } = useSimulationStore()
-    const { data } = useSubscription<TickData>("/topic/tickData", {
-        tickNumber: 0,
-        agentStates: {},
-    })
-
-    const [chartData, setChartData] = useState<Record<string, number>[]>([])
-
-    useEffect(() => {
-        if (!isRunning) {
-            setChartData([])
-            return
-        }
-        if (data) {
-            setChartData(prev => {
-                if (data.agentStates && data.tickNumber !== 0) {
-                    return [
-                        ...prev,
-                        {
-                            tickNumber: data.tickNumber,
-                            ...Object.fromEntries(
-                                Object.entries(data.agentStates ?? {})
-                                    .filter(([agentId]) =>
-                                        mapEntities.batteries.some(battery => battery.id === agentId),
-                                    )
-                                    .map(([agentId, state]) => [agentId, state.stateOfCharge]),
-                            ),
-                        },
-                    ]
-                }
-                return prev
-            })
-        }
-    }, [data, isRunning, mapEntities.batteries])
+    const { mapEntities } = useSimulationStore()
+    const { batteriesChartData } = useSimulationRuntimeStore()
 
     const chart = useChart({
-        data: chartData,
+        data: batteriesChartData,
         series: mapEntities.batteries.map((battery, index) => ({
             name: battery.id,
             color: seriesColors[index % seriesColors.length],
@@ -81,7 +47,7 @@ export function AllBatteriesChart() {
                         dataKey={chart.key(item.name)}
                         dot={false}
                         isAnimationActive={false}
-                        opacity={chart.getSeriesOpacity(item.name)}
+                        opacity={chart.getSeriesOpacity(String(item.name))}
                         stroke={chart.color(item.color)}
                         strokeWidth={2}
                     />

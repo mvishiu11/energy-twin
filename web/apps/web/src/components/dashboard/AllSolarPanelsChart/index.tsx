@@ -1,9 +1,7 @@
-import { useEffect, useState } from "react"
 import { Chart, useChart } from "@chakra-ui/charts"
 import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts"
+import { useSimulationRuntimeStore } from "../../../infrastructure/stores/simulationRuntimeStore"
 import { useSimulationStore } from "../../../infrastructure/stores/simulationStore"
-import { TickData } from "../../../infrastructure/websocket/types"
-import { useSubscription } from "../../../infrastructure/websocket/useSubscription"
 
 // Reusing the same series colors as the AllBatteriesChart component likely uses
 const seriesColors = [
@@ -18,41 +16,11 @@ const seriesColors = [
 ]
 
 export function AllSolarPanelsChart() {
-    const { mapEntities, isRunning } = useSimulationStore()
-    const { data } = useSubscription<TickData>("/topic/tickData", {
-        tickNumber: 0,
-        agentStates: {},
-    })
-
-    const [chartData, setChartData] = useState<Record<string, number>[]>([])
-
-    useEffect(() => {
-        if (!isRunning) {
-            setChartData([])
-            return
-        }
-        if (data) {
-            setChartData(prev => {
-                if (data.agentStates && data.tickNumber !== 0) {
-                    return [
-                        ...prev,
-                        {
-                            tickNumber: data.tickNumber,
-                            ...Object.fromEntries(
-                                Object.entries(data.agentStates ?? {})
-                                    .filter(([agentId]) => mapEntities.solar.some(solar => solar.id === agentId))
-                                    .map(([agentId, state]) => [agentId, state.production]),
-                            ),
-                        },
-                    ]
-                }
-                return prev
-            })
-        }
-    }, [data, isRunning, mapEntities.solar])
+    const { mapEntities } = useSimulationStore()
+    const { solarPanelsChartData } = useSimulationRuntimeStore()
 
     const chart = useChart({
-        data: chartData,
+        data: solarPanelsChartData,
         series: mapEntities.solar.map((solarPanel, index: number) => ({
             name: solarPanel.id,
             color: seriesColors[index % seriesColors.length],
@@ -91,7 +59,7 @@ export function AllSolarPanelsChart() {
                         dataKey={chart.key(item.name)}
                         dot={false}
                         isAnimationActive={false}
-                        opacity={chart.getSeriesOpacity(item.name)}
+                        opacity={chart.getSeriesOpacity(String(item.name))}
                         stroke={chart.color(item.color)}
                         strokeWidth={2}
                     />

@@ -1,6 +1,6 @@
 import { Accordion, Button, EmptyState, Flex, Heading, IconButton, Separator } from "@chakra-ui/react"
 import { AnimatePresence, motion } from "motion/react"
-import { memo, ReactNode, useEffect, useMemo } from "react"
+import { memo, ReactNode, useMemo } from "react"
 import {
     LuBuilding,
     LuCirclePause,
@@ -21,8 +21,6 @@ import { resumeSimulation } from "../../../infrastructure/fetching/api"
 import { useDrawerStore } from "../../../infrastructure/stores/drawerStore"
 import { useSimulationRuntimeStore } from "../../../infrastructure/stores/simulationRuntimeStore"
 import { useSimulationStore } from "../../../infrastructure/stores/simulationStore"
-import { TickData } from "../../../infrastructure/websocket/types"
-import { useSubscription } from "../../../infrastructure/websocket/useSubscription"
 import { BatteryEntityCard } from "../EntityCard/BatteryEntityCard"
 import { BuildingEntityCard } from "../EntityCard/BuildingEntityCard"
 import { SolarEntityCard } from "../EntityCard/SolarEntityCard"
@@ -53,19 +51,8 @@ export function SimulationDrawer() {
     const { mutate: stopSimulation } = useStopSimulation()
     const { mutate: simulateBlackout } = useBlackout()
 
-    const { data } = useSubscription<TickData>("/topic/tickData", {
-        tickNumber: 0,
-        agentStates: {},
-    })
-
-    const { setTickNumber, setAgentStates, agentStates } = useSimulationRuntimeStore()
-
-    useEffect(() => {
-        if (data) {
-            setTickNumber(data.tickNumber)
-            setAgentStates(data.agentStates)
-        }
-    }, [data, setAgentStates, setTickNumber])
+    // Using the simulation runtime store directly instead of subscribing to websocket
+    const { agentStates } = useSimulationRuntimeStore()
 
     const jsonStringConfig = useMemo(
         () => ({

@@ -1,9 +1,6 @@
-import { useEffect, useState } from "react"
 import { Chart, useChart } from "@chakra-ui/charts"
 import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts"
-import { useSimulationStore } from "../../infrastructure/stores/simulationStore"
-import { Metrics } from "../../infrastructure/websocket/types"
-import { useSubscription } from "../../infrastructure/websocket/useSubscription"
+import { useSimulationRuntimeStore } from "../../infrastructure/stores/simulationRuntimeStore"
 import { AllBatteriesChart } from "./AllBatteriesChart"
 import { AllSolarPanelsChart } from "./AllSolarPanelsChart"
 import { ChartCard } from "./ChartCard"
@@ -21,36 +18,10 @@ type GreenEnergyRatioChartData = {
 }
 
 export function Dashboard() {
-    const { isRunning } = useSimulationStore()
-    const { data } = useSubscription<Metrics>("/topic/metrics", {
-        tickNumber: 0,
-        totalProduced: 0,
-        totalConsumed: 0,
-        cnpNegotiations: 0,
-        greenEnergyRatioPct: 0,
-    })
-
-    const [chartData, setChartData] = useState<TotalProducedChartData[]>([])
-    const [greenEnergyRatio, setGreenEnergyRatio] = useState<GreenEnergyRatioChartData[]>([])
-
-    useEffect(() => {
-        if (!isRunning) {
-            setChartData([])
-            setGreenEnergyRatio([])
-            return
-        }
-        setChartData(prev => [
-            ...prev,
-            { tickNumber: data.tickNumber, totalProduced: data.totalProduced, totalConsumed: data.totalConsumed },
-        ])
-        setGreenEnergyRatio(prev => [
-            ...prev,
-            { tickNumber: data.tickNumber, greenEnergyRatio: data.greenEnergyRatioPct },
-        ])
-    }, [data, isRunning])
+    const { greenEnergyRatioChartData, totalProducedChartData } = useSimulationRuntimeStore()
 
     const chart = useChart<TotalProducedChartData>({
-        data: chartData,
+        data: totalProducedChartData,
         series: [
             { name: "totalProduced", color: "green.500" },
             { name: "totalConsumed", color: "red.500" },
@@ -58,7 +29,7 @@ export function Dashboard() {
     })
 
     const greenEnergyChart = useChart<GreenEnergyRatioChartData>({
-        data: greenEnergyRatio,
+        data: greenEnergyRatioChartData,
         series: [{ name: "greenEnergyRatio", color: "green.500" }],
     })
 
