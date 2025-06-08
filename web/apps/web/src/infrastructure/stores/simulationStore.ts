@@ -1,7 +1,7 @@
 import { useCallback } from "react"
 import { create } from "zustand"
 
-export type EntityType = "battery" | "solar"
+export type EntityType = "battery" | "building" | "solar"
 
 export type MapEntity = {
     id: string
@@ -24,6 +24,10 @@ export type Solar = MapEntity & {
     efficiency: number
     tempCoeff: number
     noct: number
+}
+
+export type Building = MapEntity & {
+    nominalLoad: number
 }
 
 type Weather = {
@@ -62,11 +66,14 @@ export type SimulationState = {
     mapEntities: {
         batteries: Battery[]
         solar: Solar[]
+        buildings: Building[]
     }
     addBattery: (entity: Battery) => void
     addSolar: (entity: Solar) => void
+    addBuilding: (entity: Building) => void
     updateBattery: (id: string, updates: Partial<Battery>) => void
     updateSolar: (id: string, updates: Partial<Solar>) => void
+    updateBuilding: (id: string, updates: Partial<Building>) => void
     selectedEntityId?: string
     setSelectedEntityId: (id?: string) => void
     removeEntity: (id: string) => void
@@ -97,6 +104,7 @@ export const useSimulationStore = create<SimulationState>()(set => ({
     mapEntities: {
         batteries: [],
         solar: [],
+        buildings: [],
     },
     addBattery: (entity: Battery) =>
         set(state => ({
@@ -110,6 +118,13 @@ export const useSimulationStore = create<SimulationState>()(set => ({
             mapEntities: {
                 ...state.mapEntities,
                 solar: [...state.mapEntities.solar, entity],
+            },
+        })),
+    addBuilding: (entity: Building) =>
+        set(state => ({
+            mapEntities: {
+                ...state.mapEntities,
+                buildings: [...state.mapEntities.buildings, entity],
             },
         })),
     updateBattery: (id: string, updates: Partial<Battery>) =>
@@ -128,6 +143,14 @@ export const useSimulationStore = create<SimulationState>()(set => ({
                 solar: state.mapEntities.solar.map(solar => (solar.id === id ? { ...solar, ...updates } : solar)),
             },
         })),
+    updateBuilding: (id: string, updates: Partial<Building>) =>
+        set(state => ({
+            mapEntities: {
+                ...state.mapEntities,
+                buildings: state.mapEntities.buildings.map(building => 
+                    (building.id === id ? { ...building, ...updates } : building)),
+            },
+        })),
     selectedEntityId: undefined,
     setSelectedEntityId: (id?: string) => set({ selectedEntityId: id }),
     removeEntity: (id: string) =>
@@ -136,6 +159,7 @@ export const useSimulationStore = create<SimulationState>()(set => ({
                 ...state.mapEntities,
                 batteries: state.mapEntities.batteries.filter(battery => battery.id !== id),
                 solar: state.mapEntities.solar.filter(solar => solar.id !== id),
+                buildings: state.mapEntities.buildings.filter(building => building.id !== id),
             },
         })),
 }))
@@ -146,7 +170,8 @@ export const useFindEntityById = () => {
         (id: string) => {
             return (
                 mapEntities.batteries.find(battery => battery.id === id) ||
-                mapEntities.solar.find(solar => solar.id === id)
+                mapEntities.solar.find(solar => solar.id === id) ||
+                mapEntities.buildings.find(building => building.id === id)
             )
         },
         [mapEntities],

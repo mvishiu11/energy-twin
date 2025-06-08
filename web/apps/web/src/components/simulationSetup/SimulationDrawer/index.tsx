@@ -1,7 +1,7 @@
 import { Accordion, Button, EmptyState, Flex, Heading, IconButton } from "@chakra-ui/react"
 import { AnimatePresence, motion } from "motion/react"
 import { memo, ReactNode, useEffect, useMemo } from "react"
-import { LuCirclePause, LuCirclePlay, LuCircleStop, LuDatabaseZap, LuSun, LuX } from "react-icons/lu"
+import { LuBuilding, LuCirclePause, LuCirclePlay, LuCircleStop, LuDatabaseZap, LuSun, LuX } from "react-icons/lu"
 import { usePauseSimulation, useStartSimulation, useStopSimulation } from "../../../infrastructure/fetching"
 import { resumeSimulation } from "../../../infrastructure/fetching/api"
 import { useDrawerStore } from "../../../infrastructure/stores/drawerStore"
@@ -9,14 +9,15 @@ import { useSimulationRuntimeStore } from "../../../infrastructure/stores/simula
 import { useSimulationStore } from "../../../infrastructure/stores/simulationStore"
 import { TickData } from "../../../infrastructure/websocket/types"
 import { useSubscription } from "../../../infrastructure/websocket/useSubscription"
-import { simulationConfig } from "../../../services/simulationConfig"
 import { BatteryEntityCard } from "../EntityCard/BatteryEntityCard"
+import { BuildingEntityCard } from "../EntityCard/BuildingEntityCard"
 import { SolarEntityCard } from "../EntityCard/SolarEntityCard"
 import { SimulationSettings } from "./SimulationSettings"
 import { DrawerRoot } from "./styles"
 import { WeatherSettings } from "./WeatherSettings"
 
 const MemoizedBatteryEntityCard = memo(BatteryEntityCard)
+const MemoizedBuildingEntityCard = memo(BuildingEntityCard)
 const MemoizedSolarEntityCard = memo(SolarEntityCard)
 const MemoizedSimulationSettings = memo(SimulationSettings)
 const MemoizedWeatherSettings = memo(WeatherSettings)
@@ -87,7 +88,11 @@ export function SimulationDrawer() {
                         tempCoeff: solar.tempCoeff,
                         noct: solar.noct,
                     })),
-                    ...simulationConfig.loads,
+                    ...mapEntities.buildings.map(building => ({
+                        type: "load",
+                        name: building.id,
+                        nominalLoad: building.nominalLoad,
+                    })),
                 ],
             },
         }),
@@ -156,6 +161,23 @@ export function SimulationDrawer() {
                                 <EmptyStateMessage
                                     icon={<LuSun />}
                                     message="No solar panels added. Drag and drop a solar panel from the toolkit at the bottom to add one."
+                                />
+                            )}
+                            <Heading size="md">Buildings</Heading>
+                            {mapEntities.buildings.length ? (
+                                mapEntities.buildings.map(building => (
+                                    <MemoizedBuildingEntityCard
+                                        key={building.id}
+                                        currentLoad={agentStates[building.id]?.demand}
+                                        id={building.id}
+                                        name={building.name}
+                                        nominalLoad={building.nominalLoad}
+                                    />
+                                ))
+                            ) : (
+                                <EmptyStateMessage
+                                    icon={<LuBuilding />}
+                                    message="No buildings added. Drag and drop a building from the toolkit at the bottom to add one."
                                 />
                             )}
                         </Flex>
