@@ -9,6 +9,7 @@ import com.energytwin.microgrid.service.SimulationControlService;
 import com.energytwin.microgrid.ws.dto.TickDataMessage;
 import com.energytwin.microgrid.ws.simulation.SimulationControlServiceWS;
 import jade.core.Agent;
+import jade.core.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.FormattingTuple;

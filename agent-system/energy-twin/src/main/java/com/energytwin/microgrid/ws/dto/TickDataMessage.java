@@ -11,6 +11,12 @@ public class TickDataMessage {
     private long tickNumber;
     private Map<String, AgentState> agentStates;
 
+    /* --- aggregate forecast & error --- */
+    private double predictedLoadKw;
+    private double predictedPvKw;
+    private double errorLoadKw;
+    private double errorPvKw;
+
     @Getter
     @Setter
     public static class AgentState {

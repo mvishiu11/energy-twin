@@ -12,6 +12,10 @@ public class MetricsMessage {
     private int cnpNegotiations;
     private double totalProducedPerNTicks;
     private double totalDemandPerNTicks;
-
     private double greenEnergyRatioPct;
+
+    private double rmseLoadKw;
+    private double rmsePvKw;
+    private double[] forecastLoadKw;
+    private double[] forecastPvKw;
 }

@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.DoubleAdder;
+import java.util.concurrent.atomic.LongAdder;
 
 @Service
 public class AgentStateRegistry {
@@ -20,6 +22,14 @@ public class AgentStateRegistry {
         return states;
     }
 
+    private volatile double[] latestForecastLoad = new double[0];
+    private volatile double[] latestForecastPv   = new double[0];
+    private volatile double predictedLoadKw = Double.NaN;
+    private volatile double predictedPvKw   = Double.NaN;
+    private final DoubleAdder squaredErrorLoad   = new DoubleAdder();
+    private final DoubleAdder squaredErrorPv     = new DoubleAdder();
+    private final LongAdder    errorSamples      = new LongAdder();
+
     public double getTotalEnergyDemand() {
         return states.values().stream()
                 .mapToDouble(TickDataMessage.AgentState::getDemand)
@@ -31,4 +41,35 @@ public class AgentStateRegistry {
                 .mapToDouble(TickDataMessage.AgentState::getProduction)
                 .sum();
     }
+
+    public void setForecast(double loadKw, double pvKw){
+        this.predictedLoadKw = loadKw;
+        this.predictedPvKw   = pvKw;
+    }
+    public double getPredLoad(){ return predictedLoadKw; }
+    public double getPredPv()  { return predictedPvKw; }
+
+    public double[] getForecastLoad(){ return latestForecastLoad; }
+    public double[] getForecastPv  (){ return latestForecastPv;   }
+
+    public void updateForecast(double[] fLoad, double[] fPv){
+        this.latestForecastLoad = fLoad.clone();
+        this.latestForecastPv   = fPv.clone();
+    }
+
+    public void addErrorSample(double errLoadKw, double errPvKw){
+        squaredErrorLoad.add(errLoadKw*errLoadKw);
+        squaredErrorPv.add(errPvKw  *errPvKw);
+        errorSamples.increment();
+    }
+
+    public void resetErrorAccumulators() {
+        squaredErrorLoad.reset();
+        squaredErrorPv.reset();
+        errorSamples.reset();
+    }
+    public double currentRmseLoad () { return Math.sqrt(
+            squaredErrorLoad.sum()/Math.max(1,errorSamples.sum())); }
+    public double currentRmsePv   () { return Math.sqrt(
+            squaredErrorPv  .sum()/Math.max(1,errorSamples.sum())); }
 }
