@@ -71,14 +71,21 @@ export function SimulationDrawer() {
                     ...mapEntities.batteries.map(battery => ({
                         type: "energyStorage",
                         name: battery.id,
-                        cost: 2,
                         initialSoC: 10,
                         capacity: battery.capacity,
+                        etaCharge: battery.etaCharge,
+                        etaDischarge: battery.etaDischarge,
+                        cRate: battery.cRate,
+                        selfDischarge: battery.selfDischarge,
                     })),
                     ...mapEntities.solar.map(solar => ({
                         type: "energySource",
                         name: solar.id,
-                        productionRate: solar.productionRate,
+                        noOfPanels: solar.noOfPanels,
+                        area: solar.area,
+                        efficiency: solar.efficiency,
+                        tempCoeff: solar.tempCoeff,
+                        noct: solar.noct,
                     })),
                     ...simulationConfig.loads,
                 ],
@@ -135,10 +142,14 @@ export function SimulationDrawer() {
                                 mapEntities.solar.map(solar => (
                                     <MemoizedSolarEntityCard
                                         key={solar.id}
+                                        area={solar.area}
                                         currentProduction={agentStates[solar.id]?.production}
+                                        efficiency={solar.efficiency}
                                         id={solar.id}
                                         name={solar.name}
-                                        productionRate={solar.productionRate}
+                                        noct={solar.noct}
+                                        noOfPanels={solar.noOfPanels}
+                                        tempCoeff={solar.tempCoeff}
                                     />
                                 ))
                             ) : (

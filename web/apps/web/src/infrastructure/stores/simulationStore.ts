@@ -9,9 +9,22 @@ export type MapEntity = {
     coordinates: [number, number]
 }
 
-export type Battery = MapEntity & { capacity: number }
+export type Battery = MapEntity & {
+    capacity: number
+    etaCharge: number
+    etaDischarge: number
+    cRate: number
+    selfDischarge: number
+    initialSoC: number
+}
 
-export type Solar = MapEntity & { productionRate: number }
+export type Solar = MapEntity & {
+    noOfPanels: number
+    area: number
+    efficiency: number
+    tempCoeff: number
+    noct: number
+}
 
 type Weather = {
     sunriseTick: number

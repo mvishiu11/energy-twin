@@ -10,8 +10,8 @@ type EditableFieldProps = {
 
 export function EditableField({ label, value, onChange, disabled }: EditableFieldProps) {
     return (
-        <Field.Root orientation="horizontal">
-            <Field.Label>{label}:</Field.Label>
+        <Field.Root orientation="vertical">
+            <Field.Label fontWeight="bold">{label}:</Field.Label>
             <Editable.Root disabled={disabled} value={value} onValueChange={e => onChange(e.value)}>
                 <Editable.Preview />
                 <Editable.Input />

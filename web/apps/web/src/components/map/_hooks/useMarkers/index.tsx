@@ -30,6 +30,11 @@ export function useMarkers({ type, component }: UseMarkersProps) {
                 name,
                 coordinates: position,
                 capacity: 50000,
+                etaCharge: 0.97,
+                etaDischarge: 0.96,
+                cRate: 0.7,
+                selfDischarge: 3.9e-4,
+                initialSoC: 90.0,
             }
             addBattery(entity)
         } else {
@@ -38,7 +43,11 @@ export function useMarkers({ type, component }: UseMarkersProps) {
                 id,
                 name,
                 coordinates: position,
-                productionRate: 75,
+                noOfPanels: 200,
+                area: 2.0,
+                efficiency: 0.21,
+                tempCoeff: -0.004,
+                noct: 44,
             }
             addSolar(entity)
         }
