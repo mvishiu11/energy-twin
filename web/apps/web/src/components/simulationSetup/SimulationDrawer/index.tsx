@@ -58,8 +58,8 @@ export function SimulationDrawer() {
         () => ({
             simulation: {
                 tickIntervalMillis: tickIntervalMilliseconds,
-                externalSourceCost: externalSourceCost,
-                externalSourceCap: externalSourceCap,
+                externalSourceCost: externalSourceCost.toFixed(1),
+                externalSourceCap: externalSourceCap.toFixed(1),
                 metricsPerNTicks: 2,
                 weather: {
                     sunriseTick: weather.sunriseTick,

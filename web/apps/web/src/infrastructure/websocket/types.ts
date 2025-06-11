@@ -9,6 +9,12 @@ export type Metrics = {
 export type TickData = {
     tickNumber: number
     agentStates: Record<string, AgentState>
+    predictedLoadKw: number
+    predictedPvKw: number
+    errorLoadKw: number
+    errorPvKw: number
+    fanLo: number[]
+    fanHi: number[]
 }
 
 export type AgentState = {

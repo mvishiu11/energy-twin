@@ -13,6 +13,12 @@ export const SimulationRuntimeStoreUpdater: React.FC = () => {
     const { loading: tickDataLoading, data: tickData } = useSubscription<TickData>("/topic/tickData", {
         tickNumber: 0,
         agentStates: {},
+        predictedLoadKw: 0,
+        predictedPvKw: 0,
+        errorLoadKw: 0,
+        errorPvKw: 0,
+        fanLo: [],
+        fanHi: [],
     })
 
     const { loading: metricsLoading, data: metrics } = useSubscription<Metrics>("/topic/metrics", {
