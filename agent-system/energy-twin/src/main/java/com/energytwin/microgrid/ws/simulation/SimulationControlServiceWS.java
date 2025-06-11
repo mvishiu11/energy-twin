@@ -9,6 +9,8 @@ import com.energytwin.microgrid.ws.service.TickPublishingService;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 @Service()
 public class SimulationControlServiceWS {
@@ -18,11 +20,16 @@ public class SimulationControlServiceWS {
     private final AgentStateRegistry registry;
     private final SimulationConfigService simulationConfigService;
 
+    private final ScheduledExecutorService exec =
+            Executors.newSingleThreadScheduledExecutor();
+
     private double cumulativeTotalDemand = 0.0;
     private double cumulativeGreenSupply = 0.0;
 
     private double totalDemandPerNTicks = 0.0;
     private double totalProducedPerNTicks = 0.0;
+
+    private double cnpNegotiations = 0.0;
 
     public SimulationControlServiceWS(TickPublishingService tickPublisher, MetricsPublishingService metricsPublisher, AgentStateRegistry registry, SimulationConfigService simulationConfigService) {
         this.tickPublisher = tickPublisher;
@@ -36,10 +43,22 @@ public class SimulationControlServiceWS {
 
         // Gather and send data every tick
         TickDataMessage tickDataMessage = gatherTickData();
-        tickPublisher.publish(tickDataMessage);
 
         double thisTickDemand = registry.getTotalEnergyDemand();
         double thisTickGreen =  registry.getTotalGreenEnergyGeneration();
+
+        double predLoad = registry.getPredLoad();
+        double predPv   = registry.getPredPv();
+
+        tickDataMessage.setPredictedLoadKw(predLoad);
+        tickDataMessage.setPredictedPvKw  (predPv);
+        tickDataMessage.setErrorLoadKw(Math.abs(thisTickDemand - predLoad));
+        tickDataMessage.setErrorPvKw(Math.abs(thisTickGreen   - predPv));
+
+        tickDataMessage.setFanLo(registry.fanLo);
+        tickDataMessage.setFanHi(registry.fanHi);
+
+        tickPublisher.publish(tickDataMessage);
 
         cumulativeTotalDemand += thisTickDemand;
         cumulativeGreenSupply += thisTickGreen;
@@ -47,10 +66,13 @@ public class SimulationControlServiceWS {
         totalProducedPerNTicks += thisTickGreen;
         totalDemandPerNTicks += thisTickDemand;
 
+        cnpNegotiations += registry.getTotalCnpNegotiations();
+
         // Gather, compute and send metric every simulationConfigService.getMetricsPerNTicks() ticks
         if( tickCounter % simulationConfigService.getMetricsPerNTicks() == 0){
             MetricsMessage metrics = computeMetrics();
             metricsPublisher.publish(metrics);
+            registry.resetErrorAccumulators();
         }
     }
 
@@ -71,6 +93,11 @@ public class SimulationControlServiceWS {
         msg.setTotalProduced(cumulativeGreenSupply);
         msg.setTotalProducedPerNTicks(totalProducedPerNTicks);
         msg.setTotalDemandPerNTicks(totalDemandPerNTicks);
+        msg.setCnpNegotiations(cnpNegotiations);
+        msg.setForecastLoadKw(registry.getForecastLoad());
+        msg.setForecastPvKw  (registry.getForecastPv());
+        msg.setRmseLoadKw(registry.currentRmseLoad());
+        msg.setRmsePvKw  (registry.currentRmsePv());
 
         double ratioPct = (cumulativeTotalDemand > 0) ? 100.0 * (cumulativeGreenSupply/cumulativeTotalDemand)
                 : 0.0;

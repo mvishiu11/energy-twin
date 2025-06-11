@@ -9,6 +9,7 @@ import com.energytwin.microgrid.service.SimulationControlService;
 import com.energytwin.microgrid.ws.dto.TickDataMessage;
 import com.energytwin.microgrid.ws.simulation.SimulationControlServiceWS;
 import jade.core.Agent;
+import jade.core.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.FormattingTuple;
@@ -84,6 +85,16 @@ public abstract class SpringAgent extends Agent {
 
   /** Hook method for child classes to perform custom setup actions. */
   protected abstract void onAgentSetup();
+  protected void reportState(double demand, double production, double soc, boolean isBroken, double cnpNego){
+    TickDataMessage.AgentState st = new TickDataMessage.AgentState();
+    st.setDemand(demand);
+    st.setProduction(production);
+    st.setStateOfCharge(soc);
+    st.setBroken(isBroken);
+    st.setCnpNegotiations(cnpNego);
+    registry.update(getLocalName(), st);
+  }
+
   protected void reportState(double demand, double production, double soc, boolean isBroken){
     TickDataMessage.AgentState st = new TickDataMessage.AgentState();
     st.setDemand(demand);

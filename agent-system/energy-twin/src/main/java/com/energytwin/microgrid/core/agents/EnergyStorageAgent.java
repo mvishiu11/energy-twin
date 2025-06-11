@@ -4,23 +4,29 @@ import com.energytwin.microgrid.core.base.AbstractEnergyStorageAgent;
 import com.energytwin.microgrid.core.behaviours.energy.BatteryCNPResponder;
 import com.energytwin.microgrid.core.behaviours.tick.TickSubscriberBehaviour;
 import jade.core.AID;
+import lombok.Setter;
+
 import java.util.Map;
 
 public final class EnergyStorageAgent extends AbstractEnergyStorageAgent {
 
+  private double cnpNegotiations = 0;
+  @Setter
+  private double dsoc = 0;
+
   @Override
   protected void onAgentSetup() {
-    setConfigParams();
+      setConfigParams();
 
-    AID shortfallTopic = new AID("CNP_SHORTFALL_TOPIC", AID.ISLOCALNAME);
-    AID surplusTopic   = new AID("CNP_SURPLUS_TOPIC",   AID.ISLOCALNAME);
-    AID tickTopic      = new AID("TICK_TOPIC",          AID.ISLOCALNAME);
+      AID shortfallTopic = new AID("CNP_SHORTFALL_TOPIC", AID.ISLOCALNAME);
+      AID surplusTopic = new AID("CNP_SURPLUS_TOPIC", AID.ISLOCALNAME);
+      AID tickTopic = new AID("TICK_TOPIC", AID.ISLOCALNAME);
 
-    addBehaviour(new BatteryCNPResponder(this, shortfallTopic, surplusTopic));
-    addBehaviour(new TickSubscriberBehaviour(this, tickTopic));
+      addBehaviour(new BatteryCNPResponder(this, shortfallTopic, surplusTopic));
+      addBehaviour(new TickSubscriberBehaviour(this, tickTopic));
 
-    log("Battery %.0f kWh  ηc=%.2f  ηd=%.2f  C-rate=%.2f h⁻¹  self-d=%.2e  SoC=%.1f",
-            capacityKwh, chargeEffBase, dischargeEffBase, cRate, selfDischargePerHour, socKwh);
+      log("Battery %.0f kWh  ηc=%.2f  ηd=%.2f  C-rate=%.2f h⁻¹  self-d=%.2e  SoC=%.1f".formatted(
+              capacityKwh, chargeEffBase, dischargeEffBase, cRate, selfDischargePerHour, socKwh));
   }
 
   @Override
@@ -47,12 +53,22 @@ public final class EnergyStorageAgent extends AbstractEnergyStorageAgent {
 
     if (eventControlService.isBroken(getLocalName())) {
       log("t=%d  AGENT BROKEN – skipping tick", t);
-      reportState(0,0,-1, true);
+      reportState(0,0,-1, true, cnpNegotiations);
       return;
     }
 
     applySelfDischarge();
+    if( dsoc > 0 ){
+      reportState(0,dsoc ,socKwh, false, cnpNegotiations);
+    }else{
+      reportState(dsoc,0 ,socKwh, false, cnpNegotiations);
+    }
     log("t=%d  SoC=%.2f kWh (%.0f %%)".formatted(t, socKwh, 100*socKwh/capacityKwh));
-    reportState(0,0,socKwh, false);
+
   }
+
+  public void incrementCnpNegotiations() {
+    cnpNegotiations++;
+  }
+
 }
