@@ -44,10 +44,11 @@ public class AgentStateRegistry {
                 .sum();
     }
 
-    public double getTotalCnpNegotiations(){
+    public double getTotalCnpNegotiations() {
         return states.values().stream()
                 .mapToDouble(TickDataMessage.AgentState::getCnpNegotiations)
                 .sum();
+    }
     public void setForecast(double loadKw, double pvKw){
         this.predictedLoadKw = loadKw;
         this.predictedPvKw   = pvKw;
