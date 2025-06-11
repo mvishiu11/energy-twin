@@ -140,6 +140,8 @@ public final class AggregatorAgent extends AbstractSimAgent {
     log("Tick {}  P={}  L={}  Net={}", simulationTime,
             totalProductionThisTick, totalConsumptionThisTick, net);
 
+    registry.setPvProduction(totalProductionThisTick);
+
     if (net < 0)
       addBehaviour(new HandleShortfallCNP(this, -net, shortfallTopic));
     else if (net > 0)

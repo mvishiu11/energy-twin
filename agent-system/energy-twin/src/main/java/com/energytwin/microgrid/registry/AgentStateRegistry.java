@@ -1,6 +1,8 @@
 package com.energytwin.microgrid.registry;
 
 import com.energytwin.microgrid.ws.dto.TickDataMessage;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -28,6 +30,9 @@ public class AgentStateRegistry {
     public volatile double[] fanHi = new double[0];
     private volatile double predictedLoadKw = Double.NaN;
     private volatile double predictedPvKw   = Double.NaN;
+    @Getter
+    @Setter
+    private volatile double pvProduction    = Double.NaN;
     private final DoubleAdder squaredErrorLoad   = new DoubleAdder();
     private final DoubleAdder squaredErrorPv     = new DoubleAdder();
     private final LongAdder    errorSamples      = new LongAdder();
@@ -53,6 +58,7 @@ public class AgentStateRegistry {
         this.predictedLoadKw = loadKw;
         this.predictedPvKw   = pvKw;
     }
+
     public double getPredLoad(){ return predictedLoadKw; }
     public double getPredPv()  { return predictedPvKw; }
 
