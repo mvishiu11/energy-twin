@@ -40,6 +40,8 @@ public class ExternalEnergySourceAgent extends AbstractSimAgent {
     if (eventControlService.getBlackoutRemaining() > 0) {
       log("Blackout: remaining " + eventControlService.getBlackoutRemaining() + " ticks.");
     }
+
+    // to samo co z bateria - report state
   }
 
   public EventControlService getEventControlService() {

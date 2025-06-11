@@ -4,9 +4,15 @@ import com.energytwin.microgrid.core.base.AbstractEnergyStorageAgent;
 import com.energytwin.microgrid.core.behaviours.energy.BatteryCNPResponder;
 import com.energytwin.microgrid.core.behaviours.tick.TickSubscriberBehaviour;
 import jade.core.AID;
+import lombok.Setter;
+
 import java.util.Map;
 
 public final class EnergyStorageAgent extends AbstractEnergyStorageAgent {
+
+  private double cnpNegotiations = 0;
+  @Setter
+  private double dsoc = 0;
 
   @Override
   protected void onAgentSetup() {
@@ -47,12 +53,22 @@ public final class EnergyStorageAgent extends AbstractEnergyStorageAgent {
 
     if (eventControlService.isBroken(getLocalName())) {
       log("t=%d  AGENT BROKEN – skipping tick", t);
-      reportState(0,0,-1, true);
+      reportState(0,0,-1, true, cnpNegotiations);
       return;
     }
 
     applySelfDischarge();
+    if( dsoc > 0 ){
+      reportState(0,dsoc ,socKwh, false, cnpNegotiations);
+    }else{
+      reportState(dsoc,0 ,socKwh, false, cnpNegotiations);
+    }
     log("t=%d  SoC=%.2f kWh (%.0f %%)".formatted(t, socKwh, 100*socKwh/capacityKwh));
-    reportState(0,0,socKwh, false);
+
   }
+
+  public void incrementCnpNegotiations() {
+    cnpNegotiations++;
+  }
+
 }

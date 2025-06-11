@@ -1,6 +1,7 @@
 package com.energytwin.microgrid.core.behaviours.energy;
 
 import com.energytwin.microgrid.agentfusion.util.SpringContext;
+import com.energytwin.microgrid.core.agents.EnergyStorageAgent;
 import com.energytwin.microgrid.core.base.AbstractEnergyStorageAgent;
 import com.energytwin.microgrid.service.EventControlService;
 import jade.core.AID;
@@ -76,6 +77,7 @@ public final class BatteryCNPResponder extends CyclicBehaviour {
       double cost = 1.0 - bat.chargeEffEff();
       prop.setContent("store=" + store + ";cost=" + cost);
     }
+    ((EnergyStorageAgent) bat).incrementCnpNegotiations();
     bat.send(prop);
     bat.log("Proposal sent: " + prop.getContent());
   }
@@ -95,6 +97,8 @@ public final class BatteryCNPResponder extends CyclicBehaviour {
     if (CFP_SHORT.equals(dec.getInReplyTo())) {          // discharge accepted
       double nd = bat.dischargeEffEff();
       double dsoc = amt / nd;
+      ((EnergyStorageAgent)bat).setDsoc(dsoc);
+      bat.setSocKwh(Math.max(0, bat.getSocKwh() - dsoc)); // dsoc dodatni - bateria oddala/ ujemny - przyjela
       bat.setSocKwh(Math.max(0, bat.getSocKwh() - dsoc));
       if (!Double.isFinite(bat.getSocKwh()))
         bat.setSocKwh(0);
