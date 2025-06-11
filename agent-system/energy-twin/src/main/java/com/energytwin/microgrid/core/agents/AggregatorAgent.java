@@ -43,6 +43,7 @@ public final class AggregatorAgent extends AbstractSimAgent {
   private final ActionQueue queue = new ActionQueue();
   private int H_pred;                 // horizon
   private int planEvery;              // re-plan cadence (ticks)
+  private double epsilonBreak;        // Threshold to fallback to live-CNP
   private double[] planLoad;          // length H_pred
   private double[] planPv;
   private int  planPtr = 0;
@@ -54,6 +55,7 @@ public final class AggregatorAgent extends AbstractSimAgent {
 
   private volatile double latestG = 0.0;   // W m⁻²
   private volatile double latestTa = 20.0; // °C
+  private volatile double net;
 
   /* ---------------- ontology constants ---------------- */
   public static final String ONT_PRODUCTION   = "ENERGY_PRODUCTION";
@@ -95,15 +97,16 @@ public final class AggregatorAgent extends AbstractSimAgent {
     }
 
     /* ------------ forecast buffers & meta ------------ */
-    Map<String,Integer> fp = simulationConfigService.getForecastParams();
-    H_hist = fp.getOrDefault("H_hist", 24);
-    H_pred   = fp.getOrDefault("H_pred", 4);
-    planEvery= fp.getOrDefault("replanEvery", 2);
+    Map<String,Object> fp = simulationConfigService.getForecastParams();
+    H_hist    = (int) fp.getOrDefault("H_hist", 24);
+    H_pred    = (int) fp.getOrDefault("H_pred", 4);
+    planEvery = (int) fp.getOrDefault("replanEvery", 2);
+    epsilonBreak = (double) fp.getOrDefault("epsilonBreak", 20.0);
     hist = new HistoryBuffer(H_hist);
     meta = new AggregatorMetaStore();
     loadBatteryMetaFromConfig();
-    boolean useMc = simulationConfigService.getForecastParams()
-            .getOrDefault("useMC",0)==1;
+    boolean useMc = (int) simulationConfigService.getForecastParams()
+            .getOrDefault("useMC",0) == 1;
     scenGen = useMc ? new MonteCarloGenerator(H_pred,50)
             : new QuantileTreeGenerator(H_pred);
 
@@ -133,7 +136,7 @@ public final class AggregatorAgent extends AbstractSimAgent {
     }
 
     /* ----------- decide via CNP ----------- */
-    double net = totalProductionThisTick - totalConsumptionThisTick;
+    net = totalProductionThisTick - totalConsumptionThisTick;
     log("Tick {}  P={}  L={}  Net={}", simulationTime,
             totalProductionThisTick, totalConsumptionThisTick, net);
 
@@ -230,6 +233,13 @@ public final class AggregatorAgent extends AbstractSimAgent {
   }
 
   private void dispatch(Action a){
+    double plannedNet = planLoad[planPtr] - planPv[planPtr];
+    if (Math.abs(net - plannedNet) > epsilonBreak) {
+      queue.clear();
+      planPtr = H_pred;
+      log("Plan aborted – ε-break ("+epsilonBreak+" kW).");
+      return;
+    }
     if ("External".equals(a.target())){
       ACLMessage acc = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
       acc.setOntology(ONT_ACCEPT);
@@ -239,7 +249,7 @@ public final class AggregatorAgent extends AbstractSimAgent {
       send(acc);
     } else {
       ACLMessage acc = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
-      acc.setOntology(a.chargeKw()>0 ? ONT_ACCEPT : ONT_ACCEPT);
+      acc.setOntology(ONT_ACCEPT);
       acc.setInReplyTo(a.chargeKw()>0 ? ONT_CFP_SURPLUS : ONT_CFP_SHORTFALL);
       acc.setContent("acceptedAmount=" + Math.abs(a.chargeKw()));
       acc.addReceiver(new AID(a.target(), AID.ISLOCALNAME));
