@@ -84,6 +84,16 @@ public abstract class SpringAgent extends Agent {
 
   /** Hook method for child classes to perform custom setup actions. */
   protected abstract void onAgentSetup();
+  protected void reportState(double demand, double production, double soc, boolean isBroken, double cnpNego){
+    TickDataMessage.AgentState st = new TickDataMessage.AgentState();
+    st.setDemand(demand);
+    st.setProduction(production);
+    st.setStateOfCharge(soc);
+    st.setBroken(isBroken);
+    st.setCnpNegotiations(cnpNego);
+    registry.update(getLocalName(), st);
+  }
+
   protected void reportState(double demand, double production, double soc, boolean isBroken){
     TickDataMessage.AgentState st = new TickDataMessage.AgentState();
     st.setDemand(demand);

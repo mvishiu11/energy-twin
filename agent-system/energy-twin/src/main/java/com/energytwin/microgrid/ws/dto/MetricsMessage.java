@@ -9,7 +9,7 @@ public class MetricsMessage {
     private long tickNumber;
     private double totalProduced;
     private double totalConsumed;
-    private int cnpNegotiations;
+    private double cnpNegotiations;
     private double totalProducedPerNTicks;
     private double totalDemandPerNTicks;
 

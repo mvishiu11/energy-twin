@@ -15,6 +15,8 @@ public class TickDataMessage {
     @Setter
     public static class AgentState {
 
+        private double cnpNegotiations;
+
         private double demand;
 
         private double production;

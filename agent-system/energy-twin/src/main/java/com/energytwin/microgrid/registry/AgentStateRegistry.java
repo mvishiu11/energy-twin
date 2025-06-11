@@ -31,4 +31,10 @@ public class AgentStateRegistry {
                 .mapToDouble(TickDataMessage.AgentState::getProduction)
                 .sum();
     }
+
+    public double getTotalCnpNegotiations(){
+        return states.values().stream()
+                .mapToDouble(TickDataMessage.AgentState::getCnpNegotiations)
+                .sum();
+    }
 }
