@@ -24,6 +24,7 @@ import { useSimulationStore } from "../../../infrastructure/stores/simulationSto
 import { BatteryEntityCard } from "../EntityCard/BatteryEntityCard"
 import { BuildingEntityCard } from "../EntityCard/BuildingEntityCard"
 import { SolarEntityCard } from "../EntityCard/SolarEntityCard"
+import { BreakPanelButton } from "./BreakPanelButton"
 import { LoadSpikeButton } from "./LoadSpikeButton"
 import { SimulationSettings } from "./SimulationSettings"
 import { DrawerRoot } from "./styles"
@@ -51,7 +52,6 @@ export function SimulationDrawer() {
     const { mutate: stopSimulation } = useStopSimulation()
     const { mutate: simulateBlackout } = useBlackout()
 
-    // Using the simulation runtime store directly instead of subscribing to websocket
     const { agentStates } = useSimulationRuntimeStore()
 
     const jsonStringConfig = useMemo(
@@ -128,11 +128,12 @@ export function SimulationDrawer() {
                         </Flex>
                         <Flex direction="column" gap="4">
                             <Heading size="md">Events</Heading>
-                            <Flex direction="row" gap="2">
+                            <Flex direction="row" flexWrap="wrap" gap="2">
                                 <Button disabled={!isRunning} variant="surface" onClick={() => simulateBlackout()}>
                                     Simulate Blackout <LuZapOff />
                                 </Button>
                                 <LoadSpikeButton disabled={!isRunning} />
+                                <BreakPanelButton disabled={!isRunning} />
                             </Flex>
                         </Flex>
                         <Separator />
