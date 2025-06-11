@@ -8,6 +8,9 @@ import com.energytwin.microgrid.core.behaviours.aggregator.ProductionConsumption
 import com.energytwin.microgrid.core.behaviours.tick.TickSubscriberBehaviour;
 import com.energytwin.microgrid.core.forecast.ProbabilisticForecaster;
 import com.energytwin.microgrid.core.history.HistoryBuffer;
+import com.energytwin.microgrid.core.planner.Action;
+import com.energytwin.microgrid.core.planner.ActionQueue;
+import com.energytwin.microgrid.core.planner.DeterministicPlanner;
 import com.energytwin.microgrid.core.scenario.MonteCarloGenerator;
 import com.energytwin.microgrid.core.scenario.QuantileTreeGenerator;
 import com.energytwin.microgrid.core.scenario.Scenario;
@@ -37,6 +40,7 @@ public final class AggregatorAgent extends AbstractSimAgent {
   private AggregatorMetaStore meta;
   private int H_hist;
   private ProbabilisticForecaster forecaster;
+  private final ActionQueue queue = new ActionQueue();
   private int H_pred;                 // horizon
   private int planEvery;              // re-plan cadence (ticks)
   private double[] planLoad;          // length H_pred
@@ -92,7 +96,7 @@ public final class AggregatorAgent extends AbstractSimAgent {
 
     /* ------------ forecast buffers & meta ------------ */
     Map<String,Integer> fp = simulationConfigService.getForecastParams();
-    H_hist = fp.getOrDefault("H_hist", 48);
+    H_hist = fp.getOrDefault("H_hist", 24);
     H_pred   = fp.getOrDefault("H_pred", 4);
     planEvery= fp.getOrDefault("replanEvery", 2);
     hist = new HistoryBuffer(H_hist);
@@ -121,6 +125,11 @@ public final class AggregatorAgent extends AbstractSimAgent {
               planPv  [planPtr]);         // kW pv  prediction
     } else {
       registry.setForecast(0, 0);                      // “no forecast yet”
+    }
+
+    if (!queue.isEmpty()) {
+      Action a = queue.pop();                // tickOffset == 0
+      dispatch(a);                           // send ACCEPT_PROPOSALs
     }
 
     /* ----------- decide via CNP ----------- */
@@ -166,12 +175,24 @@ public final class AggregatorAgent extends AbstractSimAgent {
       // push q05 & q95 to UI (fan chart)
       registry.setFanChart(loadQ[0], loadQ[2]);
 
+      DeterministicPlanner planner = new DeterministicPlanner(
+              H_pred, meta.allBatteries(), simulationConfigService.getExternalSourceCap());
+
+      double socNow = meta.allBatteries().keySet().stream()
+              .mapToDouble(id -> registry.all()
+                      .getOrDefault(id,new TickDataMessage.AgentState()).getStateOfCharge())
+              .sum();
+
+      List<Action> plan = planner.solve(scenarios.get(1), socNow);
+      queue.clear(); queue.addAll(plan);
+      log("Planned "+plan.size()+" actions for next "+H_pred+" ticks.");
+
       // select median scenario for the deterministic planner (stage 4)
       planLoad = loadQ[1];
       planPv   = pvQ[1];
       planPtr  = 0;
 
-      /* optional immediate push so the UI sees it instantly */
+      // immediate push so the UI sees it instantly
       registry.setForecast(planLoad[0], planPv[0]);
 
       log("New plan  L=" + Arrays.toString(planLoad) +
@@ -206,6 +227,24 @@ public final class AggregatorAgent extends AbstractSimAgent {
 
   private static double dbl(Map<String, Object> m, String k, double d){
     Object v = m.get(k); return v==null ? d : Double.parseDouble(v.toString());
+  }
+
+  private void dispatch(Action a){
+    if ("External".equals(a.target())){
+      ACLMessage acc = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
+      acc.setOntology(ONT_ACCEPT);
+      acc.setInReplyTo(ONT_CFP_SHORTFALL);
+      acc.setContent("acceptedAmount=" + Math.abs(a.extImportKw()));
+      acc.addReceiver(new AID("ExternalSupply", AID.ISLOCALNAME));
+      send(acc);
+    } else {
+      ACLMessage acc = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
+      acc.setOntology(a.chargeKw()>0 ? ONT_ACCEPT : ONT_ACCEPT);
+      acc.setInReplyTo(a.chargeKw()>0 ? ONT_CFP_SURPLUS : ONT_CFP_SHORTFALL);
+      acc.setContent("acceptedAmount=" + Math.abs(a.chargeKw()));
+      acc.addReceiver(new AID(a.target(), AID.ISLOCALNAME));
+      send(acc);
+    }
   }
 
   private final class IrradianceListener extends CyclicBehaviour {
