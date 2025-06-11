@@ -113,7 +113,7 @@ public class SimulationConfigService {
     if (costObj == null) {
       return 9999.0;
     }
-    return (double) costObj;
+    return Double.parseDouble((String) costObj);
   }
 
   public double getExternalSourceCap() {
@@ -132,7 +132,7 @@ public class SimulationConfigService {
     if (capObj == null) {
       return 9999.0;
     }
-    return (double) capObj;
+    return Double.parseDouble((String) capObj);
   }
 
   public int getMetricsPerNTicks() {
