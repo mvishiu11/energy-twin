@@ -16,17 +16,17 @@ public final class EnergyStorageAgent extends AbstractEnergyStorageAgent {
 
   @Override
   protected void onAgentSetup() {
-    setConfigParams();
+      setConfigParams();
 
-    AID shortfallTopic = new AID("CNP_SHORTFALL_TOPIC", AID.ISLOCALNAME);
-    AID surplusTopic   = new AID("CNP_SURPLUS_TOPIC",   AID.ISLOCALNAME);
-    AID tickTopic      = new AID("TICK_TOPIC",          AID.ISLOCALNAME);
+      AID shortfallTopic = new AID("CNP_SHORTFALL_TOPIC", AID.ISLOCALNAME);
+      AID surplusTopic = new AID("CNP_SURPLUS_TOPIC", AID.ISLOCALNAME);
+      AID tickTopic = new AID("TICK_TOPIC", AID.ISLOCALNAME);
 
-    addBehaviour(new BatteryCNPResponder(this, shortfallTopic, surplusTopic));
-    addBehaviour(new TickSubscriberBehaviour(this, tickTopic));
+      addBehaviour(new BatteryCNPResponder(this, shortfallTopic, surplusTopic));
+      addBehaviour(new TickSubscriberBehaviour(this, tickTopic));
 
-    log("Battery %.0f kWh  ηc=%.2f  ηd=%.2f  C-rate=%.2f h⁻¹  self-d=%.2e  SoC=%.1f",
-            capacityKwh, chargeEffBase, dischargeEffBase, cRate, selfDischargePerHour, socKwh);
+      log("Battery %.0f kWh  ηc=%.2f  ηd=%.2f  C-rate=%.2f h⁻¹  self-d=%.2e  SoC=%.1f".formatted(
+              capacityKwh, chargeEffBase, dischargeEffBase, cRate, selfDischargePerHour, socKwh));
   }
 
   @Override
