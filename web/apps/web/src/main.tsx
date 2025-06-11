@@ -2,7 +2,9 @@ import { createRouter, RouterProvider } from "@tanstack/react-router"
 import React from "react"
 import ReactDOM from "react-dom/client"
 import { Provider } from "./components/ui/provider"
+import { Toaster } from "./components/ui/toaster"
 import { QueryProvider } from "./infrastructure/fetching/QueryClientProvider"
+import { SimulationRuntimeStoreUpdater } from "./infrastructure/stores/SimulationRuntimeStoreUpdater"
 import { WebSocketProvider } from "./infrastructure/websocket/WebSocketProvider"
 import { routeTree } from "./routeTree.gen"
 import "mapbox-gl/dist/mapbox-gl.css"
@@ -23,7 +25,9 @@ if (rootElement && !rootElement.innerHTML) {
             <Provider defaultTheme="light">
                 <QueryProvider>
                     <WebSocketProvider>
+                        <SimulationRuntimeStoreUpdater />
                         <RouterProvider router={router} />
+                        <Toaster />
                     </WebSocketProvider>
                 </QueryProvider>
             </Provider>

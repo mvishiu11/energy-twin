@@ -6,14 +6,15 @@ export const DrawerRoot = styled(motion.div)`
 
     position: fixed;
     z-index: 1000;
-    top: var(--drawer-padding);
+    top: calc(var(--drawer-padding) + 60px);
     right: var(--drawer-padding);
-    bottom: var(--drawer-padding);
+    bottom: calc(var(--drawer-padding));
 
     overflow-y: auto;
 
-    height: calc(100vh - 2 * var(--drawer-padding));
+    height: calc(100vh - 2 * var(--drawer-padding) - 60px);
     padding: 24px;
+    padding-top: 0;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
 

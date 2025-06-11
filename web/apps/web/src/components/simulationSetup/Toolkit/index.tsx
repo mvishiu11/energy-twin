@@ -37,6 +37,7 @@ export function Toolkit() {
                 <Card.Root ref={cardRef} rounded="xl" variant="elevated">
                     <Flex direction="row" gap="4" p="4">
                         <DraggableButton id={dndIds.battery}>{idToIconMap.battery}</DraggableButton>
+                        <DraggableButton id={dndIds.building}>{idToIconMap.building}</DraggableButton>
                         <DraggableButton id={dndIds.solar}>{idToIconMap.solar}</DraggableButton>
                     </Flex>
                 </Card.Root>

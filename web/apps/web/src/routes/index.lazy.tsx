@@ -1,7 +1,7 @@
 import { Box, Icon, IconButton, Tabs } from "@chakra-ui/react"
 import { createLazyFileRoute } from "@tanstack/react-router"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { LuLayoutDashboard, LuMap, LuSettings2, LuSun } from "react-icons/lu"
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { LuBuilding, LuLayoutDashboard, LuMap, LuSettings2, LuSun } from "react-icons/lu"
 import Map, { Layer, MapRef, Source } from "react-map-gl/mapbox"
 import { DndContext, DragOverlay, UniqueIdentifier } from "@dnd-kit/core"
 import { snapCenterToCursor } from "@dnd-kit/modifiers"
@@ -15,6 +15,9 @@ import { Tooltip } from "../components/ui/tooltip"
 import { useStopSimulation } from "../infrastructure/fetching"
 import { useDrawerStore } from "../infrastructure/stores/drawerStore"
 import { mapConfig } from "../services/mapConfig"
+
+const MemoizedDrawer = memo(SimulationDrawer)
+const MemoizedToolkit = memo(Toolkit)
 
 export const Route = createLazyFileRoute("/")({
     component: RouteComponent,
@@ -52,8 +55,20 @@ function RouteComponent() {
             </Icon>
         ),
     })
+    
+    const { markers: buildingMarkers, addMarker: addBuildingMarker } = useMarkers({
+        type: "building",
+        component: (
+            <Icon color="blue.500" size="2xl">
+                <LuBuilding strokeWidth={2.5} />
+            </Icon>
+        ),
+    })
 
-    const combinedMarkers = useMemo(() => [...batteriesMarkers, ...solarMarker], [batteriesMarkers, solarMarker])
+    const combinedMarkers = useMemo(
+        () => [...batteriesMarkers, ...solarMarker, ...buildingMarkers],
+        [batteriesMarkers, solarMarker, buildingMarkers]
+    )
 
     const mouseMoveHandler = useCallback((event: MouseEvent) => {
         const { clientX, clientY } = event
@@ -87,10 +102,13 @@ function RouteComponent() {
                                             .unproject([globalCoordinates.clientX, globalCoordinates.clientY - 69])
                                         switch (activeId) {
                                             case "battery":
-                                                addBatteryMarker([lng, lat], `Battery ${crypto.randomUUID()}`)
+                                                addBatteryMarker([lng, lat], `Battery ${batteriesMarkers.length + 1}`)
                                                 break
                                             case "solar":
-                                                addSolarMarker([lng, lat], `Solar Panel ${crypto.randomUUID()}`)
+                                                addSolarMarker([lng, lat], `Solar Panel ${solarMarker.length + 1}`)
+                                                break
+                                            case "building":
+                                                addBuildingMarker([lng, lat], `Building ${buildingMarkers.length + 1}`)
                                                 break
                                         }
                                     }
@@ -122,7 +140,7 @@ function RouteComponent() {
                                         type="line"
                                     />
                                 </Map>
-                                <Toolkit />
+                                <MemoizedToolkit />
                                 <DragOverlay
                                     dropAnimation={null}
                                     style={{
@@ -151,7 +169,7 @@ function RouteComponent() {
                                     <LuSettings2 />
                                 </IconButton>
                             </Tooltip>
-                            <SimulationDrawer />
+                            <MemoizedDrawer />
                         </div>
                     </Tabs.Content>
                     <Tabs.Content value="dashboard">
