@@ -81,7 +81,6 @@ public final class BatteryCNPResponder extends CyclicBehaviour {
   }
 
   /* ---------- Accept / Reject ---------- */
-  /* ---------- Accept / Reject ---------- */
   private void handleDecision(ACLMessage dec) {
 
     boolean accepted = ONT_ACCEPT.equals(dec.getOntology());
@@ -91,12 +90,14 @@ public final class BatteryCNPResponder extends CyclicBehaviour {
     }
 
     double amt = parseAccepted(dec.getContent());   // only for ACCEPT
-    if (dec.getInReplyTo() == null) return;
+    if (dec.getInReplyTo() == null || amt == 0.0) return;
 
     if (CFP_SHORT.equals(dec.getInReplyTo())) {          // discharge accepted
       double nd = bat.dischargeEffEff();
       double dsoc = amt / nd;
       bat.setSocKwh(Math.max(0, bat.getSocKwh() - dsoc));
+      if (!Double.isFinite(bat.getSocKwh()))
+        bat.setSocKwh(0);
       bat.log("Delivered %.2f kWh  ηd=%.2f  new SoC=%.2f"
               .formatted(amt, nd, bat.getSocKwh()));
 

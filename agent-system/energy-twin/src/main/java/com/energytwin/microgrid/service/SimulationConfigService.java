@@ -68,16 +68,14 @@ public class SimulationConfigService {
     logger.info("Weather parameters updated at runtime (version {}) : {}", weatherVersion.get(), newParams);
   }
 
-  public Map<String,Integer> getForecastParams(){
+  public Map<String,Object> getForecastParams(){
     Object sim = config.get("simulation");
     if (!(sim instanceof Map<?,?> simMap)) return Map.of();
     Object fc = simMap.get("forecast");
     if (!(fc instanceof Map<?,?> map)) return Map.of();
     //noinspection unchecked
-    return (Map<String,Integer>) map;
+    return (Map<String, Object>) map;
   }
-
-
 
   public int getTickIntervalMillis() {
     Object simulationObj = config.get("simulation");

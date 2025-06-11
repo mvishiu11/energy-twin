@@ -8,6 +8,7 @@
       "H_hist": 168,
       "H_pred": 4,
       "replanEvery": 2,
+      "epsilonBreak": 20.0,
       "useMC": 0
     },
     "weather": {

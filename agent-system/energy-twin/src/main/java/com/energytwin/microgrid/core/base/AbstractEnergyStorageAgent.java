@@ -37,15 +37,21 @@ public abstract class AbstractEnergyStorageAgent extends AbstractSimAgent {
 
   /** Linear-derated discharge efficiency. */
   public double dischargeEffEff() {
-    if (socKwh < 0.10 * capacityKwh)
-      return dischargeEffBase * (socKwh / (0.10 * capacityKwh));
+    if (socKwh < 0.10 * capacityKwh) {
+      double eff = dischargeEffBase * (socKwh / (0.10 * capacityKwh));
+      if (!Double.isFinite(eff) || eff < 1e-6) eff = 1e-6;
+      return eff;
+    }
     return dischargeEffBase;
   }
 
   /** Linear-derated charge efficiency. */
   public double chargeEffEff() {
-    if (socKwh > 0.90 * capacityKwh)
-      return chargeEffBase * ((capacityKwh - socKwh) / (0.10 * capacityKwh));
+    if (socKwh > 0.90 * capacityKwh) {
+      double eff = chargeEffBase * ((capacityKwh - socKwh) / (0.10 * capacityKwh));
+      if (!Double.isFinite(eff) || eff < 1e-6) eff = 1e-6;
+      return eff;
+    }
     return chargeEffBase;
   }
 
