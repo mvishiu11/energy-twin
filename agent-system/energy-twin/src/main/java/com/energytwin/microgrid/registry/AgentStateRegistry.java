@@ -26,8 +26,10 @@ public class AgentStateRegistry {
 
     private volatile double[] latestForecastLoad = new double[0];
     private volatile double[] latestForecastPv   = new double[0];
-    public volatile double[] fanLo = new double[0];
-    public volatile double[] fanHi = new double[0];
+    @Getter
+    private volatile double[] fanLo = new double[0];
+    @Getter
+    private volatile double[] fanHi = new double[0];
     private volatile double predictedLoadKw = Double.NaN;
     private volatile double predictedPvKw   = Double.NaN;
     @Getter

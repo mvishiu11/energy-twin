@@ -173,12 +173,12 @@ public final class AggregatorAgent extends AbstractSimAgent {
       double[][] loadQ = forecaster.predictLoad();     // [q05,q50,q95][H_pred]
       double[][] pvQ   = forecaster.predictPv();
 
+      // push q05 & q95 to UI (fan chart)
+      registry.setFanChart(loadQ[0], loadQ[2]);
+
       // build discrete scenarios
       scenarios = scenGen.generate(loadQ,pvQ);
       log("Fan chart: " + Arrays.toString(loadQ[0]) + " Q95: " + Arrays.toString(loadQ[2]));
-
-      // push q05 & q95 to UI (fan chart)
-      registry.setFanChart(loadQ[0], loadQ[2]);
 
       DeterministicPlanner planner = new DeterministicPlanner(
               H_pred, meta.allBatteries(), simulationConfigService.getExternalSourceCap());

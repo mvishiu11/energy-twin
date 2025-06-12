@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Micro-grid Live Dashboard</title>
+
+    <!-- libs -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <style>
+        body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:22px}
+        h2{margin-top:0}
+        .controls{margin-bottom:18px}.controls *{margin-right:10px;padding:6px 8px;font-size:14px}
+        .grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+        canvas{background:#fff;border:1px solid #ccc}
+        table{border-collapse:collapse;font-size:13px;margin-top:12px;width:100%}
+        th,td{border:1px solid #ccc;padding:4px 6px;text-align:right}
+        th{background:#f5f5f5;text-align:center}
+        .mono{font:12px/1.4 monospace;white-space:pre-wrap;background:#f4f4f4;
+            border:1px solid #ddd;height:260px;overflow:auto;margin-top:25px}
+        .brk{color:#c00;font-weight:bold}
+    </style>
+</head>
+<body>
+
+<h2>Micro-grid Control / Forecast Dashboard</h2>
+
+<!-- controls -->
+<div class="controls">
+    <button onclick="startSimulation()">Start</button>
+    <button onclick="stopSimulation()">Stop</button>
+
+    <select id="panelSelect">
+        <option>SolarPanel1</option><option>Battery1</option>
+        <option>Battery2</option><option>Building1</option>
+    </select>
+    <input id="ticksInput" type="number" min="10" value="10">
+    <button onclick="breakPanel()">Break</button>
+
+    <input id="rateInput" type="number" min="2" value="2">
+    <button onclick="loadSpike()">Load Spike</button>
+</div>
+
+<!-- charts -->
+<div class="grid">
+    <div><canvas id="loadChart" height="230"></canvas></div>
+    <div><canvas id="pvChart"   height="230"></canvas></div>
+    <div><canvas id="errChart"  height="230"></canvas></div>
+</div>
+
+<!-- global metrics -->
+<table id="glb">
+    <tr><th colspan="6">Latest metrics</th></tr>
+    <tr><td>Tick #</td><td id="tick">—</td>
+        <td>RMSE Load</td><td id="rmseL">—</td>
+        <td>RMSE PV</td><td id="rmseP">—</td></tr>
+    <tr><td>Band q05/q95</td><td id="band">—</td>
+        <td>Ext kW</td><td id="ext">0</td>
+        <td>Spill kW</td><td id="spill">0</td></tr>
+</table>
+
+<!-- SoC + per-agent tables -->
+<table id="socTbl"><tr><th colspan="4">Battery SoC</th></tr>
+    <tr><th>Name</th><th>SoC kWh</th><th>Broken</th><th>%</th></tr></table>
+
+<table id="agentTbl"><tr><th colspan="6">Per-agent state</th></tr>
+    <tr><th>Name</th><th>Demand kW</th><th>Prod kW</th>
+        <th>SoC kWh</th><th>Broken</th><th>Type</th></tr></table>
+
+<!-- raw JSON -->
+<div id="log" class="mono"></div>
+
+<script>
+    /* ───── CONFIG ───── */
+    const BASE_URL   = "http://localhost:8081";  // adjust if backend runs elsewhere
+    const WS_ENDPOINT= "/ws/data";
+    const MAX_POINTS = 150;
+
+    /* ───── ARRAYS ───── */
+    const labels=[], loadReal=[],loadPred=[], pvReal=[],pvPred=[],
+        bandLo=[], bandHi=[], rmseLoadArr=[],rmsePvArr=[];
+
+    /* ───── helpers ───── */
+    const logBox=document.getElementById('log');
+    function push(a,v){a.push(v); if(a.length>MAX_POINTS)a.shift();}
+    function log(x){logBox.textContent+=(typeof x==='object'?JSON.stringify(x):x)+"\n";
+        logBox.scrollTop=logBox.scrollHeight}
+
+    /* ───── CHARTS ───── */
+    function makeFanChart(ctx, color, title,
+                          arrReal, arrPred, loArr, hiArr) {
+        const bandColor = color.replace('rgb','rgba').replace(')',',0.15)'); // 15 % α
+        return new Chart(ctx, {
+            type : 'line',
+            data : {
+                labels,
+                datasets : [
+                    { // ── q05 lower line ──
+                        data        : loArr,
+                        borderWidth : 0,
+                        pointRadius : 0,
+                        fill        : '+1',              // <- fill up to the NEXT dataset
+                        backgroundColor : bandColor
+                    },
+                    { // ── q95 upper line (must stay visible!) ──
+                        data        : hiArr,
+                        borderWidth : 0,
+                        pointRadius : 0,
+                        fill        : false
+                    },
+                    { // ── actual ──
+                        label       : `${title} actual`,
+                        data        : arrReal,
+                        borderColor : color,
+                        borderWidth : 2,
+                        pointRadius : 0,
+                        tension     : .25
+                    },
+                    { // ── forecast ──
+                        label       : `${title} forecast`,
+                        data        : arrPred,
+                        borderColor : '#111',
+                        borderDash  : [6,4],
+                        borderWidth : 2,
+                        pointRadius : 0,
+                        tension     : .25
+                    }
+                ]
+            },
+            options : {
+                animation : false,
+                plugins   : { legend : { display : false } },
+                scales    : { x : { display : false } }
+            }
+        });
+    }
+    const loadChart=makeFanChart(document.getElementById('loadChart'),
+        'rgb(21,126,251)','Load',loadReal,loadPred,bandLo,bandHi);
+    const pvChart  =makeFanChart(document.getElementById('pvChart'),
+        'rgb(229,82,38)','PV',pvReal,pvPred,bandLo,bandHi);
+
+    const errChart=new Chart(document.getElementById('errChart'),{
+        type:'line',
+        data:{labels,datasets:[
+                {label:'RMSE Load',data:rmseLoadArr,borderColor:'rgb(21,126,251)',
+                    borderWidth:2,pointRadius:0,tension:.25},
+                {label:'RMSE PV',data:rmsePvArr,borderColor:'rgb(229,82,38)',
+                    borderDash:[6,4],borderWidth:2,pointRadius:0,tension:.25}]},
+        options:{animation:false,plugins:{legend:{position:'bottom'}},scales:{x:{display:false}}}
+    });
+
+    /* ───── WEBSOCKET ───── */
+    let stomp=null;
+    function connectWS(){
+        const sock=new SockJS(BASE_URL+WS_ENDPOINT);
+        stomp=Stomp.over(sock); stomp.reconnect_delay=4000; stomp.debug=()=>{};
+        stomp.connect({},()=>{ log("🟢 WS connected");
+            stomp.subscribe("/topic/tickData",onTick);
+            stomp.subscribe("/topic/metrics",m=>log(JSON.parse(m.body)));
+        },e=>log("🔴 WS error: "+e));
+    }
+
+    /* ─── tick handler ─── */
+    function onTick(message){
+        const d=JSON.parse(message.body);
+        push(labels,d.tickNumber);
+
+        console.log(d.fanLo, d.fanHi);
+
+        /* measured totals */
+        const totalLoad = d.totalLoadKw ??
+            Object.values(d.agentStates).reduce((s,a)=>s + (a.demand||0),0);
+        const totalPv   = d.totalPvKw   ??
+            Object.values(d.agentStates).reduce((s,a)=>s + (a.production||0),0);
+
+        push(loadReal,totalLoad);         push(loadPred,d.predictedLoadKw??null);
+        push(pvReal,totalPv);             push(pvPred,d.predictedPvKw  ??null);
+        push(bandLo,d.fanLo?d.fanLo[0]:null);
+        push(bandHi,d.fanHi?d.fanHi[0]:null);
+        push(rmseLoadArr,d.errorLoadKw??null);
+        push(rmsePvArr,d.errorPvKw??null);
+
+        loadChart.update('none'); pvChart.update('none'); errChart.update('none');
+
+        /* small metrics */
+        document.getElementById('tick').textContent=d.tickNumber;
+        document.getElementById('rmseL').textContent=(d.errorLoadKw??0).toFixed(2);
+        document.getElementById('rmseP').textContent=(d.errorPvKw  ??0).toFixed(2);
+        document.getElementById('band').textContent=
+            d.fanLo?`${d.fanLo[0].toFixed(1)} / ${d.fanHi[0].toFixed(1)}`:'—';
+        document.getElementById('ext' ).textContent=(d.externalKw??0).toFixed(1);
+        document.getElementById('spill').textContent=(d.spillKw  ??0).toFixed(1);
+
+        updateTables(d);
+    }
+
+    /* ─── SoC + agent tables ─── */
+    function updateTables(d){
+        const socTbl=document.getElementById('socTbl'),
+            agTbl =document.getElementById('agentTbl');
+        for(const [name,a] of Object.entries(d.agentStates)){
+            let row=agTbl.querySelector(`#ag_${CSS.escape(name)}`);
+            if(!row){ row=agTbl.insertRow(-1); row.id=`ag_${name}`;
+                row.insertCell(0).textContent=name;
+                for(let i=1;i<6;i++)row.insertCell(i); }
+            row.cells[1].textContent=(a.demand??0).toFixed(2);
+            row.cells[2].textContent=(a.production??0).toFixed(2);
+            row.cells[3].textContent=isFinite(a.stateOfCharge)?a.stateOfCharge.toFixed(1):'—';
+            row.cells[4].innerHTML  =a.broken?'<span class="brk">YES</span>':'';
+            row.cells[5].textContent=name.startsWith('Solar')?'PV':
+                name.startsWith('Battery')?'Storage':
+                    name.startsWith('Building')?'Load':'?';
+
+            if(name.startsWith('Battery')){
+                let rb=socTbl.querySelector(`#soc_${CSS.escape(name)}`);
+                if(!rb){ rb=socTbl.insertRow(-1); rb.id=`soc_${name}`;
+                    rb.insertCell(0).textContent=name;
+                    rb.insertCell(1);rb.insertCell(2);rb.insertCell(3); }
+                rb.cells[1].textContent=isFinite(a.stateOfCharge)?a.stateOfCharge.toFixed(1):'—';
+                rb.cells[2].innerHTML  =a.broken?'<span class="brk">YES</span>':'';
+                const cap=d.meta&&d.meta[name]?d.meta[name].capacity:NaN;
+                rb.cells[3].textContent=isFinite(cap)?
+                    ((a.stateOfCharge/cap)*100).toFixed(0):'';
+            }
+        }
+    }
+
+    /* ───── REST helpers (only START differs) ───── */
+    async function startSimulation(){
+        const res=await fetch(`${BASE_URL}/simulation/start`,{
+            method:"POST",headers:{"Content-Type":"application/json"},
+            body:JSON.stringify(buildPayload())});
+        if(res.ok){log("Simulation started"); connectWS();}
+        else       log("Start failed HTTP "+res.status);
+    }
+
+    async function stopSimulation(){
+        const r=await fetch(`${BASE_URL}/simulation/stop`,{method:"POST"});
+        log(r.ok?"Stopped":"Stop failed "+r.status);
+    }
+    async function breakPanel(){
+        const name=panelSelect.value,t=+ticksInput.value||10;
+        const url=`${BASE_URL}/events/breakComponent?name=${name}&ticks=${t}`;
+        const r=await fetch(url,{method:"POST"}); log(await r.text());
+    }
+    async function loadSpike(){
+        const name=panelSelect.value,r=+rateInput.value||2,t=+ticksInput.value||10;
+        const url=`${BASE_URL}/events/loadSpike?name=${name}&ticks=${t}&rate=${r}`;
+        const rs=await fetch(url,{method:"POST"}); log(await rs.text());
+    }
+
+    function buildPayload(){ return {
+        simulation: {
+            tickIntervalMillis: 1000,
+            metricsPerNTicks: 5,
+            weather: {
+                sunriseTick: 6,
+                sunsetTick: 18,
+                sunPeakTick: 12,
+                gPeak: 1000,
+                tempMeanDay: 26,
+                tempMeanNight: 17,
+                sigmaG: 0.15,
+                sigmaT: 0.8
+            },
+            forecast: {
+                H_hist: 168,
+            },
+            agents: [
+                {
+                    type: "energySource",
+                    name: "SolarPanel1",
+                    noOfPanels: 200,
+                    area: 2.0,
+                    efficiency: 0.21,
+                    tempCoeff: -0.0040,
+                    noct: 44
+                },
+                {
+                    type: "energySource",
+                    name: "SolarPanel2",
+                    noOfPanels: 200,
+                    area: 2.0,
+                    efficiency: 0.21,
+                    tempCoeff: -0.0040,
+                    noct: 44
+                },
+                {
+                    type: "energySource",
+                    name: "SolarPanel3",
+                    noOfPanels: 200,
+                    area: 2.0,
+                    efficiency: 0.21,
+                    tempCoeff: -0.0040,
+                    noct: 44
+                },
+                {
+                    type: "energySource",
+                    name: "SolarPanel4",
+                    noOfPanels: 200,
+                    area: 2.0,
+                    efficiency: 0.21,
+                    tempCoeff: -0.0040,
+                    noct: 44
+                },
+                {
+                    type: "energyStorage",
+                    name: "Battery1",
+                    capacity: 150.0,
+                    etaCharge: 0.97,
+                    etaDischarge: 0.96,
+                    cRate: 0.7,
+                    selfDischarge: 3.9e-4,
+                    initialSoC: 10.0
+                },
+                {
+                    type: "energyStorage",
+                    name: "Battery2",
+                    capacity: 300.0,
+                    etaCharge: 0.94,
+                    etaDischarge: 0.92,
+                    cRate: 0.5,
+                    selfDischarge: 3.9e-4,
+                    initialSoC: 10.0
+                },
+                { type: "load", name: "Building1", nominalLoad: 90.0 },
+                { type: "load", name: "Building2", nominalLoad: 30.0 }
+            ]
+        }
+    }; }
+</script>
+</body>
+</html>
