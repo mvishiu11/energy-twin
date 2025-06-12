@@ -25,6 +25,7 @@ import { BatteryEntityCard } from "../EntityCard/BatteryEntityCard"
 import { BuildingEntityCard } from "../EntityCard/BuildingEntityCard"
 import { SolarEntityCard } from "../EntityCard/SolarEntityCard"
 import { BreakPanelButton } from "./BreakPanelButton"
+import { ForecastSettings } from "./ForecastSettings"
 import { LoadSpikeButton } from "./LoadSpikeButton"
 import { SimulationSettings } from "./SimulationSettings"
 import { DrawerRoot } from "./styles"
@@ -35,6 +36,7 @@ const MemoizedBuildingEntityCard = memo(BuildingEntityCard)
 const MemoizedSolarEntityCard = memo(SolarEntityCard)
 const MemoizedSimulationSettings = memo(SimulationSettings)
 const MemoizedWeatherSettings = memo(WeatherSettings)
+const MemoizedForecastSettings = memo(ForecastSettings)
 
 export function SimulationDrawer() {
     const {
@@ -44,6 +46,7 @@ export function SimulationDrawer() {
         externalSourceCost,
         externalSourceCap,
         weather,
+        forecast,
         isPaused,
     } = useSimulationStore()
     const { isOpen, setIsOpen, drawerWidth } = useDrawerStore()
@@ -70,6 +73,13 @@ export function SimulationDrawer() {
                     tempMeanNight: weather.tempMeanNight,
                     sigmaG: weather.sigmaG,
                     sigmaT: weather.sigmaT,
+                },
+                forecast: {
+                    H_hist: forecast.H_hist,
+                    H_pred: forecast.H_pred,
+                    replanEvery: forecast.replanEvery,
+                    epsilonBreak: forecast.epsilonBreak,
+                    useMC: forecast.useMC,
                 },
                 agents: [
                     ...mapEntities.batteries.map(battery => ({
@@ -99,7 +109,7 @@ export function SimulationDrawer() {
                 ],
             },
         }),
-        [mapEntities, tickIntervalMilliseconds, externalSourceCost, externalSourceCap, weather],
+        [mapEntities, tickIntervalMilliseconds, externalSourceCost, externalSourceCap, weather, forecast],
     )
 
     return (
@@ -251,6 +261,7 @@ function SettingsAccordion() {
         <Accordion.Root collapsible multiple defaultValue={["simulation-parameters"]} size="lg" variant="enclosed">
             <MemoizedSimulationSettings />
             <MemoizedWeatherSettings />
+            <MemoizedForecastSettings />
         </Accordion.Root>
     )
 }

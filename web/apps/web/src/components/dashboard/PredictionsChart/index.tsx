@@ -1,5 +1,5 @@
 import { Chart, useChart } from "@chakra-ui/charts"
-import { Area, CartesianGrid, ComposedChart, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts"
+import { Area, CartesianGrid, ComposedChart, Legend, Line, Tooltip, XAxis, YAxis } from "recharts"
 import { useSimulationRuntimeStore } from "../../../infrastructure/stores/simulationRuntimeStore"
 
 export function PredictionsLoadChart() {
@@ -7,7 +7,7 @@ export function PredictionsLoadChart() {
 
     const chartData = predictionData.map(item => ({
         tickNumber: item.tickNumber,
-        confidenceInterval: [item.fanLo[0], item.fanHi[0]],
+        confidenceInterval: [item.fanLoLoad[0], item.fanHiLoad[0]],
         predictionPv: item.predictedPvKw,
         predictionLoad: item.predictedLoadKw,
         actualLoad: item.predictedLoadKw + item.errorLoadKw,
@@ -83,6 +83,7 @@ export function PredictionsPvChart() {
 
     const chartData = predictionData.map(item => ({
         tickNumber: item.tickNumber,
+        confidenceInterval: item.fanHiPv === null || item.fanLoPv === null ? [] : [item.fanLoPv[0], item.fanHiPv[0]],
         predictionPv: item.predictedPvKw,
         actualPv: item.errorPvKw,
     }))
@@ -97,7 +98,7 @@ export function PredictionsPvChart() {
 
     return (
         <Chart.Root chart={chart} height="100%" width="100%">
-            <LineChart data={chart.data}>
+            <ComposedChart data={chart.data}>
                 <CartesianGrid stroke={chart.color("border")} vertical={false} />
                 <XAxis
                     axisLine={false}
@@ -138,7 +139,16 @@ export function PredictionsPvChart() {
                     stroke={chart.color("red.500")}
                     strokeWidth={2}
                 />
-            </LineChart>
+                <Area
+                    connectNulls
+                    dataKey="confidenceInterval"
+                    dot={false}
+                    fill="#b0ade9"
+                    isAnimationActive={false}
+                    stroke="none"
+                    type="basis"
+                />
+            </ComposedChart>
         </Chart.Root>
     )
 }

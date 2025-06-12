@@ -41,6 +41,14 @@ type Weather = {
     sigmaT: number
 }
 
+type Forecast = {
+    H_hist: number
+    H_pred: number
+    replanEvery: number
+    epsilonBreak: number
+    useMC: number
+}
+
 export type SimulationState = {
     isRunning: boolean
     setIsRunning: (isRunning: boolean) => void
@@ -63,6 +71,14 @@ export type SimulationState = {
         sigmaT: number
     }
     setWeather: (weather: Weather) => void
+    forecast: {
+        H_hist: number
+        H_pred: number
+        replanEvery: number
+        epsilonBreak: number
+        useMC: number
+    }
+    setForecast: (forecast: Forecast) => void
     mapEntities: {
         batteries: Battery[]
         solar: Solar[]
@@ -101,6 +117,14 @@ export const useSimulationStore = create<SimulationState>()(set => ({
         sigmaT: 0.8,
     },
     setWeather: (weather: Weather) => set({ weather }),
+    forecast: {
+        H_hist: 24,
+        H_pred: 24,
+        replanEvery: 1,
+        epsilonBreak: 0.1,
+        useMC: 0,
+    },
+    setForecast: (forecast: Forecast) => set({ forecast }),
     mapEntities: {
         batteries: [],
         solar: [],

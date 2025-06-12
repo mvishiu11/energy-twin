@@ -28,8 +28,10 @@ type SimulationRuntimeState = {
         predictedPvKw: number
         errorLoadKw: number
         errorPvKw: number
-        fanLo: number[]
-        fanHi: number[]
+        fanLoPv: number[]
+        fanHiPv: number[]
+        fanLoLoad: number[]
+        fanHiLoad: number[]
     }[]
     tickDataLoading: boolean
     metrics: Metrics
@@ -61,8 +63,10 @@ const initialTickData = {
             predictedPvKw: 0,
             errorLoadKw: 0,
             errorPvKw: 0,
-            fanLo: [],
-            fanHi: [],
+            fanLoPv: [],
+            fanHiPv: [],
+            fanLoLoad: [],
+            fanHiLoad: [],
         },
     ],
 }
@@ -125,8 +129,10 @@ export const useSimulationRuntimeStore = create<SimulationRuntimeState>()(set =>
             predictedPvKw: data.predictedPvKw,
             errorLoadKw: data.errorLoadKw,
             errorPvKw: data.errorPvKw,
-            fanLo: data.fanLo,
-            fanHi: data.fanHi,
+            fanLoPv: data.fanLoPv,
+            fanHiPv: data.fanHiPv,
+            fanLoLoad: data.fanLoLoad,
+            fanHiLoad: data.fanHiLoad,
         }
 
         set(state => ({

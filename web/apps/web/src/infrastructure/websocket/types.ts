@@ -13,8 +13,10 @@ export type TickData = {
     predictedPvKw: number
     errorLoadKw: number
     errorPvKw: number
-    fanLo: number[]
-    fanHi: number[]
+    fanLoPv: number[]
+    fanHiPv: number[]
+    fanLoLoad: number[]
+    fanHiLoad: number[]
 }
 
 export type AgentState = {
