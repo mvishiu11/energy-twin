@@ -16,8 +16,10 @@ public class TickDataMessage {
     private double predictedPvKw;     // median (q50)
     private double errorLoadKw;       // RMSE-increment
     private double errorPvKw;
-    private double[] fanLo;           // length = H_pred : q05
-    private double[] fanHi;           // length = H_pred : q95
+    private double[] fanLoLoad;           // length = H_pred : q05
+    private double[] fanHiLoad;           // length = H_pred : q95
+    private double[] fanLoPv;
+    private double[] fanHiPv;
 
     @Getter
     @Setter

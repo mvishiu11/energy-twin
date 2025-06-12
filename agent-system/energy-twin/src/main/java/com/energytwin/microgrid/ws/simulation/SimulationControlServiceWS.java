@@ -55,8 +55,10 @@ public class SimulationControlServiceWS {
         tickDataMessage.setErrorLoadKw(Math.abs(thisTickDemand - predLoad));
         tickDataMessage.setErrorPvKw(Math.abs(registry.getPvProduction() - predPv));
 
-        tickDataMessage.setFanLo(registry.getFanLo());
-        tickDataMessage.setFanHi(registry.getFanHi());
+        tickDataMessage.setFanLoLoad(registry.getFanLoLoad());
+        tickDataMessage.setFanHiLoad(registry.getFanHiLoad());
+        tickDataMessage.setFanLoLoad(registry.getFanLoPv());
+        tickDataMessage.setFanHiLoad(registry.getFanHiPv());
 
         tickPublisher.publish(tickDataMessage);
 
