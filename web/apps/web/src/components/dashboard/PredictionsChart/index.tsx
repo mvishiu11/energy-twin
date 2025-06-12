@@ -1,11 +1,9 @@
 import { Chart, useChart } from "@chakra-ui/charts"
-import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts"
+import { Area, CartesianGrid, ComposedChart, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts"
 import { useSimulationRuntimeStore } from "../../../infrastructure/stores/simulationRuntimeStore"
 
 export function PredictionsLoadChart() {
     const { predictionData } = useSimulationRuntimeStore()
-
-    console.log(predictionData)
 
     const chartData = predictionData.map(item => ({
         tickNumber: item.tickNumber,
@@ -14,8 +12,6 @@ export function PredictionsLoadChart() {
         predictionLoad: item.predictedLoadKw,
         actualLoad: item.predictedLoadKw + item.errorLoadKw,
     }))
-
-    // console.log(chartData)
 
     const chart = useChart({
         data: chartData,
@@ -27,7 +23,7 @@ export function PredictionsLoadChart() {
 
     return (
         <Chart.Root chart={chart}>
-            <LineChart data={chart.data}>
+            <ComposedChart data={chart.data}>
                 <CartesianGrid stroke={chart.color("border")} vertical={false} />
                 <XAxis
                     axisLine={false}
@@ -68,7 +64,16 @@ export function PredictionsLoadChart() {
                     stroke={chart.color("red.500")}
                     strokeWidth={2}
                 />
-            </LineChart>
+                <Area
+                    connectNulls
+                    dataKey="confidenceInterval"
+                    dot={false}
+                    fill="#b0ade9"
+                    isAnimationActive={false}
+                    stroke="none"
+                    type="basis"
+                />
+            </ComposedChart>
         </Chart.Root>
     )
 }
