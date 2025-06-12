@@ -93,9 +93,9 @@ public class AgentStateRegistry {
             squaredErrorPv  .sum()/Math.max(1,errorSamples.sum())); }
 
     public void setFanChart(double[] loLoad, double[] hiLoad, double[] loPv, double[] hiPv){
-        fanLoLoad = loLoad.clone();
-        fanHiLoad = hiLoad.clone();
-        fanLoPv = loPv.clone();
-        fanHiPv = hiPv.clone();
+        fanLoLoad = loLoad;
+        fanHiLoad = hiLoad;
+        fanLoPv = loPv;
+        fanHiPv = hiPv;
     }
 }

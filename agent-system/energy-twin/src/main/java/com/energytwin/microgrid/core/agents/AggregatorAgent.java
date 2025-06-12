@@ -173,7 +173,7 @@ public final class AggregatorAgent extends AbstractSimAgent {
       double[][] loadQ = forecaster.predictLoad();     // [q05,q50,q95][H_pred]
       double[][] pvQ   = forecaster.predictPv();
 
-      // push q05 & q95 to UI (fan chart)
+      log("Fan chart: " + Arrays.toString(pvQ[0]) + Arrays.toString(pvQ[1]) + Arrays.toString(loadQ[0]));
       registry.setFanChart(loadQ[0], loadQ[2], pvQ[0], pvQ[2]);
 
       // build discrete scenarios
