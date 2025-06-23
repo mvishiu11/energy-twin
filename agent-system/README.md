@@ -36,8 +36,8 @@ sync. An `AggregatorAgent` collects production and consumption data and uses
 forecasting and planning algorithms to schedule battery operations or negotiate
 energy transfers using the contract-net protocol.
 
-Simulation parameters (tick duration, weather, agent definitions) are read from
-`simulation-config.json`. The system is designed to be interactive: clients can
+Simulation parameters (tick duration, weather, agent definitions) are read from a JSON configuration sent in the `/simulation/start` POST request as request body. And example of the full capabilities of such a configuration can be seen in
+[`simulation-config.json`](./energy-twin/src/main/resources/simulation-config.json). The system is designed to be interactive: clients can
 start, pause or adjust the simulation speed at runtime.
 
 ## Running and Development
@@ -61,5 +61,7 @@ mvn install:install-file -Dfile=lib/jade.jar \
   -DgroupId=com.tilab.jade -DartifactId=jade -Dversion=4.6.0 -Dpackaging=jar
 ```
 
+There is also a [Bruno](https://www.usebruno.com) configuration provided for easy testing of the backend part of the application.
+
 For more details on configuration files and API usage, see the project root
-[README](../README.md).
+[README](../README.md). 
