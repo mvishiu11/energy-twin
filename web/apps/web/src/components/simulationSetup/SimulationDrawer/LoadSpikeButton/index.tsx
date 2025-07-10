@@ -40,7 +40,6 @@ export function LoadSpikeButton({ disabled }: LoadSpikeButtonProps) {
                 type: "success",
             })
             setIsOpen(false)
-            reset()
         },
         onError: () => {
             toaster.create({
@@ -55,7 +54,6 @@ export function LoadSpikeButton({ disabled }: LoadSpikeButtonProps) {
         control,
         handleSubmit,
         formState: { errors },
-        reset,
     } = useForm<FormValues>({
         defaultValues: {
             buildingId: defaultBuildingId,
