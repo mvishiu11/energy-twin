@@ -52,6 +52,7 @@ export function BreakPanelButton({ disabled }: BreakPanelButtonProps) {
 
     const {
         control,
+        register,
         handleSubmit,
         formState: { errors },
     } = useForm<FormValues>({
@@ -125,30 +126,21 @@ export function BreakPanelButton({ disabled }: BreakPanelButtonProps) {
                                     )}
                                     rules={{ required: "Solar panel selection is required" }}
                                 />
-                                <Controller
-                                    control={control}
-                                    name="ticksDuration"
-                                    render={({ field }) => (
-                                        <Field.Root invalid={!!errors.ticksDuration}>
-                                            <Field.Label>Ticks duration</Field.Label>
-                                            <Input
-                                                {...field}
-                                                min={1}
-                                                type="number"
-                                                value={field.value}
-                                                onChange={e => field.onChange(Number(e.target.value))}
-                                            />
-                                            <Field.ErrorText>{errors.ticksDuration?.message}</Field.ErrorText>
-                                        </Field.Root>
-                                    )}
-                                    rules={{
-                                        min: {
-                                            message: "Ticks duration must be at least 1",
-                                            value: 1,
-                                        },
-                                        required: "Ticks duration is required",
-                                    }}
-                                />
+                                <Field.Root invalid={!!errors.ticksDuration}>
+                                    <Field.Label>Ticks duration</Field.Label>
+                                    <Input
+                                        {...register("ticksDuration", {
+                                            min: {
+                                                message: "Ticks duration must be at least 1",
+                                                value: 1,
+                                            },
+                                            required: "Ticks duration is required",
+                                        })}
+                                        min={1}
+                                        type="number"
+                                    />
+                                    <Field.ErrorText>{errors.ticksDuration?.message}</Field.ErrorText>
+                                </Field.Root>
                             </Flex>
                         </Dialog.Body>
                         <Dialog.Footer>

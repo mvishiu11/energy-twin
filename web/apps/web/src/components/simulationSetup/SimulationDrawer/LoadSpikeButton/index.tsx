@@ -53,6 +53,7 @@ export function LoadSpikeButton({ disabled }: LoadSpikeButtonProps) {
     const {
         control,
         handleSubmit,
+        register,
         formState: { errors },
     } = useForm<FormValues>({
         defaultValues: {
@@ -130,55 +131,37 @@ export function LoadSpikeButton({ disabled }: LoadSpikeButtonProps) {
                                     )}
                                     rules={{ required: "Building selection is required" }}
                                 />
-                                <Controller
-                                    control={control}
-                                    name="ticksDuration"
-                                    render={({ field }) => (
-                                        <Field.Root invalid={!!errors.ticksDuration}>
-                                            <Field.Label>Ticks duration</Field.Label>
-                                            <Input
-                                                {...field}
-                                                min={1}
-                                                type="number"
-                                                value={field.value}
-                                                onChange={e => field.onChange(Number(e.target.value))}
-                                            />
-                                            <Field.ErrorText>{errors.ticksDuration?.message}</Field.ErrorText>
-                                        </Field.Root>
-                                    )}
-                                    rules={{
-                                        min: {
-                                            message: "Ticks duration must be at least 1",
-                                            value: 1,
-                                        },
-                                        required: "Ticks duration is required",
-                                    }}
-                                />
-                                <Controller
-                                    control={control}
-                                    name="loadSpikeRate"
-                                    render={({ field }) => (
-                                        <Field.Root invalid={!!errors.loadSpikeRate}>
-                                            <Field.Label>Load spike rate</Field.Label>
-                                            <Input
-                                                {...field}
-                                                min="0.1"
-                                                step="0.1"
-                                                type="number"
-                                                value={field.value}
-                                                onChange={e => field.onChange(Number(e.target.value))}
-                                            />
-                                            <Field.ErrorText>{errors.loadSpikeRate?.message}</Field.ErrorText>
-                                        </Field.Root>
-                                    )}
-                                    rules={{
-                                        min: {
-                                            message: "Load spike rate must be greater than 0",
-                                            value: 0.1,
-                                        },
-                                        required: "Load spike rate is required",
-                                    }}
-                                />
+                                <Field.Root invalid={!!errors.ticksDuration}>
+                                    <Field.Label>Ticks duration</Field.Label>
+                                    <Input
+                                        {...register("ticksDuration", {
+                                            min: {
+                                                message: "Ticks duration must be at least 1",
+                                                value: 1,
+                                            },
+                                            required: "Ticks duration is required",
+                                        })}
+                                        min={1}
+                                        type="number"
+                                    />
+                                    <Field.ErrorText>{errors.ticksDuration?.message}</Field.ErrorText>
+                                </Field.Root>
+                                <Field.Root invalid={!!errors.loadSpikeRate}>
+                                    <Field.Label>Load spike rate</Field.Label>
+                                    <Input
+                                        {...register("loadSpikeRate", {
+                                            min: {
+                                                message: "Load spike rate must be greater than 0",
+                                                value: 0.1,
+                                            },
+                                            required: "Load spike rate is required",
+                                        })}
+                                        min="0.1"
+                                        step="0.1"
+                                        type="number"
+                                    />
+                                    <Field.ErrorText>{errors.loadSpikeRate?.message}</Field.ErrorText>
+                                </Field.Root>
                             </Flex>
                         </Dialog.Body>
                         <Dialog.Footer>
