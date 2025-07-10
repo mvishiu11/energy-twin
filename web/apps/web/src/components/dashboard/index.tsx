@@ -130,10 +130,12 @@ export function Dashboard() {
                 tooltip="Displays the production for all solar panel agents in the simulation.">
                 <AllSolarPanelsChart />
             </ChartCard>
-            <ChartCard title="Predictions" tooltip="Displays the predictions for all agents in the simulation.">
+            <ChartCard
+                title="Load Predictions"
+                tooltip="Displays the predictions for all load agents in the simulation.">
                 <PredictionsLoadChart />
             </ChartCard>
-            <ChartCard title="Predictions" tooltip="Displays the predictions for all agents in the simulation.">
+            <ChartCard title="Pv Predictions" tooltip="Displays the predictions for all pv agents in the simulation.">
                 <PredictionsPvChart />
             </ChartCard>
         </DashboardContainer>

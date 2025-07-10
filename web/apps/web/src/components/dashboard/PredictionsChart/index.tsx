@@ -7,7 +7,6 @@ export function PredictionsLoadChart() {
 
     const chartData = predictionData.map(item => ({
         tickNumber: item.tickNumber,
-        confidenceInterval: [item.fanLoLoad[0], item.fanHiLoad[0]],
         predictionPv: item.predictedPvKw,
         predictionLoad: item.predictedLoadKw,
         actualLoad: item.predictedLoadKw + item.errorLoadKw,
@@ -64,15 +63,6 @@ export function PredictionsLoadChart() {
                     stroke={chart.color("red.500")}
                     strokeWidth={2}
                 />
-                <Area
-                    connectNulls
-                    dataKey="confidenceInterval"
-                    dot={false}
-                    fill="#b0ade9"
-                    isAnimationActive={false}
-                    stroke="none"
-                    type="basis"
-                />
             </ComposedChart>
         </Chart.Root>
     )
@@ -83,9 +73,9 @@ export function PredictionsPvChart() {
 
     const chartData = predictionData.map(item => ({
         tickNumber: item.tickNumber,
-        confidenceInterval: item.fanHiPv === null || item.fanLoPv === null ? [] : [item.fanLoPv[0], item.fanHiPv[0]],
+        confidenceInterval: [item.fanLoLoad[0], item.fanHiLoad[0]],
         predictionPv: item.predictedPvKw,
-        actualPv: item.errorPvKw,
+        actualPv: item.errorPvKw + item.predictedPvKw,
     }))
 
     const chart = useChart({

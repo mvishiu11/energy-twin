@@ -17,8 +17,10 @@ export const SimulationRuntimeStoreUpdater: React.FC = () => {
         predictedPvKw: 0,
         errorLoadKw: 0,
         errorPvKw: 0,
-        fanLo: [],
-        fanHi: [],
+        fanLoPv: [],
+        fanHiPv: [],
+        fanLoLoad: [],
+        fanHiLoad: [],
     })
 
     const { loading: metricsLoading, data: metrics } = useSubscription<Metrics>("/topic/metrics", {
