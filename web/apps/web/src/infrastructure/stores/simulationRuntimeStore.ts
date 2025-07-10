@@ -22,6 +22,17 @@ type SimulationRuntimeState = {
     // Core data
     tickNumber: number
     agentStates: Record<string, AgentState>
+    predictionData: {
+        tickNumber: number
+        predictedLoadKw: number
+        predictedPvKw: number
+        errorLoadKw: number
+        errorPvKw: number
+        fanLoPv: number[]
+        fanHiPv: number[]
+        fanLoLoad: number[]
+        fanHiLoad: number[]
+    }[]
     tickDataLoading: boolean
     metrics: Metrics
     metricsLoading: boolean
@@ -45,6 +56,19 @@ type SimulationRuntimeState = {
 const initialTickData = {
     tickNumber: 0,
     agentStates: {},
+    predictionData: [
+        {
+            tickNumber: 0,
+            predictedLoadKw: 0,
+            predictedPvKw: 0,
+            errorLoadKw: 0,
+            errorPvKw: 0,
+            fanLoPv: [],
+            fanHiPv: [],
+            fanLoLoad: [],
+            fanHiLoad: [],
+        },
+    ],
 }
 
 const framesToKeep = 168
@@ -68,6 +92,7 @@ export const useSimulationRuntimeStore = create<SimulationRuntimeState>()(set =>
     // Initial chart data
     totalProducedChartData: [],
     greenEnergyRatioChartData: [],
+    predictionData: [],
     solarPanelsChartData: [],
     batteriesChartData: [],
 
@@ -98,9 +123,22 @@ export const useSimulationRuntimeStore = create<SimulationRuntimeState>()(set =>
             ...batteryAgents,
         }
 
+        const predictionData = {
+            tickNumber: data.tickNumber,
+            predictedLoadKw: data.predictedLoadKw,
+            predictedPvKw: data.predictedPvKw,
+            errorLoadKw: data.errorLoadKw,
+            errorPvKw: data.errorPvKw,
+            fanLoPv: data.fanLoPv,
+            fanHiPv: data.fanHiPv,
+            fanLoLoad: data.fanLoLoad,
+            fanHiLoad: data.fanHiLoad,
+        }
+
         set(state => ({
             tickNumber: data.tickNumber,
             agentStates: data.agentStates,
+            predictionData: takeRight([...state.predictionData, predictionData], framesToKeep),
             tickDataLoading: false,
             solarPanelsChartData: takeRight(
                 [...state.solarPanelsChartData, ...(solarPanelAgents ? [solarPanelData] : [])],

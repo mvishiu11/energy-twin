@@ -3,6 +3,7 @@ import { toaster } from "../../components/ui/toaster"
 import { useSimulationStore } from "../stores/simulationStore"
 import {
     blackout,
+    breakSource,
     getAllLogs,
     loadSpike,
     LoadSpikeData,
@@ -191,6 +192,33 @@ export function useLoadSpike() {
         onError: () => {
             toaster.create({
                 title: "Failed to simulate load spike",
+                type: "error",
+            })
+        },
+    })
+}
+
+export function useBreakPanel() {
+    return useMutation({
+        mutationFn: async ({ name, ticks }: { name: string; ticks?: number }) => {
+            const response = await breakSource({
+                query: {
+                    name,
+                    ticks,
+                },
+            })
+            return response.data
+        },
+        mutationKey: ["break-panel"],
+        onSuccess: () => {
+            toaster.create({
+                title: "Break panel simulated",
+                type: "success",
+            })
+        },
+        onError: () => {
+            toaster.create({
+                title: "Failed to simulate break panel",
                 type: "error",
             })
         },

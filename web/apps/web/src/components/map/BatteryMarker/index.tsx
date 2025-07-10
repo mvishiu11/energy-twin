@@ -15,12 +15,15 @@ export function BatteryMarker({ id }: BatteryMarkerProps) {
         mapEntities: { batteries },
     } = useSimulationStore()
 
-    const chargeLevel = agentStates[id]?.stateOfCharge ?? 0
+    const agentState = agentStates[id]
+    const chargeLevel = agentState?.stateOfCharge ?? 0
     const maxCapacity = batteries.find(battery => battery.id === id)?.capacity ?? 0
+    const isDemanding = agentState?.demand > 0
+    const isProducing = agentState?.production > 0
 
     return (
         <HStack>
-            <Icon color="green.500" size="2xl">
+            <Icon color={isDemanding ? "orange.500" : isProducing ? "green.500" : "gray.500"} size="2xl">
                 <LuDatabaseZap strokeWidth={2.5} />
             </Icon>
             <ChargeBarContainer>
