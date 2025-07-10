@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react"
 import { LuZap } from "react-icons/lu"
 import { useLoadSpike } from "../../../../infrastructure/fetching"
 import { useSimulationStore } from "../../../../infrastructure/stores/simulationStore"
+import { toaster } from "../../../ui/toaster"
 
 type LoadSpikeButtonProps = {
     disabled?: boolean
@@ -11,7 +12,23 @@ type LoadSpikeButtonProps = {
 
 export function LoadSpikeButton({ disabled }: LoadSpikeButtonProps) {
     const containerRef = useRef<HTMLDivElement>(null)
-    const { mutate: simulateLoadSpike } = useLoadSpike()
+    const [isOpen, setIsOpen] = useState(false)
+    const { mutate: simulateLoadSpike, isPending: isLoadSpikePending } = useLoadSpike({
+        onSuccess: () => {
+            toaster.create({
+                title: "Load spike simulated",
+                type: "success",
+            })
+            setIsOpen(false)
+        },
+        onError: () => {
+            toaster.create({
+                title: "Failed to simulate load spike",
+                type: "error",
+            })
+            setIsOpen(false)
+        },
+    })
 
     const {
         mapEntities: { buildings },
@@ -28,7 +45,11 @@ export function LoadSpikeButton({ disabled }: LoadSpikeButtonProps) {
     const [loadSpikeRate, setLoadSpikeRate] = useState(2)
 
     return (
-        <Dialog.Root placement="center">
+        <Dialog.Root
+            motionPreset="slide-in-bottom"
+            open={isOpen}
+            placement="center"
+            onOpenChange={e => setIsOpen(e.open)}>
             <Dialog.Trigger asChild>
                 <Button disabled={disabled} variant="surface">
                     Simulate Load Spike <ChartNoAxesCombined />
@@ -94,20 +115,20 @@ export function LoadSpikeButton({ disabled }: LoadSpikeButtonProps) {
                             <Dialog.ActionTrigger asChild>
                                 <Button variant="outline">Close</Button>
                             </Dialog.ActionTrigger>
-                            <Dialog.ActionTrigger asChild>
-                                <Button
-                                    disabled={!selectedBuilding}
-                                    onClick={() => {
-                                        simulateLoadSpike({
-                                            name: selectedBuilding ?? "",
-                                            rate: loadSpikeRate,
-                                            ticks: ticksDuration,
-                                        })
-                                    }}>
-                                    Simulate Load Spike
-                                    <LuZap />
-                                </Button>
-                            </Dialog.ActionTrigger>
+                            <Button
+                                disabled={!selectedBuilding}
+                                loading={isLoadSpikePending}
+                                loadingText="Simulating load spike"
+                                onClick={() => {
+                                    simulateLoadSpike({
+                                        name: selectedBuilding ?? "",
+                                        rate: loadSpikeRate,
+                                        ticks: ticksDuration,
+                                    })
+                                }}>
+                                Simulate Load Spike
+                                <LuZap />
+                            </Button>
                         </Dialog.Footer>
                     </Dialog.Content>
                 </Dialog.Positioner>

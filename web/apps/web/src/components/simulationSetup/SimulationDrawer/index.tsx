@@ -14,10 +14,10 @@ import {
 import {
     useBlackout,
     usePauseSimulation,
+    useResumeSimulation,
     useStartSimulation,
     useStopSimulation,
 } from "../../../infrastructure/fetching"
-import { resumeSimulation } from "../../../infrastructure/fetching/api"
 import { useDrawerStore } from "../../../infrastructure/stores/drawerStore"
 import { useSimulationRuntimeStore } from "../../../infrastructure/stores/simulationRuntimeStore"
 import { useSimulationStore } from "../../../infrastructure/stores/simulationStore"
@@ -50,10 +50,11 @@ export function SimulationDrawer() {
         isPaused,
     } = useSimulationStore()
     const { isOpen, setIsOpen, drawerWidth } = useDrawerStore()
-    const { mutate: startSimulation } = useStartSimulation()
-    const { mutate: pauseSimulation } = usePauseSimulation()
-    const { mutate: stopSimulation } = useStopSimulation()
-    const { mutate: simulateBlackout } = useBlackout()
+    const { mutate: startSimulation, isPending: isStartPending } = useStartSimulation()
+    const { mutate: pauseSimulation, isPending: isPausePending } = usePauseSimulation()
+    const { mutate: stopSimulation, isPending: isStopPending } = useStopSimulation()
+    const { mutate: simulateBlackout, isPending: isBlackoutPending } = useBlackout()
+    const { mutate: resumeSimulation, isPending: isResumePending } = useResumeSimulation()
 
     const { agentStates } = useSimulationRuntimeStore()
 
@@ -139,7 +140,12 @@ export function SimulationDrawer() {
                         <Flex direction="column" gap="4">
                             <Heading size="md">Events</Heading>
                             <Flex direction="row" flexWrap="wrap" gap="2">
-                                <Button disabled={!isRunning} variant="surface" onClick={() => simulateBlackout()}>
+                                <Button
+                                    disabled={!isRunning}
+                                    loading={isBlackoutPending}
+                                    loadingText="Simulating blackout"
+                                    variant="surface"
+                                    onClick={() => simulateBlackout()}>
                                     Simulate Blackout <LuZapOff />
                                 </Button>
                                 <LoadSpikeButton disabled={!isRunning} />
@@ -209,6 +215,10 @@ export function SimulationDrawer() {
                             <motion.div>
                                 <Button
                                     colorPalette={isRunning ? "red" : "green"}
+                                    loading={isStartPending || isResumePending || isStopPending}
+                                    loadingText={
+                                        isStartPending ? "Starting" : isResumePending ? "Resuming" : "Stopping"
+                                    }
                                     variant="solid"
                                     onClick={() => {
                                         if (isRunning) {
@@ -227,6 +237,7 @@ export function SimulationDrawer() {
                             </motion.div>
                             <Button
                                 disabled={!isRunning || isPaused}
+                                loading={isPausePending}
                                 variant="outline"
                                 onClick={() => pauseSimulation()}>
                                 Pause
