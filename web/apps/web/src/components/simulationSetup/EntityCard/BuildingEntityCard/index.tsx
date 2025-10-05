@@ -2,6 +2,7 @@ import { Accordion, Field, Heading } from "@chakra-ui/react"
 import { LuBuilding } from "react-icons/lu"
 import { BaseEntityCard, BaseEntityCardProps } from ".."
 import { useSimulationStore } from "../../../../infrastructure/stores/simulationStore"
+import { useEntitiesStore } from "../../../../infrastructure/stores/entitiesStore"
 import { EditableField } from "../../EditableField"
 
 type BuildingEntityCardProps = Omit<BaseEntityCardProps, "type"> & {
@@ -9,13 +10,9 @@ type BuildingEntityCardProps = Omit<BaseEntityCardProps, "type"> & {
     currentLoad?: number
 }
 
-export function BuildingEntityCard({
-    id,
-    name,
-    nominalLoad = 50.0,
-    currentLoad = 0,
-}: BuildingEntityCardProps) {
-    const { updateBuilding, isRunning } = useSimulationStore()
+export function BuildingEntityCard({ id, name, nominalLoad = 50.0, currentLoad = 0 }: BuildingEntityCardProps) {
+    const { updateBuilding } = useEntitiesStore()
+    const { isRunning } = useSimulationStore()
 
     const handleNominalLoadChange = (value: string) => {
         if (isNaN(Number(value))) return

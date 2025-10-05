@@ -1,7 +1,7 @@
 import { Chart, useChart } from "@chakra-ui/charts"
 import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts"
+import { useEntitiesStore } from "../../../infrastructure/stores/entitiesStore"
 import { useSimulationRuntimeStore } from "../../../infrastructure/stores/simulationRuntimeStore"
-import { useSimulationStore } from "../../../infrastructure/stores/simulationStore"
 
 // Reusing the same series colors as the AllBatteriesChart component likely uses
 const seriesColors = [
@@ -16,7 +16,7 @@ const seriesColors = [
 ]
 
 export function AllSolarPanelsChart() {
-    const { mapEntities } = useSimulationStore()
+    const { mapEntities } = useEntitiesStore()
     const { solarPanelsChartData } = useSimulationRuntimeStore()
 
     const chart = useChart({

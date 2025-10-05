@@ -1,7 +1,8 @@
 import { Card, Flex, IconButton } from "@chakra-ui/react"
 import { PropsWithChildren } from "react"
 import { LuTrash } from "react-icons/lu"
-import { EntityType, useSimulationStore } from "../../../infrastructure/stores/simulationStore"
+import { EntityType } from "../../../infrastructure/stores/simulationStore"
+import { useEntitiesStore } from "../../../infrastructure/stores/entitiesStore"
 import { EditableField } from "../EditableField"
 
 export type BaseEntityCardProps = {
@@ -11,7 +12,7 @@ export type BaseEntityCardProps = {
 }
 
 export function BaseEntityCard({ id, name, children, type }: PropsWithChildren<BaseEntityCardProps>) {
-    const { updateBattery, updateSolar, selectedEntityId, setSelectedEntityId, removeEntity } = useSimulationStore()
+    const { updateBattery, updateSolar, selectedEntityId, setSelectedEntityId, removeEntity } = useEntitiesStore()
 
     return (
         <Card.Root

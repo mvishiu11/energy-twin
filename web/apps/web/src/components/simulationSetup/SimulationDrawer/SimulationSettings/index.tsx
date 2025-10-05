@@ -1,6 +1,7 @@
 import { Accordion, Field, Heading, Input } from "@chakra-ui/react"
 import { LuSettings } from "react-icons/lu"
 import { useSimulationStore } from "../../../../infrastructure/stores/simulationStore"
+import { useSimulationSettingsStore } from "../../../../infrastructure/stores/simulationSettingsStore"
 
 export function SimulationSettings() {
     const {
@@ -10,9 +11,8 @@ export function SimulationSettings() {
         setExternalSourceCost,
         externalSourceCap,
         setExternalSourceCap,
-        isRunning,
-        isPaused,
-    } = useSimulationStore()
+    } = useSimulationSettingsStore()
+    const { isRunning, isPaused } = useSimulationStore()
 
     return (
         <Accordion.Item value="simulation-parameters">

@@ -14,9 +14,11 @@ import {
 import { LuCloud, LuExternalLink } from "react-icons/lu"
 import { useUpdateWeather } from "../../../../infrastructure/fetching"
 import { useSimulationStore } from "../../../../infrastructure/stores/simulationStore"
+import { useWeatherStore } from "../../../../infrastructure/stores/weatherStore"
 
 export function WeatherSettings() {
-    const { weather, isRunning, isPaused } = useSimulationStore()
+    const { weather } = useWeatherStore()
+    const { isRunning, isPaused } = useSimulationStore()
     const { mutate: updateWeather } = useUpdateWeather()
 
     return (
@@ -73,13 +75,15 @@ export function WeatherSettings() {
 }
 
 function WeatherForm() {
-    const { weather, setWeather } = useSimulationStore()
+    const { weather, setWeather } = useWeatherStore()
 
     return (
         <>
             <Field.Root>
                 <Field.Label>Day Mean Temperature</Field.Label>
                 <Input
+                    max={100}
+                    min={-100}
                     type="number"
                     value={weather.tempMeanDay}
                     onChange={e => setWeather({ ...weather, tempMeanDay: Number(e.target.value) })}
@@ -88,6 +92,8 @@ function WeatherForm() {
             <Field.Root>
                 <Field.Label>Night Mean Temperature</Field.Label>
                 <Input
+                    max={100}
+                    min={-100}
                     type="number"
                     value={weather.tempMeanNight}
                     onChange={e => setWeather({ ...weather, tempMeanNight: Number(e.target.value) })}
@@ -96,6 +102,7 @@ function WeatherForm() {
             <Field.Root>
                 <Field.Label>Sunrise Tick</Field.Label>
                 <Input
+                    min={1}
                     type="number"
                     value={weather.sunriseTick}
                     onChange={e => setWeather({ ...weather, sunriseTick: Number(e.target.value) })}
@@ -104,6 +111,7 @@ function WeatherForm() {
             <Field.Root>
                 <Field.Label>Sunset Tick</Field.Label>
                 <Input
+                    min={1}
                     type="number"
                     value={weather.sunsetTick}
                     onChange={e => setWeather({ ...weather, sunsetTick: Number(e.target.value) })}
@@ -112,6 +120,7 @@ function WeatherForm() {
             <Field.Root>
                 <Field.Label>Sun Peak Tick</Field.Label>
                 <Input
+                    min={1}
                     type="number"
                     value={weather.sunPeakTick}
                     onChange={e => setWeather({ ...weather, sunPeakTick: Number(e.target.value) })}
@@ -120,6 +129,7 @@ function WeatherForm() {
             <Field.Root>
                 <Field.Label>G Peak</Field.Label>
                 <Input
+                    min={0.01}
                     type="number"
                     value={weather.gPeak}
                     onChange={e => setWeather({ ...weather, gPeak: Number(e.target.value) })}
@@ -128,6 +138,7 @@ function WeatherForm() {
             <Field.Root>
                 <Field.Label>Sigma T</Field.Label>
                 <Input
+                    min={0.01}
                     type="number"
                     value={weather.sigmaT}
                     onChange={e => setWeather({ ...weather, sigmaT: Number(e.target.value) })}
@@ -136,6 +147,7 @@ function WeatherForm() {
             <Field.Root>
                 <Field.Label>Sigma G</Field.Label>
                 <Input
+                    min={0.01}
                     type="number"
                     value={weather.sigmaG}
                     onChange={e => setWeather({ ...weather, sigmaG: Number(e.target.value) })}
