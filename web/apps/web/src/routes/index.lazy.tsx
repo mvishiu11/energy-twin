@@ -77,8 +77,8 @@ function RouteComponent() {
 
     return (
         <div>
-            <Tabs.Root fitted colorScheme="green" defaultValue="map" size="lg" variant="plain" width="full">
-                <Tabs.List margin={3}>
+            <Tabs.Root colorScheme="green" defaultValue="map" size="lg" variant="line" width="full">
+                <Tabs.List marginBottom="0" marginTop="3" paddingInline={3}>
                     <Tabs.Trigger value="map">
                         <LuMap />
                         Map
