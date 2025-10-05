@@ -24,6 +24,8 @@ import { useSimulationStore } from "../../../infrastructure/stores/simulationSto
 import { BatteryEntityCard } from "../EntityCard/BatteryEntityCard"
 import { BuildingEntityCard } from "../EntityCard/BuildingEntityCard"
 import { SolarEntityCard } from "../EntityCard/SolarEntityCard"
+import { BreakPanelButton } from "./BreakPanelButton"
+import { ForecastSettings } from "./ForecastSettings"
 import { LoadSpikeButton } from "./LoadSpikeButton"
 import { SimulationSettings } from "./SimulationSettings"
 import { DrawerRoot } from "./styles"
@@ -34,6 +36,7 @@ const MemoizedBuildingEntityCard = memo(BuildingEntityCard)
 const MemoizedSolarEntityCard = memo(SolarEntityCard)
 const MemoizedSimulationSettings = memo(SimulationSettings)
 const MemoizedWeatherSettings = memo(WeatherSettings)
+const MemoizedForecastSettings = memo(ForecastSettings)
 
 export function SimulationDrawer() {
     const {
@@ -43,6 +46,7 @@ export function SimulationDrawer() {
         externalSourceCost,
         externalSourceCap,
         weather,
+        forecast,
         isPaused,
     } = useSimulationStore()
     const { isOpen, setIsOpen, drawerWidth } = useDrawerStore()
@@ -51,15 +55,14 @@ export function SimulationDrawer() {
     const { mutate: stopSimulation } = useStopSimulation()
     const { mutate: simulateBlackout } = useBlackout()
 
-    // Using the simulation runtime store directly instead of subscribing to websocket
     const { agentStates } = useSimulationRuntimeStore()
 
     const jsonStringConfig = useMemo(
         () => ({
             simulation: {
                 tickIntervalMillis: tickIntervalMilliseconds,
-                externalSourceCost: externalSourceCost,
-                externalSourceCap: externalSourceCap,
+                externalSourceCost: externalSourceCost.toFixed(1),
+                externalSourceCap: externalSourceCap.toFixed(1),
                 metricsPerNTicks: 2,
                 weather: {
                     sunriseTick: weather.sunriseTick,
@@ -70,6 +73,13 @@ export function SimulationDrawer() {
                     tempMeanNight: weather.tempMeanNight,
                     sigmaG: weather.sigmaG,
                     sigmaT: weather.sigmaT,
+                },
+                forecast: {
+                    H_hist: forecast.H_hist,
+                    H_pred: forecast.H_pred,
+                    replanEvery: forecast.replanEvery,
+                    epsilonBreak: forecast.epsilonBreak,
+                    useMC: forecast.useMC,
                 },
                 agents: [
                     ...mapEntities.batteries.map(battery => ({
@@ -99,7 +109,7 @@ export function SimulationDrawer() {
                 ],
             },
         }),
-        [mapEntities, tickIntervalMilliseconds, externalSourceCost, externalSourceCap, weather],
+        [mapEntities, tickIntervalMilliseconds, externalSourceCost, externalSourceCap, weather, forecast],
     )
 
     return (
@@ -128,11 +138,12 @@ export function SimulationDrawer() {
                         </Flex>
                         <Flex direction="column" gap="4">
                             <Heading size="md">Events</Heading>
-                            <Flex direction="row" gap="2">
+                            <Flex direction="row" flexWrap="wrap" gap="2">
                                 <Button disabled={!isRunning} variant="surface" onClick={() => simulateBlackout()}>
                                     Simulate Blackout <LuZapOff />
                                 </Button>
                                 <LoadSpikeButton disabled={!isRunning} />
+                                <BreakPanelButton disabled={!isRunning} />
                             </Flex>
                         </Flex>
                         <Separator />
@@ -250,6 +261,7 @@ function SettingsAccordion() {
         <Accordion.Root collapsible multiple defaultValue={["simulation-parameters"]} size="lg" variant="enclosed">
             <MemoizedSimulationSettings />
             <MemoizedWeatherSettings />
+            <MemoizedForecastSettings />
         </Accordion.Root>
     )
 }

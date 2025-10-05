@@ -1,6 +1,7 @@
 import { ReactNode } from "react"
 import { Marker } from "react-map-gl/mapbox"
 import { useDrawerStore } from "../../../../infrastructure/stores/drawerStore"
+import { useSimulationRuntimeStore } from "../../../../infrastructure/stores/simulationRuntimeStore"
 import {
     type Battery,
     type Building,
@@ -16,14 +17,25 @@ type UseMarkersProps = {
 }
 
 export function useMarkers({ type, component }: UseMarkersProps) {
-    const { mapEntities, addBattery, addSolar, addBuilding, updateBattery, updateSolar, updateBuilding, setSelectedEntityId, selectedEntityId } =
-        useSimulationStore()
+    const {
+        mapEntities,
+        addBattery,
+        addSolar,
+        addBuilding,
+        updateBattery,
+        updateSolar,
+        updateBuilding,
+        setSelectedEntityId,
+        selectedEntityId,
+    } = useSimulationStore()
+
+    const { agentStates } = useSimulationRuntimeStore()
 
     const { setIsOpen } = useDrawerStore()
 
     const addMarker = (position: [number, number], name: string) => {
         setIsOpen(true)
-        let id = "";
+        let id = ""
         if (type === "battery") {
             id = `Battery ${mapEntities.batteries.length + 1}`
             const entity: Battery = {
@@ -65,45 +77,62 @@ export function useMarkers({ type, component }: UseMarkersProps) {
     }
 
     const getEntitiesByType = () => {
-        switch(type) {
-            case "battery": return mapEntities.batteries;
-            case "solar": return mapEntities.solar;
-            case "building": return mapEntities.buildings;
-            default: return [];
+        switch (type) {
+            case "battery":
+                return mapEntities.batteries
+            case "solar":
+                return mapEntities.solar
+            case "building":
+                return mapEntities.buildings
+            default:
+                return []
         }
     }
 
-    const markers = getEntitiesByType().map(entity => (
-        <Marker
-            key={entity.id}
-            draggable
-            latitude={entity.coordinates[1]}
-            longitude={entity.coordinates[0]}
-            onClick={() => {
-                setSelectedEntityId(entity.id)
-                setIsOpen(true)
-            }}
-            onDragEnd={e => {
-                const { lng, lat } = e.target.getLngLat()
-                if (type === "battery") {
-                    updateBattery(entity.id, {
-                        coordinates: [lng, lat],
-                    })
-                } else if (type === "solar") {
-                    updateSolar(entity.id, {
-                        coordinates: [lng, lat],
-                    })
-                } else if (type === "building") {
-                    updateBuilding(entity.id, {
-                        coordinates: [lng, lat],
-                    })
-                }
-            }}>
-            <SelectedMarker isSelected={selectedEntityId === entity.id}>
-                {typeof component === "function" ? component(entity.id) : component}
-            </SelectedMarker>
-        </Marker>
-    ))
+    const markers = getEntitiesByType().map(entity => {
+        const agentState = agentStates[entity.id]
+        const isDemanding = agentState?.demand > 0
+        const isProducing = agentState?.production > 0
+        const isBattery = type === "battery"
+
+        const color = isBattery ? (isDemanding ? "red" : isProducing ? "green" : "blue") : "black"
+
+        return (
+            <Marker
+                key={entity.id}
+                draggable
+                latitude={entity.coordinates[1]}
+                longitude={entity.coordinates[0]}
+                onClick={() => {
+                    setSelectedEntityId(entity.id)
+                    setIsOpen(true)
+                }}
+                onDragEnd={e => {
+                    const { lng, lat } = e.target.getLngLat()
+                    if (type === "battery") {
+                        updateBattery(entity.id, {
+                            coordinates: [lng, lat],
+                        })
+                    } else if (type === "solar") {
+                        updateSolar(entity.id, {
+                            coordinates: [lng, lat],
+                        })
+                    } else if (type === "building") {
+                        updateBuilding(entity.id, {
+                            coordinates: [lng, lat],
+                        })
+                    }
+                }}>
+                <SelectedMarker
+                    isSelected={selectedEntityId === entity.id}
+                    style={{
+                        color,
+                    }}>
+                    {typeof component === "function" ? component(entity.id) : component}
+                </SelectedMarker>
+            </Marker>
+        )
+    })
 
     return {
         markers,

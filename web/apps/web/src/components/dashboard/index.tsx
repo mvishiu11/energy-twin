@@ -4,6 +4,7 @@ import { useSimulationRuntimeStore } from "../../infrastructure/stores/simulatio
 import { AllBatteriesChart } from "./AllBatteriesChart"
 import { AllSolarPanelsChart } from "./AllSolarPanelsChart"
 import { ChartCard } from "./ChartCard"
+import { PredictionsLoadChart, PredictionsPvChart } from "./PredictionsChart"
 import { DashboardContainer } from "./styles"
 
 type TotalProducedChartData = {
@@ -128,6 +129,14 @@ export function Dashboard() {
                 title="Solar Panel Production"
                 tooltip="Displays the production for all solar panel agents in the simulation.">
                 <AllSolarPanelsChart />
+            </ChartCard>
+            <ChartCard
+                title="Load Predictions"
+                tooltip="Displays the predictions for all load agents in the simulation.">
+                <PredictionsLoadChart />
+            </ChartCard>
+            <ChartCard title="Pv Predictions" tooltip="Displays the predictions for all pv agents in the simulation.">
+                <PredictionsPvChart />
             </ChartCard>
         </DashboardContainer>
     )
