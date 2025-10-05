@@ -4,7 +4,7 @@ import { useMemo, useRef, useState } from "react"
 import { Controller, SubmitHandler, useForm } from "react-hook-form"
 import { LuZap } from "react-icons/lu"
 import { useLoadSpike } from "../../../../infrastructure/fetching"
-import { useSimulationStore } from "../../../../infrastructure/stores/simulationStore"
+import { useEntitiesStore } from "../../../../infrastructure/stores/entitiesStore"
 import { toaster } from "../../../ui/toaster"
 
 type LoadSpikeButtonProps = {
@@ -23,7 +23,7 @@ export function LoadSpikeButton({ disabled }: LoadSpikeButtonProps) {
 
     const {
         mapEntities: { buildings },
-    } = useSimulationStore()
+    } = useEntitiesStore()
 
     const buildingsCollection = useMemo(
         () =>

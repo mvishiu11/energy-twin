@@ -3,7 +3,7 @@ import { useMemo, useRef, useState } from "react"
 import { Controller, SubmitHandler, useForm } from "react-hook-form"
 import { LuWrench } from "react-icons/lu"
 import { useBreakPanel } from "../../../../infrastructure/fetching"
-import { useSimulationStore } from "../../../../infrastructure/stores/simulationStore"
+import { useEntitiesStore } from "../../../../infrastructure/stores/entitiesStore"
 import { toaster } from "../../../ui/toaster"
 
 type BreakPanelButtonProps = {
@@ -21,7 +21,7 @@ export function BreakPanelButton({ disabled }: BreakPanelButtonProps) {
 
     const {
         mapEntities: { solar },
-    } = useSimulationStore()
+    } = useEntitiesStore()
 
     const solarCollection = useMemo(
         () =>

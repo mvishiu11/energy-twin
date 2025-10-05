@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react"
 import { Metrics, TickData } from "../websocket/types"
 import { useSubscription } from "../websocket/useSubscription"
+import { useEntitiesStore } from "./entitiesStore"
 import { useSimulationRuntimeStore } from "./simulationRuntimeStore"
-import { useSimulationStore } from "./simulationStore"
 
 export const SimulationRuntimeStoreUpdater: React.FC = () => {
     const { setTickData, setMetrics, setTickDataLoading, setMetricsLoading } = useSimulationRuntimeStore()
-    const { mapEntities } = useSimulationStore()
+    const { mapEntities } = useEntitiesStore()
     const [lastTickNumber, setLastTickNumber] = useState(0)
     const [lastMetricsTickNumber, setLastMetricsTickNumber] = useState(0)
 

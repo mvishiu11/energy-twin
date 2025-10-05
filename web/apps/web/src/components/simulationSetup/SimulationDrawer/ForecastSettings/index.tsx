@@ -1,14 +1,11 @@
 import { Accordion, Field, Heading, Input } from "@chakra-ui/react"
 import { LuTrendingUp } from "react-icons/lu"
+import { useForecastStore } from "../../../../infrastructure/stores/forecastStore"
 import { useSimulationStore } from "../../../../infrastructure/stores/simulationStore"
 
 export function ForecastSettings() {
-    const {
-        forecast,
-        setForecast,
-        isRunning,
-        isPaused,
-    } = useSimulationStore()
+    const { forecast, setForecast } = useForecastStore()
+    const { isRunning, isPaused } = useSimulationStore()
 
     return (
         <Accordion.Item value="forecast-parameters">

@@ -19,8 +19,12 @@ import {
     useStopSimulation,
 } from "../../../infrastructure/fetching"
 import { useDrawerStore } from "../../../infrastructure/stores/drawerStore"
+import { useEntitiesStore } from "../../../infrastructure/stores/entitiesStore"
+import { useForecastStore } from "../../../infrastructure/stores/forecastStore"
 import { useSimulationRuntimeStore } from "../../../infrastructure/stores/simulationRuntimeStore"
+import { useSimulationSettingsStore } from "../../../infrastructure/stores/simulationSettingsStore"
 import { useSimulationStore } from "../../../infrastructure/stores/simulationStore"
+import { useWeatherStore } from "../../../infrastructure/stores/weatherStore"
 import { BatteryEntityCard } from "../EntityCard/BatteryEntityCard"
 import { BuildingEntityCard } from "../EntityCard/BuildingEntityCard"
 import { SolarEntityCard } from "../EntityCard/SolarEntityCard"
@@ -39,16 +43,11 @@ const MemoizedWeatherSettings = memo(WeatherSettings)
 const MemoizedForecastSettings = memo(ForecastSettings)
 
 export function SimulationDrawer() {
-    const {
-        mapEntities,
-        isRunning,
-        tickIntervalMilliseconds,
-        externalSourceCost,
-        externalSourceCap,
-        weather,
-        forecast,
-        isPaused,
-    } = useSimulationStore()
+    const { mapEntities } = useEntitiesStore()
+    const { isRunning, isPaused } = useSimulationStore()
+    const { tickIntervalMilliseconds, externalSourceCost, externalSourceCap } = useSimulationSettingsStore()
+    const { weather } = useWeatherStore()
+    const { forecast } = useForecastStore()
     const { isOpen, setIsOpen, drawerWidth } = useDrawerStore()
     const { mutate: startSimulation, isPending: isStartPending } = useStartSimulation()
     const { mutate: pauseSimulation, isPending: isPausePending } = usePauseSimulation()

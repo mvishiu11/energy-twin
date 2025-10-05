@@ -14,9 +14,11 @@ import {
 import { LuCloud, LuExternalLink } from "react-icons/lu"
 import { useUpdateWeather } from "../../../../infrastructure/fetching"
 import { useSimulationStore } from "../../../../infrastructure/stores/simulationStore"
+import { useWeatherStore } from "../../../../infrastructure/stores/weatherStore"
 
 export function WeatherSettings() {
-    const { weather, isRunning, isPaused } = useSimulationStore()
+    const { weather } = useWeatherStore()
+    const { isRunning, isPaused } = useSimulationStore()
     const { mutate: updateWeather } = useUpdateWeather()
 
     return (
@@ -73,7 +75,7 @@ export function WeatherSettings() {
 }
 
 function WeatherForm() {
-    const { weather, setWeather } = useSimulationStore()
+    const { weather, setWeather } = useWeatherStore()
 
     return (
         <>
