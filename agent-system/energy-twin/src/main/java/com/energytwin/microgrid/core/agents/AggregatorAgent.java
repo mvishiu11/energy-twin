@@ -36,6 +36,7 @@ public final class AggregatorAgent extends AbstractSimAgent {
   public Map<String, Double> consumptionMap = new HashMap<>();
 
   /* ---------------- forecasting buffers ---------------- */
+  private boolean predictiveEnabled;
   private HistoryBuffer hist;
   private AggregatorMetaStore meta;
   private int H_hist;
@@ -109,6 +110,7 @@ public final class AggregatorAgent extends AbstractSimAgent {
             .getOrDefault("useMC",0) == 1;
     scenGen = useMc ? new MonteCarloGenerator(H_pred,50)
             : new QuantileTreeGenerator(H_pred);
+    predictiveEnabled = (int) fp.getOrDefault("enablePredictive", 1) == 1;
 
     forecaster = new ProbabilisticForecaster(H_pred);
     planLoad = new double[H_pred];
@@ -123,7 +125,7 @@ public final class AggregatorAgent extends AbstractSimAgent {
 
   /* ====================================================================== */
   @Override public void onTick(long simulationTime) {
-    if (hist.isFull() && planPtr < planLoad.length) {
+    if (predictiveEnabled && hist.isFull() && planPtr < planLoad.length) {
       registry.setForecast(planLoad[planPtr],          // kW load prediction
               planPv  [planPtr]);         // kW pv  prediction
     } else {
