@@ -1,10 +1,11 @@
 import { Box, Icon, IconButton, Tabs } from "@chakra-ui/react"
 import { createLazyFileRoute } from "@tanstack/react-router"
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { LuBuilding, LuLayoutDashboard, LuMap, LuSettings2, LuSun } from "react-icons/lu"
+import { LuActivity, LuBuilding, LuLayoutDashboard, LuMap, LuSettings2, LuSun } from "react-icons/lu"
 import Map, { Layer, MapRef, Source } from "react-map-gl/mapbox"
 import { DndContext, DragOverlay, UniqueIdentifier } from "@dnd-kit/core"
 import { snapCenterToCursor } from "@dnd-kit/modifiers"
+import { Benchmarks } from "../components/benchmarks"
 import { Dashboard } from "../components/dashboard"
 import { useMarkers } from "../components/map/_hooks/useMarkers"
 import { BatteryMarker } from "../components/map/BatteryMarker"
@@ -13,6 +14,7 @@ import { Toolkit } from "../components/simulationSetup/Toolkit"
 import { idToIconMap } from "../components/simulationSetup/Toolkit/dndIds"
 import { Tooltip } from "../components/ui/tooltip"
 import { useStopSimulation } from "../infrastructure/fetching"
+import { useBenchmarkStore } from "../infrastructure/stores/benchmarkStore"
 import { useDrawerStore } from "../infrastructure/stores/drawerStore"
 import { mapConfig } from "../services/mapConfig"
 
@@ -25,6 +27,7 @@ export const Route = createLazyFileRoute("/")({
 
 function RouteComponent() {
     const { isOpen, setIsOpen } = useDrawerStore()
+    const { isRunning: benchmarkIsRunning } = useBenchmarkStore()
     const mapRef = useRef<MapRef>(null)
     const [globalCoordinates, setGlobalCoordinates] = useState<{ clientX: number; clientY: number }>()
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
@@ -79,13 +82,17 @@ function RouteComponent() {
         <div>
             <Tabs.Root colorScheme="green" defaultValue="map" size="lg" variant="line" width="full">
                 <Tabs.List marginBottom="0" marginTop="3" paddingInline={3}>
-                    <Tabs.Trigger value="map">
+                    <Tabs.Trigger disabled={benchmarkIsRunning} value="map">
                         <LuMap />
                         Map
                     </Tabs.Trigger>
-                    <Tabs.Trigger value="dashboard">
+                    <Tabs.Trigger disabled={benchmarkIsRunning} value="dashboard">
                         <LuLayoutDashboard />
                         Dashboard
+                    </Tabs.Trigger>
+                    <Tabs.Trigger value="benchmark">
+                        <LuActivity />
+                        Benchmark
                     </Tabs.Trigger>
                 </Tabs.List>
                 <Tabs.ContentGroup>
@@ -176,6 +183,9 @@ function RouteComponent() {
                         <Box paddingX={6}>
                             <Dashboard />
                         </Box>
+                    </Tabs.Content>
+                    <Tabs.Content value="benchmark">
+                        <Benchmarks />
                     </Tabs.Content>
                 </Tabs.ContentGroup>
             </Tabs.Root>

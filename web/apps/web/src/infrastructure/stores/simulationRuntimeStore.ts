@@ -142,11 +142,11 @@ export const useSimulationRuntimeStore = create<SimulationRuntimeState>()(set =>
             tickDataLoading: false,
             solarPanelsChartData: takeRight(
                 [...state.solarPanelsChartData, ...(solarPanelAgents ? [solarPanelData] : [])],
-                framesToKeep,
+                framesToKeep * 2,
             ),
             batteriesChartData: takeRight(
                 [...state.batteriesChartData, ...(batteryAgents ? [batteryData] : [])],
-                framesToKeep,
+                framesToKeep * 2,
             ),
         }))
     },
