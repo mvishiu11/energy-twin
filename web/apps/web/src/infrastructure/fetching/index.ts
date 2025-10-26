@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation, UseMutationOptions, useQuery } from "@tanstack/react-query"
 import { toaster } from "../../components/ui/toaster"
 import { useSimulationStore } from "../stores/simulationStore"
 import {
@@ -170,9 +170,9 @@ export function useBlackout() {
     })
 }
 
-export function useLoadSpike() {
+export function useLoadSpike(props?: UseMutationOptions<string, unknown, LoadSpikeData["query"]>) {
     return useMutation({
-        mutationFn: async ({ name, rate, ticks }: LoadSpikeData["query"]) => {
+        mutationFn: async ({ name, rate, ticks }) => {
             const response = await loadSpike({
                 query: {
                     name,
@@ -180,47 +180,25 @@ export function useLoadSpike() {
                     ticks,
                 },
             })
-            return response.data
+            return response.data ?? ""
         },
         mutationKey: ["load-spike"],
-        onSuccess: () => {
-            toaster.create({
-                title: "Load spike simulated",
-                type: "success",
-            })
-        },
-        onError: () => {
-            toaster.create({
-                title: "Failed to simulate load spike",
-                type: "error",
-            })
-        },
+        ...props,
     })
 }
 
-export function useBreakPanel() {
+export function useBreakPanel(props?: UseMutationOptions<string, unknown, { name: string; ticks?: number }>) {
     return useMutation({
-        mutationFn: async ({ name, ticks }: { name: string; ticks?: number }) => {
+        mutationFn: async ({ name, ticks }) => {
             const response = await breakSource({
                 query: {
                     name,
                     ticks,
                 },
             })
-            return response.data
+            return response.data ?? ""
         },
         mutationKey: ["break-panel"],
-        onSuccess: () => {
-            toaster.create({
-                title: "Break panel simulated",
-                type: "success",
-            })
-        },
-        onError: () => {
-            toaster.create({
-                title: "Failed to simulate break panel",
-                type: "error",
-            })
-        },
+        ...props,
     })
 }

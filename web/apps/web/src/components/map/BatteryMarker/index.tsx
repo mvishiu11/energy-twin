@@ -1,7 +1,7 @@
 import { HStack, Icon } from "@chakra-ui/react"
 import { LuDatabaseZap } from "react-icons/lu"
 import { useSimulationRuntimeStore } from "../../../infrastructure/stores/simulationRuntimeStore"
-import { useSimulationStore } from "../../../infrastructure/stores/simulationStore"
+import { useEntitiesStore } from "../../../infrastructure/stores/entitiesStore"
 import { colorMap } from "../../simulationSetup/EntityCard/BatteryEntityCard"
 import { ChargeBar, ChargeBarContainer } from "./styles"
 
@@ -13,7 +13,7 @@ export function BatteryMarker({ id }: BatteryMarkerProps) {
     const { agentStates } = useSimulationRuntimeStore()
     const {
         mapEntities: { batteries },
-    } = useSimulationStore()
+    } = useEntitiesStore()
 
     const agentState = agentStates[id]
     const chargeLevel = agentState?.stateOfCharge ?? 0

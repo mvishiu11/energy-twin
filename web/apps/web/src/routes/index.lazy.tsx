@@ -55,7 +55,7 @@ function RouteComponent() {
             </Icon>
         ),
     })
-    
+
     const { markers: buildingMarkers, addMarker: addBuildingMarker } = useMarkers({
         type: "building",
         component: (
@@ -67,7 +67,7 @@ function RouteComponent() {
 
     const combinedMarkers = useMemo(
         () => [...batteriesMarkers, ...solarMarker, ...buildingMarkers],
-        [batteriesMarkers, solarMarker, buildingMarkers]
+        [batteriesMarkers, solarMarker, buildingMarkers],
     )
 
     const mouseMoveHandler = useCallback((event: MouseEvent) => {
@@ -78,7 +78,7 @@ function RouteComponent() {
     return (
         <div>
             <Tabs.Root colorScheme="green" defaultValue="map" size="lg" variant="line" width="full">
-                <Tabs.List margin={3}>
+                <Tabs.List marginBottom="0" marginTop="3" paddingInline={3}>
                     <Tabs.Trigger value="map">
                         <LuMap />
                         Map

@@ -2,6 +2,10 @@
   "mcpServers": {
     "nx-mcp": {
       "url": "http://localhost:9661/sse"
+    },
+    "chakra-ui": {
+      "command": "npx",
+      "args": ["-y", "@chakra-ui/react-mcp"]
     }
   }
 }

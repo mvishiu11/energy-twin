@@ -2,6 +2,7 @@ import { Accordion, Field, Heading } from "@chakra-ui/react"
 import { LuSun } from "react-icons/lu"
 import { BaseEntityCard, BaseEntityCardProps } from ".."
 import { useSimulationStore } from "../../../../infrastructure/stores/simulationStore"
+import { useEntitiesStore } from "../../../../infrastructure/stores/entitiesStore"
 import { EditableField } from "../../EditableField"
 
 type SolarEntityCardProps = Omit<BaseEntityCardProps, "type"> & {
@@ -24,7 +25,8 @@ export function SolarEntityCard({
     tempCoeff = -0.004,
     noct = 45,
 }: SolarEntityCardProps) {
-    const { updateSolar, isRunning } = useSimulationStore()
+    const { updateSolar } = useEntitiesStore()
+    const { isRunning } = useSimulationStore()
 
     const handleNoOfPanelsChange = (value: string) => {
         if (isNaN(Number(value))) return

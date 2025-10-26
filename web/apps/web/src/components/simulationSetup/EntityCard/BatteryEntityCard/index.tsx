@@ -3,6 +3,7 @@ import { interpolate } from "motion/react"
 import { LuDatabaseZap } from "react-icons/lu"
 import { BaseEntityCard, BaseEntityCardProps } from ".."
 import { useSimulationStore } from "../../../../infrastructure/stores/simulationStore"
+import { useEntitiesStore } from "../../../../infrastructure/stores/entitiesStore"
 import { EditableField } from "../../EditableField"
 
 type BatteryEntityCardProps = Omit<BaseEntityCardProps, "type"> & {
@@ -26,7 +27,8 @@ export function BatteryEntityCard({
     selfDischarge = 0.01,
     initialSoC = 0.5,
 }: BatteryEntityCardProps) {
-    const { updateBattery, isRunning } = useSimulationStore()
+    const { updateBattery } = useEntitiesStore()
+    const { isRunning } = useSimulationStore()
 
     const handleCapacityChange = (value: string) => {
         if (isNaN(Number(value))) return

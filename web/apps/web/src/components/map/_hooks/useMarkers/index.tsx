@@ -1,14 +1,14 @@
 import { ReactNode } from "react"
 import { Marker } from "react-map-gl/mapbox"
 import { useDrawerStore } from "../../../../infrastructure/stores/drawerStore"
-import { useSimulationRuntimeStore } from "../../../../infrastructure/stores/simulationRuntimeStore"
 import {
     type Battery,
     type Building,
     EntityType,
     type Solar,
-    useSimulationStore,
-} from "../../../../infrastructure/stores/simulationStore"
+    useEntitiesStore,
+} from "../../../../infrastructure/stores/entitiesStore"
+import { useSimulationRuntimeStore } from "../../../../infrastructure/stores/simulationRuntimeStore"
 import { SelectedMarker } from "./styles"
 
 type UseMarkersProps = {
@@ -27,7 +27,7 @@ export function useMarkers({ type, component }: UseMarkersProps) {
         updateBuilding,
         setSelectedEntityId,
         selectedEntityId,
-    } = useSimulationStore()
+    } = useEntitiesStore()
 
     const { agentStates } = useSimulationRuntimeStore()
 
