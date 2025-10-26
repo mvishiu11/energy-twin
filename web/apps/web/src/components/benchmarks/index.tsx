@@ -1,8 +1,14 @@
 import { Box, Button, Fieldset, Heading, Input, Progress, Stack, Text } from "@chakra-ui/react"
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import Papa from "papaparse"
-import { useStartSimulation, useStopSimulation } from "../../infrastructure/fetching"
+import {
+    useBlackout,
+    useBreakPanel,
+    useLoadSpike,
+    useStartSimulation,
+    useStopSimulation,
+} from "../../infrastructure/fetching"
 import { useBenchmarkStore } from "../../infrastructure/stores/benchmarkStore"
 import { useEntitiesStore } from "../../infrastructure/stores/entitiesStore"
 import { useForecastStore } from "../../infrastructure/stores/forecastStore"
@@ -52,6 +58,30 @@ export function Benchmarks() {
     const { forecast } = useForecastStore()
     const { mutateAsync: startSimulation, isPending: isStartPending } = useStartSimulation()
     const { mutateAsync: stopSimulation } = useStopSimulation()
+    const [isEventTriggered, setIsEventTriggered] = useState(false)
+    const { mutate: breakPanel } = useBreakPanel()
+    const { mutate: triggerBlackout } = useBlackout()
+    const { mutate: triggerLoadSpike } = useLoadSpike()
+
+    const triggerEvent = useCallback(
+        (type: "batteryBreak" | "blackout" | "loadSpike" | "solarBreak", ticks?: number) => {
+            switch (type) {
+                case "blackout":
+                    triggerBlackout()
+                    break
+                case "loadSpike":
+                    triggerLoadSpike({ name: "BenchmarkBuilding", rate: 2, ticks: ticks ?? 5 })
+                    break
+                case "solarBreak":
+                    breakPanel({ name: "BenchmarkSolar", ticks: ticks ?? 5 })
+                    break
+                case "batteryBreak":
+                    breakPanel({ name: "BenchmarkBattery", ticks: ticks ?? 5 })
+                    break
+            }
+        },
+        [triggerBlackout, triggerLoadSpike, breakPanel],
+    )
 
     const {
         register,
@@ -147,12 +177,27 @@ export function Benchmarks() {
             const progressPercent = Math.min((tickNumber / targetTicks) * 100, 100)
             setProgress(progressPercent)
 
+            if (tickNumber > 200 && !isEventTriggered) {
+                triggerEvent("batteryBreak", 10)
+                console.log("battery break triggered")
+                setIsEventTriggered(true)
+            }
+
             // Stop when target is reached
             if (tickNumber >= targetTicks) {
                 handleBenchmarkComplete()
             }
         }
-    }, [tickNumber, targetTicks, isRunning, setProgress, handleBenchmarkComplete])
+    }, [
+        tickNumber,
+        targetTicks,
+        isRunning,
+        setProgress,
+        handleBenchmarkComplete,
+        isEventTriggered,
+        breakPanel,
+        triggerEvent,
+    ])
 
     const onSubmit = async (data: BenchmarkFormValues) => {
         // Reset chart data before starting
@@ -219,10 +264,10 @@ export function Benchmarks() {
                     sigmaT: weather.sigmaT,
                 },
                 forecast: {
-                    enablePredictive: 0,
+                    enablePredictive: 1,
                     H_hist: 168,
                     H_pred: 4,
-                    replanEvery: 10000000,
+                    replanEvery: 2,
                     epsilonBreak: 1000000.1,
                     useMC: forecast.useMC,
                 },
