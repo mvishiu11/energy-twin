@@ -9,7 +9,7 @@
       "H_pred": 4,
       "replanEvery": 2,
       "epsilonBreak": 20.0,
-      "useMC": 0
+      "enablePredictive": 1
     },
     "weather": {
       "sunriseTick": 6,
