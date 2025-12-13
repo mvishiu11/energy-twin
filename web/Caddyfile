@@ -1,0 +1,29 @@
+{
+	auto_https off
+}
+
+:8080 {
+	root * /app/html
+	file_server
+
+	encode gzip zstd
+
+	@static path /static/*
+	header @static Cache-Control "public, max-age=31536000, immutable"
+	header @static -ETag
+
+	@index path /index.html
+	header @index Cache-Control "no-cache, no-store, must-revalidate"
+	header @index Expires "-1"
+
+	@wellknown path /.well-known/*
+	header @wellknown Content-Type application/json
+
+	# Timeouts and body size
+	request_body {
+		max_size 128KiB
+	}
+	respond /_timeout "Request timed out" 408 {
+		close
+	}
+}
