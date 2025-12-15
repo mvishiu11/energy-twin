@@ -1,0 +1,41 @@
+# Maven
+energy-twin/target/
+energy-twin/pom.xml.tag
+energy-twin/pom.xml.releaseBackup
+energy-twin/pom.xml.versionsBackup
+energy-twin/pom.xml.next
+energy-twin/release.properties
+energy-twin/dependency-reduced-pom.xml
+energy-twin/buildNumber.properties
+energy-twin/.mvn/timing.properties
+
+# JADE runtime files
+energy-twin/*.txt
+energy-twin/APDescription.txt
+energy-twin/MTPs-*.txt
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+

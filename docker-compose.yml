@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # Agent System - JADE Backend
+  agent-system:
+    build:
+      context: ./agent-system
+      dockerfile: Dockerfile
+    container_name: energy-twin-agent-system
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - JAVA_OPTS=-Xms512m -Xmx1024m
+    networks:
+      - energy-twin-network
+
+  # Web Frontend - React App
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: energy-twin-web
+    ports:
+      - "8080:8080"
+    depends_on:
+      - agent-system
+    environment:
+      - VITE_API_URL=http://localhost:8081
+    networks:
+      - energy-twin-network
+
+networks:
+  energy-twin-network:
+    driver: bridge
+
