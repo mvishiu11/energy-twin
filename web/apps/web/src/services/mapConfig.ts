@@ -1,7 +1,7 @@
 export const mapConfig = {
-    longitude: 21.011672545859113,
-    latitude: 52.22010375163748,
-    zoom: 18,
+    longitude: 139.93822816683885,
+    latitude: 37.52328502790239,
+    zoom: 16,
     areaOfInterest: {
         type: "FeatureCollection",
         features: [
